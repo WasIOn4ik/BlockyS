@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: UI_Titles Shared Data
+  m_EditorClassIdentifier: 
+  m_TableCollectionName: UI_Titles
+  m_TableCollectionNameGuidString: 8c87fa0d0590c614c985ca6a5fb8223e
+  m_Entries:
+  - m_Id: 179027529728
+    m_Key: Startup_Btn_Host
+    m_Metadata:
+      m_Items: []
+  - m_Id: 714052947968
+    m_Key: Startup_Btn_Connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1078772846592
+    m_Key: Startup_Btn_Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1196435656704
+    m_Key: Startup_Btn_Credits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1334843494400
+    m_Key: Startup_Btn_Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22389469433856
+    m_Key: Btn_Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 22495233003520
+    m_Key: Connect_Btn_Confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47010176520192
+    m_Key: Connect_AddressPlaceholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47965051768832
+    m_Key: Host_PortPlaceholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50346816655360
+    m_Key: PlayerName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 50943825498112
+    m_Key: Settings_Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 51492083945472
+    m_Key: Settings_Input_PlayerName
+    m_Metadata:
+      m_Items: []
+  - m_Id: 52233825636352
+    m_Key: Btn_Save
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 5759054405587697730
+  references:
+    version: 2
+    RefIds:
+    - rid: 5759054405587697730
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1661199220561
