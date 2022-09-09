@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4250470002488820594}
   - component: {fileID: 7825891178272438890}
   - component: {fileID: 7851740912815535485}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Credits
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 2299624159986955599}
   - component: {fileID: 2062990509949199860}
   - component: {fileID: 1698925779532404489}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,7 +322,7 @@ GameObject:
   - component: {fileID: 2099136246405372906}
   - component: {fileID: 5946962360949311842}
   - component: {fileID: 6465852883366936294}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Connect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -456,7 +456,7 @@ GameObject:
   - component: {fileID: 3881129390934711176}
   - component: {fileID: 6498604278340974252}
   - component: {fileID: 3098787722416858224}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -632,7 +632,7 @@ GameObject:
   - component: {fileID: 8902890739795644634}
   - component: {fileID: 4310836203884264805}
   - component: {fileID: 1812748872834718209}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Settings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -766,7 +766,7 @@ GameObject:
   - component: {fileID: 7301822692022384534}
   - component: {fileID: 6998615841071641864}
   - component: {fileID: 4119975534484626079}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -944,7 +944,7 @@ GameObject:
   - component: {fileID: 4816835912752329902}
   - component: {fileID: 8719580763229236887}
   - component: {fileID: 816622551220746966}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: StartupMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1011,7 +1011,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0.5
+  m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1078,7 +1078,7 @@ GameObject:
   - component: {fileID: 9171674670462022696}
   - component: {fileID: 5682936600148122199}
   - component: {fileID: 5277239347803983681}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1156,7 +1156,7 @@ GameObject:
   - component: {fileID: 915536070702865219}
   - component: {fileID: 5985772425906356980}
   - component: {fileID: 6047901294557550375}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: MenuBackground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1264,7 +1264,7 @@ GameObject:
   - component: {fileID: 9049712718748162304}
   - component: {fileID: 7688487209157295960}
   - component: {fileID: 7235194989407211414}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Host
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1398,7 +1398,7 @@ GameObject:
   - component: {fileID: 4174682233372554330}
   - component: {fileID: 5041744116761090012}
   - component: {fileID: 1567872754452867568}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1571,7 +1571,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4838950429231791018}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Host_Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1611,7 +1611,7 @@ GameObject:
   - component: {fileID: 8733757189096130980}
   - component: {fileID: 9042352085240500783}
   - component: {fileID: 8891016633835065764}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1787,7 +1787,7 @@ GameObject:
   - component: {fileID: 6923927749138407030}
   - component: {fileID: 8242290445369401508}
   - component: {fileID: 5100699518018296686}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Btn_Exit
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -67,6 +67,30 @@ MonoBehaviour:
     m_Key: Btn_Save
     m_Metadata:
       m_Items: []
+  - m_Id: 4132547367751680
+    m_Key: Host_Text_PlayersCount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4132735671029760
+    m_Key: Host_Text_CellsCount
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4132932123840512
+    m_Key: Host_Text_LocalDevice
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4133118409658368
+    m_Key: Host_Text_NetMode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6152002897661952
+    m_Key: W4P_Text_Waiting
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6154418258923520
+    m_Key: Host_Text_LocalPlayers
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

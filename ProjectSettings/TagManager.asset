@@ -8,12 +8,12 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Pawns
   - Water
   - UI
-  - 
-  - 
-  - 
+  - Blocks
+  - WallPlaces
+  - Walls
   - 
   - 
   - 

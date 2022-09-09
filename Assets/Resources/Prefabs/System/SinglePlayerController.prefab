@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7643573439366329030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7643573439366329027}
+  - component: {fileID: 7643573439366329024}
+  - component: {fileID: 7643573439366329025}
+  m_Layer: 2
+  m_Name: SinglePlayerController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7643573439366329027
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7643573439366329030}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.0024224035, y: 3.330049, z: 2.3074422}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7643573439366329024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7643573439366329030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1948e7fecd59d184eb4540e542269b4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hudPrefab: {fileID: 6038861862887020108, guid: 2935b4b80bc384a4687128a7096bec57, type: 3}
+  playerInfo:
+    playerOrder: 0
+    pawn: {fileID: 0}
+    state: 1
+--- !u!114 &7643573439366329025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7643573439366329030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8bf58d778bb0d64c8c51efead152529, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  controllerComponent: {fileID: 7643573439366329024}
+  wallPRedictPrefab: {fileID: 2551518497993276044, guid: 3fe41c151785ffe45a8510ddb7e47de5, type: 3}
+  wallPrefab: {fileID: -605503641063384765, guid: 0f869a31e66743b4ea2318bcfa2a5fbb, type: 3}
+  moveLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  placeLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  bMoveMode: 1

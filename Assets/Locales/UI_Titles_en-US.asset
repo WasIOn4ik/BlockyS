@@ -70,6 +70,30 @@ MonoBehaviour:
     m_Localized: Save
     m_Metadata:
       m_Items: []
+  - m_Id: 4132547367751680
+    m_Localized: Players count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4132735671029760
+    m_Localized: Board size
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4132932123840512
+    m_Localized: One device
+    m_Metadata:
+      m_Items: []
+  - m_Id: 4133118409658368
+    m_Localized: Use network
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6152002897661952
+    m_Localized: Waiting for all players to connect
+    m_Metadata:
+      m_Items: []
+  - m_Id: 6154418258923520
+    m_Localized: Local players
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

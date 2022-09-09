@@ -211,6 +211,13 @@
         "com.unity.searcher": "4.9.2"
       }
     },
+    "com.unity.spesutils": {
+      "version": "https://github.com/WasIOn4ik/SpesUtils.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "f1423069c507dbad1b8e6a811ab3e100e5aa5acd"
+    },
     "com.unity.test-framework": {
       "version": "1.1.31",
       "depth": 0,
