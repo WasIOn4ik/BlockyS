@@ -12,6 +12,8 @@ public class BoardBlock : MonoBehaviour
     public BoardBlock mxDir;
     public BoardBlock mzDir;
 
+    public bool bEmpty = true;
+
     public bool bSelected = false;
 
     public bool bHighlighted = false;

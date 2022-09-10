@@ -14,6 +14,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
     protected InputComponent inputComp;
 
     protected static InGameHUD hud;
+    protected static SinglePlayerController previousLocalController;
 
     [SerializeField] protected PlayerInGameInfo playerInfo = new();
 
@@ -36,27 +37,42 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
     #region IPlayerController
 
-    public void EndTurn(Turn turn)
-    {
-        SpesLogger.Deb("EndTurn");
-        GetPlayerInfo().state = EPlayerState.Waiting;
-        cameraPosition = transform.position;
-        cameraRotation = transform.rotation;
-        GameplayBase.instance.S_EndTurn(this, turn);
-    }
-
     public void StartTurn()
     {
-        SpesLogger.Deb("StartTurn");
+        SpesLogger.Deb("Локальный игрок " + GetPlayerInfo().playerOrder + " начал ход");
+
+        if (previousLocalController)
+            previousLocalController.GetPlayerInfo().state = EPlayerState.Waiting;
+
         GetPlayerInfo().state = EPlayerState.ActivePlayer;
+
         var cam = Camera.main;
+
         cam.transform.SetParent(transform);
         transform.SetPositionAndRotation(cameraPosition, cameraRotation);
         cam.transform.localPosition = Vector3.zero;
         cam.transform.localRotation = Quaternion.identity;
 
-        hud.inputComp = inputComp;
+        hud.SetInputComponent(inputComp);
+        inputComp.turnValid += hud.OnTurnValidationChanged;
+        inputComp.UpdateTurnValid(false);
     }
+
+    public void EndTurn(Turn turn)
+    {
+        SpesLogger.Deb("Локальный игрок " + GetPlayerInfo().playerOrder + " завершил ход");
+
+        previousLocalController = this;
+        GetPlayerInfo().state = EPlayerState.Operator;
+
+        cameraPosition = transform.position;
+        cameraRotation = transform.rotation;
+
+        GameplayBase.instance.S_EndTurn(this, turn);
+
+        inputComp.turnValid -= hud.OnTurnValidationChanged;
+    }
+
 
     public MonoBehaviour GetMono()
     {

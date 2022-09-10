@@ -31,7 +31,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         if (!IsServer)
         {
             hud = Instantiate(hudPrefab);
-            hud.inputComp = inputComp;
+            hud.SetInputComponent(inputComp);
         }
 
         if (IsOwner)
@@ -53,7 +53,11 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     /// <param name="turn"></param>
     public void EndTurn(Turn turn)
     {
+        if (GetPlayerInfo().state != EPlayerState.ActivePlayer)
+            return;
+
         GetPlayerInfo().state = EPlayerState.Waiting;
+        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " завершил ход");
         EndTurnServerRpc(turn);
     }
 
@@ -72,6 +76,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     /// </summary>
     public void StartTurn()
     {
+        SpesLogger.Deb("Начало хода сетевого игрока " + GetPlayerInfo().playerOrder);
         StartTurnClientRpc();
     }
 
@@ -82,13 +87,17 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     [ServerRpc(RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
     public void EndTurnServerRpc(Turn turn)
     {
+        SpesLogger.Deb("Сетевой игрок завершил ход " + GetPlayerInfo().playerOrder);
+        GetPlayerInfo().state = EPlayerState.Operator;
         GameplayBase.instance.S_EndTurn(this, turn);
     }
 
     [ClientRpc(Delivery = RpcDelivery.Reliable)]
     public void StartTurnClientRpc()
     {
+        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " начал ход");
         GetPlayerInfo().state = EPlayerState.ActivePlayer;
+        inputComp.UpdateTurnValid(false);
     }
 
     public void SetPlayerInfo(PlayerInGameInfo inf)

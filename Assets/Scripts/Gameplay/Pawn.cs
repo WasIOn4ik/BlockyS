@@ -17,9 +17,19 @@ public class Pawn : NetworkBehaviour
     private void OnMoved(Point previousValue, Point newValue)
     {
         var arr = GameplayBase.instance.gameboard.blocks;
+        if (previousValue != null)
+        {
+            var prevBlock = arr[previousValue.x, previousValue.y];
+            if (prevBlock)
+            {
+                prevBlock.bEmpty = true;
+            }
+        }
         if (newValue.x < arr.GetLength(0) && newValue.y < arr.GetLength(1))
         {
-            transform.position = arr[newValue.x, newValue.y].transform.position;
+            var newBlock = arr[newValue.x, newValue.y];
+            newBlock.bEmpty = false;
+            transform.position = newBlock.transform.position;
         }
         else
         {

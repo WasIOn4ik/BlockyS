@@ -117,6 +117,12 @@ public class GameplayBase : NetworkBehaviour
     /// <param name="turn"></param>
     public void S_EndTurn(IPlayerController controller, Turn turn)
     {
+        if (activePlayer != controller.GetPlayerInfo().playerOrder)
+        {
+            SpesLogger.Warning("ѕолучен ход от игрока" + controller.GetPlayerInfo().playerOrder + " но сейчас не его ход");
+            return;
+        }
+
         switch (turn.type)
         {
             case ETurnType.Move:
@@ -270,7 +276,37 @@ public class GameplayBase : NetworkBehaviour
     /// <returns></returns>
     public bool CheckMove(Pawn pawn, Turn turn)
     {
-        return true;
+        int x = turn.pos.x;
+        int y = turn.pos.y;
+
+        int curX = pawn.block.Value.x;
+        int curY = pawn.block.Value.y;
+
+        var block = gameboard.blocks[curX, curY];
+
+        if (!gameboard.blocks[x, y].bEmpty)
+            return false;
+
+        if (Mathf.Abs(x - curX) + Mathf.Abs(y - curY) > 1)
+            return false;
+
+        if (x > curX)
+        {
+            return block.xDir;
+        }
+        else if (x < curX)
+        {
+            return block.mxDir;
+        }
+        else if (y > curY)
+        {
+            return block.zDir;
+        }
+        else if (y < curY)
+        {
+            return block.mzDir;
+        }
+        return false;
     }
 
     public bool CheckPlace(Turn turn)

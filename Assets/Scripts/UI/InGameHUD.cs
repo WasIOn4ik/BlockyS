@@ -6,38 +6,76 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Animator))]
 public class InGameHUD : MonoBehaviour
 {
+    #region Variables
+
+    [Header("Components")]
+    [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - создание стены")]
     [SerializeField] protected Image placeWallButtonImage;
 
-    [SerializeField] protected Sprite cancelSprite;
+    [Tooltip(" нопка подтверждени€ хода")]
+    [SerializeField] protected Button confirmTurnButton;
 
-    public InputComponent inputComp;
+    [Tooltip("»конка на кнопке подтверждени€ хода")]
+    [SerializeField] protected Image confirmTurnImage;
+
+    [Header("Preferences")]
+    [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - движение пешки")]
+    [SerializeField] protected Sprite moveTurnSprite;
+
+    protected InputComponent inputComp;
 
     protected Sprite buildWallSprite;
 
     protected Animator animator;
+
+    #endregion
+
+    #region UnityCallbacks
 
     public void Awake()
     {
         buildWallSprite = placeWallButtonImage.sprite;
         animator = GetComponent<Animator>();
     }
+
+    #endregion
+
+    #region UIFUnctions
+
     public void OnPlaceWallClicked()
     {
-        inputComp.bMoveMode = !inputComp.bMoveMode;
+        inputComp.SetMoveMode(!inputComp.GetMoveMode());
 
-        placeWallButtonImage.sprite = inputComp.bMoveMode ? buildWallSprite : cancelSprite;
+        placeWallButtonImage.sprite = inputComp.GetMoveMode() ? buildWallSprite : moveTurnSprite;
 
-        animator.Play(inputComp.bMoveMode ? "HideConfirm" : "ShowConfirm");
+        animator.Play(inputComp.GetMoveMode() ? "HideConfirmTurn" : "ShowConfirmTurn");
     }
 
     public void OnConfirmTurnClicked()
     {
         inputComp.ConfirmTurn();
-        animator.Play("HideConfirm");
+        animator.Play("HideConfirmTurn");
     }
 
     public void OnDestroyWallClicked()
     {
 
     }
+
+    #endregion
+
+    #region Functions
+
+    public void OnTurnValidationChanged(bool b)
+    {
+        confirmTurnButton.interactable = b;
+        SpesLogger.Detail(b.ToString());
+    }
+
+    public void SetInputComponent(InputComponent comp)
+    {
+        inputComp = comp;
+    }
+
+    #endregion
 }

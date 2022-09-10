@@ -6,26 +6,49 @@ public class InputComponent : MonoBehaviour
 {
     #region Variables
 
+    public delegate void Function(bool b);
+    public event Function turnValid;
+
+    [Header("Components")]
     [SerializeField] protected MonoBehaviour controllerComponent;
     [SerializeField] protected Transform wallPRedictPrefab;
     [SerializeField] protected BoardWall wallPrefab;
 
+    [Header("Preferences")]
     [SerializeField] protected LayerMask moveLayer;
     [SerializeField] protected LayerMask placeLayer;
 
-    public IPlayerController controller;
+    protected bool bMoveMode = true;
 
-    public bool bMoveMode = true;
+    protected IPlayerController controller;
 
     protected Vector3 startPos;
-    protected float holdDuration = 0.3f;
 
+    /// <summary>
+    /// Вектор движения камеры "Вперед"
+    /// </summary>
     protected Vector3 forwardDir;
+    /// <summary>
+    /// Вектор движения камеры "Вправо"
+    /// </summary>
     protected Vector3 rightDir;
 
+    /// <summary>
+    /// Визуальное представление постройки стенки до подтверждения хода
+    /// </summary>
     protected Transform wallPredict;
-    protected ETurnType placeType = ETurnType.PlaceXForward;
+    /// <summary>
+    /// Кэш хода
+    /// </summary>
     protected Turn turn;
+
+    /// <summary>
+    /// Текущее расположение стенки, нужно для реализации поворота
+    /// </summary>
+    protected ETurnType placeType = ETurnType.PlaceXForward;
+    /// <summary>
+    /// Предыдущий плейсхолдер, нужен для реализации поворота по повторному нажатию
+    /// </summary>
     protected WallPlaceholder previousClickedPlaceholder;
 
     #endregion
@@ -50,7 +73,7 @@ public class InputComponent : MonoBehaviour
 
     public void Update()
     {
-        if (controller.GetPlayerInfo().state != EPlayerState.ActivePlayer)
+        if (controller.GetPlayerInfo().state == EPlayerState.Waiting)
             return;
 
 #if UNITY_ANDROID
@@ -81,7 +104,7 @@ public class InputComponent : MonoBehaviour
 
                     if (bb)
                     {
-                        SpesLogger.Warning(bb.name);
+                        SpesLogger.Deb("Нажатие на блок: " + bb.name);
 
                         //Начало хода за пешку
                         if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
@@ -97,8 +120,7 @@ public class InputComponent : MonoBehaviour
                             turn = new();
                             turn.type = ETurnType.Move;
                             turn.pos = bb.coords;
-
-                            controller.EndTurn(turn);
+                            ConfirmTurn();
                         }
                     }
                 }
@@ -127,8 +149,11 @@ public class InputComponent : MonoBehaviour
                         {
                             SpesLogger.Detail("Ход не является допустимым");
                             turn = new();
+                            UpdateTurnValid(false);
+                            wallPredict.gameObject.SetActive(false);
                             return;
                         }
+                        UpdateTurnValid(true);
 
                         wallPredict.gameObject.SetActive(true);
                         wallPredict.position = wph.transform.position;
@@ -160,13 +185,30 @@ public class InputComponent : MonoBehaviour
     public void ConfirmTurn()
     {
         controller.EndTurn(turn);
+        SetMoveMode(true);
+    }
+
+    public void UpdateTurnValid(bool state)
+    {
+        if (turnValid != null)
+            turnValid(state);
+    }
+
+    public void SetMoveMode(bool newMoveMode)
+    {
+        bMoveMode = newMoveMode;
+
         wallPredict.gameObject.SetActive(false);
-        bMoveMode = true;
 
         if (BoardBlock.selectedBlock)
         {
             BoardBlock.selectedBlock.UnHighlightAround();
         }
+    }
+
+    public bool GetMoveMode()
+    {
+        return bMoveMode;
     }
 
     #endregion
