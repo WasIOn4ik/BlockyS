@@ -124,6 +124,7 @@ public class GameplayBase : NetworkBehaviour
 
                 if (!CheckMove(pawn, turn))
                 {
+                    SpesLogger.Warning("Был совершен некорректный ход при движении пешки, ход возвращен игроку" + controller.GetPlayerInfo().playerOrder);
                     controller.StartTurn();
                     return;
                 }
@@ -141,15 +142,32 @@ public class GameplayBase : NetworkBehaviour
                 break;
 
             case ETurnType.PlaceXForward:
+                if (!CheckPlace(turn))
+                {
+                    SpesLogger.Warning("Был совершен некорректный ход при создании стенки, ход возвращен игроку" + controller.GetPlayerInfo().playerOrder);
+                    controller.StartTurn();
+                    return;
+                }
                 var wph = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-                Instantiate(wallPrefab, wph.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.instance.transform);
+                var wall = Instantiate(wallPrefab, wph.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.instance.transform);
+                wall.NetworkObject.Spawn();
+                wall.coords.Value = turn;
 
                 break;
             case ETurnType.PlaceZForward:
+                if (!CheckPlace(turn))
+                {
+                    SpesLogger.Warning("Был совершен некорректный ход при создании стенки, ход возвращен игроку" + controller.GetPlayerInfo().playerOrder);
+                    controller.StartTurn();
+                    return;
+                }
                 var wphZ = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-                Instantiate(wallPrefab, wphZ.transform.position, Quaternion.identity, GameplayBase.instance.transform);
+                var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.instance.transform);
+                wallZ.NetworkObject.Spawn();
+                wallZ.coords.Value = turn;
+
                 break;
             case ETurnType.DestroyXWall:
                 break;
@@ -250,11 +268,34 @@ public class GameplayBase : NetworkBehaviour
     /// <param name="pawn"></param>
     /// <param name="turn"></param>
     /// <returns></returns>
-    protected bool CheckMove(Pawn pawn, Turn turn)
+    public bool CheckMove(Pawn pawn, Turn turn)
     {
         return true;
     }
 
+    public bool CheckPlace(Turn turn)
+    {
+        if (!gameboard.wallsPlaces[turn.pos.x, turn.pos.y].bEmpty)
+            return false;
+
+        switch (turn.type)
+        {
+            case ETurnType.PlaceXForward:
+                if (gameboard.blocks[turn.pos.x, turn.pos.y].zDir && gameboard.blocks[turn.pos.x + 1, turn.pos.y].zDir)
+                {
+                    return true;
+                }
+                break;
+            case ETurnType.PlaceZForward:
+                if (gameboard.blocks[turn.pos.x, turn.pos.y].xDir && gameboard.blocks[turn.pos.x, turn.pos.y + 1].xDir)
+                {
+                    return true;
+                }
+                break;
+        }
+        return false;
+
+    }
     protected void S_HandleWaitingMenu()
     {
         if (IsServer)

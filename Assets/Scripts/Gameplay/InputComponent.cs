@@ -123,9 +123,16 @@ public class InputComponent : MonoBehaviour
                         turn.type = placeType;
                         turn.pos = wph.coords;
 
+                        if (!GameplayBase.instance.CheckPlace(turn))
+                        {
+                            SpesLogger.Detail("Ход не является допустимым");
+                            turn = new();
+                            return;
+                        }
+
                         wallPredict.gameObject.SetActive(true);
                         wallPredict.position = wph.transform.position;
-                        wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 90f, 0) : Quaternion.identity;
+                        wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 90, 0);
                     }
                 }
             }

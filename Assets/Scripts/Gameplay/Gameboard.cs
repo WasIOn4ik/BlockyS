@@ -21,6 +21,8 @@ public class Gameboard
 
     public WallPlaceholder[,] wallsPlaces;
 
+    public int halfExtention;
+
     #endregion
 
     #region Functions
@@ -31,6 +33,7 @@ public class Gameboard
     /// <param name="halfExtent"> Разме поля от спавна игрока до центра </param>
     public void Initialize(int halfExtent)
     {
+        halfExtention = halfExtent;
         int size = halfExtent * 2 + 1;
         blocks = new BoardBlock[size, size];
         wallsPlaces = new WallPlaceholder[size - 1, size - 1];
