@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2286906215338914207}
   - component: {fileID: 6010832559323360145}
   - component: {fileID: 671335786993086212}
+  - component: {fileID: 3210103588677655027}
   m_Layer: 0
   m_Name: GameBase
   m_TagString: Untagged
@@ -49,6 +50,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   menusLibrary: {fileID: 11400000, guid: b3969f9d8f134c149822ad56c0ecb2f5, type: 2}
+  skins: {fileID: 11400000, guid: a8cbca5e0bceaa44da1b47ca741ce5f8, type: 2}
   bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:
@@ -168,3 +170,27 @@ MonoBehaviour:
     turnTime: 0
     reconnectionTime: 0
   localPlayers: 0
+--- !u!114 &3210103588677655027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2286906215338914200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f80defae77adacd4c8a53d26da3b425d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  preferencesString: Vergalia_Prefs
+  progressString: Vergalia_Progress
+  prefs:
+    playerName: 
+    masterVolume: 1
+    musicVolume: 1
+    selectedBoardSkin: 0
+    selectedPawnSkin: 0
+  progress:
+    availableBoardSkins: 
+    availablePawnSkins: 
+    coins: 0

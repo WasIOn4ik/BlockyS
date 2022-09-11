@@ -15,19 +15,51 @@ public class SettingsMenu : MenuBase
 
     #endregion
 
+    #region UnityCallbacks
+
+    public override void Awake()
+    {
+        base.Awake();
+        GameStorage storage = GameBase.storage;
+        int languageIndex = 0;
+        languageDD.ClearOptions();
+        locales.Clear();
+        List<string> strings = new();
+        foreach (var loc in LocalizationSettings.Instance.GetAvailableLocales().Locales)
+        {
+            strings.Add(loc.LocaleName);
+            locales.Add(loc.Identifier.Code);
+        }
+        languageDD.AddOptions(strings);
+
+        playerNameInput.text = storage.prefs.playerName;
+
+        for (int i = 0; i < locales.Count; i++)
+        {
+            if (locales[i] == LocalizationSettings.Instance.GetSelectedLocale().Identifier.Code)
+            {
+                languageIndex = i;
+                break;
+            }
+        }
+        languageDD.value = languageIndex;
+    }
+
+    #endregion
+
     #region UIFunctions
 
     public void OnLanguageChanged()
     {
-        var settings = LocalizationSettings.Instance;
         string code = locales[languageDD.value];
-        var locale = settings.GetAvailableLocales().GetLocale(code);
-        settings.SetSelectedLocale(locale);
+        GameBase.instance.ApplyLanguage(code);
     }
 
     public void OnSaveClicked()
     {
-
+        var storage = GameBase.storage;
+        storage.prefs.playerName = playerNameInput.text;
+        storage.SavePrefs();
     }
 
     #endregion

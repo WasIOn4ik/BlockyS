@@ -16,7 +16,6 @@ public class MainMenuScript : MenuBase
 
     #endregion
 
-
     #region UIFunctions
 
     public void OnConnectClicked()

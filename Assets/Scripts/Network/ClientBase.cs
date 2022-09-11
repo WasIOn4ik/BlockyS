@@ -65,6 +65,12 @@ public class ClientBase : MonoBehaviour
         networkManager.StartClient();
     }
 
+    public void ClearAll()
+    {
+        clientInfo = new();
+        networkManager.Shutdown();
+    }
+
     protected void SetupManagerCallbacks()
     {
         networkManager.OnClientConnectedCallback += OnConnected;

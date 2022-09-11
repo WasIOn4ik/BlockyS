@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ConnectMenu : MenuBase
 {
-    #region Variables
+    #region UIFunctions
 
     [SerializeField] private TMPro.TMP_InputField address;
     public void OnConfrimConnectClicked()

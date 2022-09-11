@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 350215284e12a7b4d985d27161974002, type: 3}
+  m_Name: Skins
+  m_EditorClassIdentifier: 
+  boardSkins:
+  - name: Candy
+    variation1Prefab: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+    variation2Prefab: {fileID: 0}
+    variation3Prefab: {fileID: 0}
+    blocks: []
+  - name: Fruit
+    variation1Prefab: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+    variation2Prefab: {fileID: 0}
+    variation3Prefab: {fileID: 0}
+    blocks: []
+  - name: Desert
+    variation1Prefab: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+    variation2Prefab: {fileID: 0}
+    variation3Prefab: {fileID: 0}
+    blocks: []
+  - name: Forest
+    variation1Prefab: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+    variation2Prefab: {fileID: 0}
+    variation3Prefab: {fileID: 0}
+    blocks: []
+  pawnSkins:
+  - name: Default
+    mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+    mat: {fileID: 0}
+  - name: Quad
+    mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+    mat: {fileID: 0}
+  - name: Tower
+    mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+    mat: {fileID: 0}

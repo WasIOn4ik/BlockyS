@@ -127,6 +127,12 @@ public class ServerBase : MonoBehaviour
         networkManager.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
 
+    public void ClearAll()
+    {
+        clients.Clear();
+        networkManager.Shutdown();
+    }
+
     protected void SetupManagerCallbacks()
     {
         networkManager.OnClientConnectedCallback += OnConnected;
@@ -149,7 +155,6 @@ public class ServerBase : MonoBehaviour
             SpesLogger.Warning("ѕопытка прив€зки к SceneManager, который не существует");
         }
     }
-
 
     #endregion
 
