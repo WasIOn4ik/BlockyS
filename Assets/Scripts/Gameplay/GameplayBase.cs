@@ -137,13 +137,12 @@ public class GameplayBase : NetworkBehaviour
 
                 var block = gameboard.blocks[turn.pos.x, turn.pos.y];
 
-                pawn.transform.position = block.transform.position;
-
                 pawn.block.Value = block.coords;
 
                 if (pawn.block.Value.x == GameBase.server.prefs.boardHalfExtent && pawn.block.Value.y == GameBase.server.prefs.boardHalfExtent)
                 {
-                    GameFinishedClientRpc(controller.GetPlayerInfo().playerOrder);
+                    SpesLogger.Detail("Игра завершена, пешка входит в финальную клетку");
+                    return;
                 }
                 break;
 
@@ -254,7 +253,7 @@ public class GameplayBase : NetworkBehaviour
     /// <returns></returns>
     protected Pawn SpawnPawn(int playerOrder, BoardBlock block)
     {
-        Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.identity);
+        Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.Euler(0, playersStartRotation[playerOrder].y, 0));
         newPawn.name = "Pawn_" + playerOrder;
 
         newPawn.NetworkObject.SpawnWithOwnership(ordersToNetIDs[playerOrder]);
@@ -319,19 +318,35 @@ public class GameplayBase : NetworkBehaviour
             case ETurnType.PlaceXForward:
                 if (gameboard.blocks[turn.pos.x, turn.pos.y].zDir && gameboard.blocks[turn.pos.x + 1, turn.pos.y].zDir)
                 {
-                    return true;
+                    return CheckDestination(turn);
                 }
                 break;
             case ETurnType.PlaceZForward:
                 if (gameboard.blocks[turn.pos.x, turn.pos.y].xDir && gameboard.blocks[turn.pos.x, turn.pos.y + 1].xDir)
                 {
-                    return true;
+                    return CheckDestination(turn);
                 }
                 break;
         }
         return false;
 
     }
+
+    public bool CheckDestination(Turn turn)
+    {
+        foreach (var pl in players)
+        {
+            var pawn = pl.GetPlayerInfo().pawn;
+
+            if (!gameboard.HasPath(pawn.block.Value, turn.pos, turn.type))
+            {
+                SpesLogger.Deb("Не найден путь от игрока" + pl.GetPlayerInfo().playerOrder + " до финиша");
+                return false;
+            }
+        }
+        return true;
+    }
+
     protected void S_HandleWaitingMenu()
     {
         if (IsServer)

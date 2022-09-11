@@ -19,6 +19,8 @@ public class Gameboard
 
     public BoardBlock[,] blocks;
 
+    public BoardBlock finish;
+
     public WallPlaceholder[,] wallsPlaces;
 
     public int halfExtention;
@@ -62,7 +64,73 @@ public class Gameboard
                 }
             }
         }
+        finish = blocks[halfExtent, halfExtent];
         GenConnections(halfExtent);
+    }
+
+    public bool HasPath(Point pawnPos, Point includeWallPredict, ETurnType type)
+    {
+        BoardBlock start = blocks[pawnPos.x, pawnPos.y];
+        bool xForward = type == ETurnType.PlaceXForward;
+
+        List<BoardBlock> visited = new();
+        Stack<BoardBlock> frontier = new Stack<BoardBlock>();
+        frontier.Push(start);
+
+
+        while (frontier.Count > 0)
+        {
+            var current = frontier.Pop();
+            visited.Add(current);
+
+            if (current == finish)
+                return true;
+
+            var neighbours = GetNeighbours(current, includeWallPredict, xForward);
+            foreach (var neighbour in neighbours)
+                if (!visited.Contains(neighbour))
+                    frontier.Push(neighbour);
+        }
+
+        return false;/*
+
+        int xLen = blocks.GetLength(0);
+        int yLen = blocks.GetLength(1);
+
+        Point[,] arr = new Point[xLen, yLen];
+
+        for (int x = 0; x < xLen; x++)
+        {
+            for (int y = 0; y < yLen; y++)
+            {
+                arr[x, y] = blocks[x, y].coords;
+            }
+        }*/
+
+    }
+
+    public List<BoardBlock> GetNeighbours(BoardBlock block, Point wall, bool xForward)
+    {
+        List<BoardBlock> neighbours = new();
+
+        if (block.xDir
+            && (xForward || block.coords.x != wall.x || (block.coords.y != wall.y && block.coords.y != wall.y + 1)))
+            neighbours.Add(block.xDir);
+
+        if (block.mxDir
+            && (xForward || block.coords.x != wall.x + 1 || (block.coords.y != wall.y && block.coords.y != wall.y + 1)))
+            neighbours.Add(block.mxDir);
+
+        if (block.zDir
+            && (!xForward || block.coords.y != wall.y || (block.coords.x != wall.x && block.coords.x != wall.x + 1)))
+            neighbours.Add(block.zDir);
+
+        if (block.mzDir
+            && (!xForward || block.coords.y != wall.y + 1 || (block.coords.x != wall.x && block.coords.x != wall.x + 1)))
+            neighbours.Add(block.mzDir);
+
+        return neighbours;
+
     }
 
     /// <summary>
@@ -100,6 +168,29 @@ public class Gameboard
             }
         }
     }
+    /*
+        protected Node DFS(Node first, Node target)
+        {
+            List<Node> visited = new List<Node>();
+            Stack<Node> frontier = new Stack<Node>();
+            frontier.Push(first);
+
+            while (frontier.Count > 0)
+            {
+                var current = frontier.Pop();
+                visited.Add(current);
+
+                if (current == target)
+                    return Node;
+
+                var neighbours = current.GenerateNeighbours();
+                foreach (var neighbour in neighbours)
+                    if (!visited.Contains(neighbour))
+                        frontier.Push(neighbour);
+            }
+
+            return default;
+        }*/
 
     #endregion
 }

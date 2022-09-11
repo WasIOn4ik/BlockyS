@@ -46,6 +46,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hudPrefab: {fileID: 6038861862887020108, guid: 2935b4b80bc384a4687128a7096bec57, type: 3}
+  cameraHeight: 3
+  cameraBackwardOffset: -2
+  cameraMoveDuration: 4
   playerInfo:
     playerOrder: 0
     pawn: {fileID: 0}
@@ -71,4 +74,3 @@ MonoBehaviour:
   placeLayer:
     serializedVersion: 2
     m_Bits: 128
-  bMoveMode: 1

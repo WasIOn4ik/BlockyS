@@ -6,17 +6,24 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 {
     #region Variables
 
-    [SerializeField] InGameHUD hudPrefab;
+    [SerializeField] protected InGameHUD hudPrefab;
+    [SerializeField] protected float cameraHeight;
+    [SerializeField] protected float cameraBackwardOffset;
+    [SerializeField] protected float cameraMoveDuration;
 
     protected Vector3 cameraPosition;
     protected Quaternion cameraRotation;
 
     protected InputComponent inputComp;
 
+    [SerializeField] protected PlayerInGameInfo playerInfo = new();
+
+    #endregion
+
+    #region StaticVariables
+
     protected static InGameHUD hud;
     protected static SinglePlayerController previousLocalController;
-
-    [SerializeField] protected PlayerInGameInfo playerInfo = new();
 
     #endregion
 
@@ -49,11 +56,14 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         var cam = Camera.main;
 
         cam.transform.SetParent(transform);
-        transform.SetPositionAndRotation(cameraPosition, cameraRotation);
-        cam.transform.localPosition = Vector3.zero;
-        cam.transform.localRotation = Quaternion.identity;
+        //transform.SetPositionAndRotation(cameraPosition, cameraRotation);
+        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * cameraBackwardOffset + Vector3.up * cameraHeight;
+        transform.SetPositionAndRotation(pos, cameraRotation);
+
+        StartCoroutine(Animate(cam));
 
         hud.SetInputComponent(inputComp);
+        hud.ToDefault();
         inputComp.turnValid += hud.OnTurnValidationChanged;
         inputComp.UpdateTurnValid(false);
     }
@@ -66,7 +76,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         GetPlayerInfo().state = EPlayerState.Operator;
 
         cameraPosition = transform.position;
-        cameraRotation = transform.rotation;
+        //cameraRotation = transform.rotation;
 
         GameplayBase.instance.S_EndTurn(this, turn);
 
@@ -87,6 +97,20 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
     public void SetPlayerInfo(PlayerInGameInfo inf)
     {
         playerInfo = inf;
+    }
+
+    protected IEnumerator Animate(Camera cam)
+    {
+        float time = Time.deltaTime;
+        while (cam.transform.localPosition.magnitude > 0.005f)
+        {
+            cam.transform.localPosition = Vector3.Lerp(cam.transform.localPosition, Vector3.zero, time / cameraMoveDuration);
+            cam.transform.localRotation = Quaternion.Lerp(cam.transform.localRotation, Quaternion.identity, time / cameraMoveDuration);
+
+            time += Time.deltaTime;
+
+            yield return null;
+        }
     }
 
     #endregion

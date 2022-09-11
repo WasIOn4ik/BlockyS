@@ -77,5 +77,17 @@ public class InGameHUD : MonoBehaviour
         inputComp = comp;
     }
 
+    public void ToDefault()
+    {
+        if (!inputComp.GetMoveMode())
+        {
+            inputComp.SetMoveMode(true);
+
+            placeWallButtonImage.sprite = buildWallSprite;
+
+            animator.Play("HideConfirmTurn");
+        }
+    }
+
     #endregion
 }

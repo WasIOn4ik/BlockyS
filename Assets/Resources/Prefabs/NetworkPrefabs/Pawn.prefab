@@ -144,8 +144,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcd54459e73f50d43b32c7fcc2b75feb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  jumpHeight: 1
+  animationTime: 4
   playerOrder: 0
-  block: {fileID: 0}
+  block:
+    m_InternalValue:
+      x: 0
+      y: 0
 --- !u!114 &3377158847296592827
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,8 +6,19 @@ using System;
 
 public class Pawn : NetworkBehaviour
 {
+    #region Variables
+
+    [Header("Preferences")]
+    [SerializeField] protected float jumpHeight;
+    [SerializeField] protected float animationTime;
+
+    [Header("InGame data")]
     public int playerOrder;
     public NetworkVariable<Point> block;
+
+    #endregion
+
+    #region UnityCallbacks
 
     public void Awake()
     {
@@ -29,11 +40,55 @@ public class Pawn : NetworkBehaviour
         {
             var newBlock = arr[newValue.x, newValue.y];
             newBlock.bEmpty = false;
-            transform.position = newBlock.transform.position;
+            StartCoroutine(Animate(newBlock));
+            //transform.position = newBlock.transform.position;
         }
         else
         {
             SpesLogger.Error("¬ыход за пределы карты при обновлении block в Pawn: " + name);
         }
     }
+
+    #endregion 
+
+    #region Functions
+
+    public IEnumerator Animate(BoardBlock point)
+    {
+        float time = Time.deltaTime;
+
+        Vector3 targetPos = point.transform.position;
+
+        float distance = (transform.position - targetPos).magnitude;
+
+        float sinus = 0.0f;
+
+        float multiplier;
+
+        while ((transform.position - targetPos).magnitude > 0.01f)
+        {
+            time += Time.deltaTime;
+            multiplier = time / animationTime;
+
+            Vector3 zeroedYCurrent = transform.position;
+            zeroedYCurrent.y = targetPos.y;
+
+            sinus = Mathf.Lerp(sinus, 1, multiplier * distance);
+
+            transform.position = Vector3.Lerp(zeroedYCurrent, targetPos, multiplier)
+                + (Vector3.up * (jumpHeight * Mathf.Sin(Mathf.PI * sinus)));
+
+            yield return null;
+        }
+
+        if (IsServer)
+        {
+            if (block.Value.x == GameBase.server.prefs.boardHalfExtent && block.Value.y == GameBase.server.prefs.boardHalfExtent)
+            {
+                GameplayBase.instance.GameFinishedClientRpc(playerOrder);
+            }
+        }
+    }
+
+    #endregion
 }
