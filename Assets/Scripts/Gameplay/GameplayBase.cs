@@ -6,6 +6,24 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[Serializable]
+public struct PlayerCosmetic : IEquatable<PlayerCosmetic>, INetworkSerializable
+{
+    public int pawnSkinID;
+    public int boardSkinID;
+
+    public bool Equals(PlayerCosmetic other)
+    {
+        return pawnSkinID == other.pawnSkinID && boardSkinID == other.boardSkinID;
+    }
+
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        serializer.SerializeValue(ref pawnSkinID);
+        serializer.SerializeValue(ref boardSkinID);
+    }
+}
+
 public class GameplayBase : NetworkBehaviour
 {
     #region Variables
@@ -79,8 +97,14 @@ public class GameplayBase : NetworkBehaviour
             ordersToNetIDs.Add(players.Count, clientID);
             var player = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab);
             player.NetworkObject.SpawnAsPlayerObject(clientID);
+            player.cosmetic.OnValueChanged += S_UpdateSkins;
         }
         S_HandleWaitingMenu();
+    }
+
+    private void S_UpdateSkins(PlayerCosmetic previousValue, PlayerCosmetic newValue)
+    {
+        UpdateSkinsClientRpc(GetCosmetics());
     }
 
     public override void OnNetworkSpawn()
@@ -354,6 +378,7 @@ public class GameplayBase : NetworkBehaviour
             if (players.Count == GameBase.server.prefs.maxPlayers)
             {
                 ShowWaitingScreenClientRpc(false);
+                UpdateSkinsClientRpc(GetCosmetics());
                 players[0].StartTurn();
             }
             else
@@ -363,9 +388,34 @@ public class GameplayBase : NetworkBehaviour
         }
     }
 
+    protected PlayerCosmetic[] GetCosmetics()
+    {
+        List<PlayerCosmetic> list = new();
+        foreach (var pl in players)
+        {
+            list.Add(pl.GetCosmetic());
+        }
+        return list.ToArray();
+    }
+
     #endregion
 
     #region RPCs
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void UpdateSkinsClientRpc(PlayerCosmetic[] skins)
+    {
+        gameboard.UpdateSkins(skins);
+
+        if (IsServer)
+        {
+            for (int i = 0; i < skins.Length; i++)
+            {
+                players[i].GetPlayerInfo().pawn.SetSkinClientRpc(skins[i].pawnSkinID);
+            }
+        }
+
+    }
 
     [ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
     public void RequestInitializeServerRpc(ServerRpcParams param = default)
@@ -373,7 +423,6 @@ public class GameplayBase : NetworkBehaviour
         ClientRpcParams cParams = new();
         cParams.Send.TargetClientIds = new ulong[] { param.Receive.SenderClientId };
         InitializeClientRpc(GameBase.server.prefs.boardHalfExtent, cParams);
-
     }
 
     [ClientRpc(Delivery = RpcDelivery.Reliable)]

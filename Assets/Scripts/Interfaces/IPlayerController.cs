@@ -11,4 +11,6 @@ public interface IPlayerController
     public PlayerInGameInfo GetPlayerInfo();
 
     public void SetPlayerInfo(PlayerInGameInfo inf);
+
+    public PlayerCosmetic GetCosmetic();
 }

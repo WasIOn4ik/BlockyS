@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class BoardBlock : MonoBehaviour
 {
-    [SerializeField] protected List<MeshRenderer> meshes;
+    [SerializeField] protected MeshRenderer mesh;
+    [SerializeField] protected MeshFilter filter;
 
     public Point coords;
     public BoardBlock xDir;
@@ -18,19 +19,13 @@ public class BoardBlock : MonoBehaviour
 
     public bool bHighlighted = false;
 
-    protected List<Color> colors = new();
+    protected Color color = new();
 
     public static BoardBlock selectedBlock = null;
 
     public void Awake()
     {
-        foreach (var m in meshes)
-        {
-            foreach (var mat in m.materials)
-            {
-                colors.Add(mat.color);
-            }
-        }
+        color = mesh.material.color;
     }
 
     public void HighlightAround()
@@ -72,24 +67,21 @@ public class BoardBlock : MonoBehaviour
     {
         bHighlighted = true;
 
-        foreach (var m in meshes)
-        {
-            m.material.color = Color.green;
-        }
+        mesh.material.color = Color.green;
     }
 
     public void UnHighlightSelf()
     {
         bHighlighted = false;
 
-        int ind = 0;
-        for (int i = 0; i < meshes.Count; i++)
-        {
-            for (int j = 0; j < meshes[i].materials.Length; j++)
-            {
-                meshes[i].materials[j].color = colors[ind];
-                ind++;
-            }
-        }
+        mesh.material.color = color;
+    }
+
+    public void SetSkin(int ind)
+    {
+        var skin = GameBase.instance.skins.boardSkins[ind];
+        filter.mesh = skin.blocks[0];
+        mesh.material = skin.mat;
+        color = mesh.material.color;
     }
 }

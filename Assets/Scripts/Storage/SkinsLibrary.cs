@@ -4,22 +4,19 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public struct BlockVariation
-{
-    public Mesh mesh;
-    public Material mat;
-}
-
-[Serializable]
 public struct SkinDescription
 {
     public string name;
 
-    public Mesh variation1Prefab;
-    public Mesh variation2Prefab;
-    public Mesh variation3Prefab;
+    public Mesh variation1Mesh;
+    public Mesh variation2Mesh;
+    public Mesh variation3Mesh;
 
-    public List<BlockVariation> blocks;
+    public Mesh wallMesh;
+
+    public Material mat;
+
+    public List<Mesh> blocks;
 }
 
 [Serializable]
@@ -28,6 +25,9 @@ public struct PawnDescription
     public string name;
     public Mesh mesh;
     public Material mat;
+    public Vector3 rotation;
+    public Vector3 position;
+    public float scale;
 }
 
 [CreateAssetMenu(menuName = "Spes/Skins")]

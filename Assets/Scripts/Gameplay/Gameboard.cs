@@ -68,6 +68,56 @@ public class Gameboard
         GenConnections(halfExtent);
     }
 
+    public void UpdateSkins(PlayerCosmetic[] skins)
+    {
+        int count = skins.Length;
+
+        switch (count)
+        {
+            case 2:
+                foreach (var bl in blocks)
+                {
+                    if (!bl)
+                        continue;
+
+                    if (bl.coords.y <= halfExtention)
+                    {
+                        bl.SetSkin(skins[0].boardSkinID);
+                    }
+                    else
+                    {
+                        bl.SetSkin(skins[1].boardSkinID);
+                    }
+                }
+                break;
+            case 3:
+                foreach (var bl in blocks)
+                {
+                    if (!bl)
+                        continue;
+
+                    if (bl.coords.x > bl.coords.y && bl.coords.y < halfExtention)
+                    {
+                        bl.SetSkin(skins[0].boardSkinID);
+                    }
+                    else if (bl.coords.x > (blocks.GetLength(1) - bl.coords.y) && bl.coords.y >= halfExtention)
+                    {
+                        bl.SetSkin(skins[1].boardSkinID);
+                    }
+                    else
+                    {
+                        bl.SetSkin(skins[2].boardSkinID);
+                    }
+                }
+                break;
+            case 4:
+                break;
+
+            default:
+                break;
+        }
+    }
+
     public bool HasPath(Point pawnPos, Point includeWallPredict, ETurnType type)
     {
         BoardBlock start = blocks[pawnPos.x, pawnPos.y];
@@ -109,7 +159,7 @@ public class Gameboard
 
     }
 
-    public List<BoardBlock> GetNeighbours(BoardBlock block, Point wall, bool xForward)
+    protected List<BoardBlock> GetNeighbours(BoardBlock block, Point wall, bool xForward)
     {
         List<BoardBlock> neighbours = new();
 

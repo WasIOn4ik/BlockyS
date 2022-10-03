@@ -9,6 +9,8 @@ public class Pawn : NetworkBehaviour
     #region Variables
 
     [Header("Preferences")]
+    [SerializeField] protected MeshFilter filter;
+    [SerializeField] protected MeshRenderer mesh;
     [SerializeField] protected float jumpHeight;
     [SerializeField] protected float animationTime;
 
@@ -88,6 +90,16 @@ public class Pawn : NetworkBehaviour
                 GameplayBase.instance.GameFinishedClientRpc(playerOrder);
             }
         }
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void SetSkinClientRpc(int ind)
+    {
+        var skin = GameBase.instance.skins.pawnSkins[ind];
+
+        filter.mesh = skin.mesh;
+        mesh.material = skin.mat;
+        
     }
 
     #endregion

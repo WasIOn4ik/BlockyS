@@ -18,6 +18,8 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
     [SerializeField] protected PlayerInGameInfo playerInfo = new();
 
+    [SerializeField] protected PlayerCosmetic cosmetic;
+
     #endregion
 
     #region StaticVariables
@@ -38,6 +40,8 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
         if (!hud)
             hud = Instantiate(hudPrefab);
+
+        cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.storage.currentBoardSkin, pawnSkinID = GameBase.storage.currentPawnSkin };
     }
 
     #endregion
@@ -111,6 +115,11 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
             yield return null;
         }
+    }
+
+    public PlayerCosmetic GetCosmetic()
+    {
+        return cosmetic;
     }
 
     #endregion

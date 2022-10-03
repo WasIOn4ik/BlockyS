@@ -38,6 +38,8 @@ public class CustomizationMenu : MenuBase
         canvas.worldCamera = Camera.main;
 
         skins = GameBase.instance.skins;
+        SelectBoardSkin(GameBase.storage.currentBoardSkin);
+        SelectPawnSkin(GameBase.storage.currentPawnSkin);
     }
 
     #endregion
@@ -66,7 +68,10 @@ public class CustomizationMenu : MenuBase
 
     protected void SelectBoardSkin(int skinNumber)
     {
-        boardMesh.mesh = skins.boardSkins[skinNumber].variation1Prefab;
+        var skin = skins.boardSkins[skinNumber];
+        boardMesh.mesh = skin.variation1Mesh;
+        boardMesh.GetComponent<MeshRenderer>().material = skin.mat;
+        GameBase.storage.currentBoardSkin = skinNumber;
     }
 
     public void NextPawn()
@@ -91,7 +96,13 @@ public class CustomizationMenu : MenuBase
 
     protected void SelectPawnSkin(int skinNumber)
     {
-        pawnMesh.mesh = skins.pawnSkins[skinNumber].mesh;
+        var skin = skins.pawnSkins[skinNumber];
+        pawnMesh.mesh = skin.mesh;
+        pawnMesh.GetComponent<MeshRenderer>().material = skin.mat;
+        pawnMesh.transform.localScale = Vector3.one * skin.scale;
+        pawnMesh.transform.localRotation = Quaternion.Euler(skin.rotation);
+        pawnMesh.transform.localPosition = skin.position;
+        GameBase.storage.currentPawnSkin = skinNumber;
     }
 
     public void OnEnable()

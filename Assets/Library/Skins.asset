@@ -13,33 +13,46 @@ MonoBehaviour:
   m_Name: Skins
   m_EditorClassIdentifier: 
   boardSkins:
+  - name: Christmass
+    variation1Mesh: {fileID: -740332093005086691, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
+    variation2Mesh: {fileID: -6960685279664925344, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
+    variation3Mesh: {fileID: -9082015746314487153, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
+    wallMesh: {fileID: 8733429697405204941, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
+    mat: {fileID: 2100000, guid: c8ca2ee0b52450747ab63e961e695737, type: 2}
+    blocks:
+    - {fileID: -8216554607291511347, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
+  - name: Egypt
+    variation1Mesh: {fileID: 5076571933457084490, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
+    variation2Mesh: {fileID: -1041077679906024731, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
+    variation3Mesh: {fileID: -3086543521387635186, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
+    wallMesh: {fileID: 751190262506561221, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
+    mat: {fileID: 2100000, guid: 0199546d3ea085b4eb1c15ea7249f2dd, type: 2}
+    blocks:
+    - {fileID: 7749224217459776121, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
   - name: Candy
-    variation1Prefab: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
-    variation2Prefab: {fileID: 0}
-    variation3Prefab: {fileID: 0}
-    blocks: []
-  - name: Fruit
-    variation1Prefab: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
-    variation2Prefab: {fileID: 0}
-    variation3Prefab: {fileID: 0}
-    blocks: []
-  - name: Desert
-    variation1Prefab: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
-    variation2Prefab: {fileID: 0}
-    variation3Prefab: {fileID: 0}
-    blocks: []
-  - name: Forest
-    variation1Prefab: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-    variation2Prefab: {fileID: 0}
-    variation3Prefab: {fileID: 0}
-    blocks: []
+    variation1Mesh: {fileID: -4298647939423263092, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
+    variation2Mesh: {fileID: -5144967991853940985, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
+    variation3Mesh: {fileID: 111510855114462325, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
+    wallMesh: {fileID: 2975863596176591492, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
+    mat: {fileID: 2100000, guid: 3c8006882a4e74446bc88f6671a7a2dc, type: 2}
+    blocks:
+    - {fileID: -5359977850346365181, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
   pawnSkins:
   - name: Default
-    mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
-    mat: {fileID: 0}
-  - name: Quad
-    mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
-    mat: {fileID: 0}
+    mesh: {fileID: 7684625086359004581, guid: 94dc8851960c9264d98e1cf024a19ccb, type: 3}
+    mat: {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
+    rotation: {x: -15, y: 30, z: -8.5}
+    position: {x: 0, y: -27.5, z: 0}
+    scale: 90
+  - name: Fruit
+    mesh: {fileID: -6140781619218914380, guid: c85e982ae4ec030458df3238ef1f9566, type: 3}
+    mat: {fileID: 2100000, guid: 06f9c614d1f1c644ab6152f88491fffc, type: 2}
+    rotation: {x: 20, y: 210, z: 12}
+    position: {x: 0, y: -26, z: 0}
+    scale: 120
   - name: Tower
     mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
     mat: {fileID: 0}
+    rotation: {x: 0, y: 0, z: 0}
+    position: {x: 0, y: 0, z: 0}
+    scale: 120

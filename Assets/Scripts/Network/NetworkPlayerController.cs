@@ -9,6 +9,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
     protected NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
 
+    public NetworkVariable<PlayerCosmetic> cosmetic = new();
+
     [SerializeField] InGameHUD hudPrefab;
 
     protected InputComponent inputComp;
@@ -40,6 +42,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             cam.transform.SetParent(transform);
             cam.transform.localPosition = Vector3.zero;
             cam.transform.localRotation = Quaternion.identity;
+
+            cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.currentBoardSkin, pawnSkinID = GameBase.storage.currentPawnSkin };
         }
     }
 
@@ -103,6 +107,11 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     public void SetPlayerInfo(PlayerInGameInfo inf)
     {
         playerInfo.Value = inf;
+    }
+
+    public PlayerCosmetic GetCosmetic()
+    {
+        return cosmetic.Value;
     }
 
     #endregion

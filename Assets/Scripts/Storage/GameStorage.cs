@@ -37,6 +37,10 @@ public class GameStorage : MonoBehaviour
 
     public Progress progress = new() { availableBoardSkins = new(), availablePawnSkins = new(), coins = 0 };
 
+    public int currentBoardSkin;
+
+    public int currentPawnSkin;
+
     #endregion
 
     #region Functions
