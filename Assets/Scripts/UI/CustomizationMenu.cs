@@ -114,6 +114,9 @@ public class CustomizationMenu : MenuBase
     public void OnDisable()
     {
         canvas.worldCamera.orthographic = bPreviousOrtho;
+        GameBase.storage.currentPawnSkin = selectedPawn;
+        GameBase.storage.currentBoardSkin = selectedBoard;
+        SpesLogger.Detail("Выбраны скины: " + selectedBoard + " " + selectedPawn);
     }
 
     #endregion

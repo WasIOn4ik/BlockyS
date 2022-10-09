@@ -145,7 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   filter: {fileID: 3377158847296592820}
-  renderer: {fileID: 3377158847296592817}
+  mesh: {fileID: 3377158847296592817}
   jumpHeight: 1
   animationTime: 4
   playerOrder: 0

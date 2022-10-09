@@ -12,6 +12,8 @@ public class Gameboard
 
     [SerializeField] protected WallPlaceholder wallPlaceholderPrefab;
 
+    [SerializeField] protected CosmeticMeshTarget cosmeticMeshPrefab;
+
     [SerializeField] protected Transform blocksHolder;
 
     [Tooltip("AnglesTowersSize Размер вырезов по краям доски")]
@@ -24,6 +26,8 @@ public class Gameboard
     public WallPlaceholder[,] wallsPlaces;
 
     public int halfExtention;
+
+    public List<CosmeticMeshTarget> decors = new();
 
     #endregion
 
@@ -64,10 +68,29 @@ public class Gameboard
                 }
             }
         }
+
+        foreach (var d in decors)
+        {
+            if (d)
+                GameObject.Destroy(d.gameObject);
+        }
+
+        decors.Clear();
+
+        decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(0.5f - halfExtent, 0, halfExtent - 0.5f), Quaternion.identity, blocksHolder)); // 0
+        decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(halfExtent - 0.5f, 0, halfExtent - 0.5f), Quaternion.identity, blocksHolder)); // 0
+
+        decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(0.5f - halfExtent, 0, 0.5f - halfExtent), Quaternion.identity, blocksHolder)); // 1
+        decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(halfExtent - 0.5f, 0, 0.5f - halfExtent), Quaternion.identity, blocksHolder)); // 1
+
         finish = blocks[halfExtent, halfExtent];
         GenConnections(halfExtent);
     }
 
+    /// <summary>
+    /// Обновляет игровое поле, количество PlayerCosmetic: 2-4
+    /// </summary>
+    /// <param name="skins"></param>
     public void UpdateSkins(PlayerCosmetic[] skins)
     {
         int count = skins.Length;
@@ -80,7 +103,7 @@ public class Gameboard
                     if (!bl)
                         continue;
 
-                    if (bl.coords.y <= halfExtention)
+                    if (bl.coords.y >= halfExtention)
                     {
                         bl.SetSkin(skins[0].boardSkinID);
                     }
@@ -89,6 +112,10 @@ public class Gameboard
                         bl.SetSkin(skins[1].boardSkinID);
                     }
                 }
+                decors[0].SetSkin(skins[0].boardSkinID, 0);
+                decors[1].SetSkin(skins[0].boardSkinID, 1);
+                decors[2].SetSkin(skins[1].boardSkinID, 0);
+                decors[3].SetSkin(skins[1].boardSkinID, 1);
                 break;
             case 3:
                 foreach (var bl in blocks)
@@ -96,28 +123,66 @@ public class Gameboard
                     if (!bl)
                         continue;
 
-                    if (bl.coords.x > bl.coords.y && bl.coords.y < halfExtention)
+                    if (bl.coords.x < bl.coords.y && bl.coords.y >= halfExtention) // Нулевой игрок
                     {
                         bl.SetSkin(skins[0].boardSkinID);
                     }
-                    else if (bl.coords.x > (blocks.GetLength(1) - bl.coords.y) && bl.coords.y >= halfExtention)
+                    else if (bl.coords.x < (blocks.GetLength(1) - bl.coords.y - 1) && bl.coords.y < halfExtention) // Первый игрок
                     {
                         bl.SetSkin(skins[1].boardSkinID);
                     }
-                    else
+                    else // Второй игрок
                     {
                         bl.SetSkin(skins[2].boardSkinID);
                     }
                 }
+                decors[0].SetSkin(skins[0].boardSkinID, 0);
+                decors[1].SetSkin(skins[0].boardSkinID, 1);
+                decors[2].SetSkin(skins[1].boardSkinID, 0);
+                decors[3].SetSkin(skins[2].boardSkinID, 0);
                 break;
             case 4:
+                foreach (var bl in blocks)
+                {
+                    if (!bl)
+                        continue;
+
+                    if (bl.coords.x < bl.coords.y && bl.coords.x > (blocks.GetLength(1) - bl.coords.y - 1)) // Нулевой игрок
+                    {
+                        bl.SetSkin(skins[0].boardSkinID);
+                    }
+                    else if (bl.coords.x > bl.coords.y && bl.coords.x < (blocks.GetLength(1) - bl.coords.y - 1)) // Первый игрок
+                    {
+                        bl.SetSkin(skins[1].boardSkinID);
+                    }
+                    else if (bl.coords.x >= bl.coords.y && bl.coords.x >= (blocks.GetLength(1) - bl.coords.y - 1)) // Второй игрок
+                    {
+                        bl.SetSkin(skins[2].boardSkinID);
+                    }
+                    else // Третий игрок
+                    {
+                        bl.SetSkin(skins[3].boardSkinID);
+                    }
+                }
+                decors[0].SetSkin(skins[0].boardSkinID, 0);
+                decors[1].SetSkin(skins[1].boardSkinID, 0);
+                decors[2].SetSkin(skins[2].boardSkinID, 0);
+                decors[3].SetSkin(skins[3].boardSkinID, 0);
                 break;
 
             default:
+                SpesLogger.Warning("Default Value while updating skins: length " + skins.Length);
                 break;
         }
     }
 
+    /// <summary>
+    /// Проверяет доступность пути от пешки до финиша
+    /// </summary>
+    /// <param name="pawnPos"> Положение пешки игрока </param>
+    /// <param name="includeWallPredict"> Еще не поставленная стенка</param>
+    /// <param name="type"> Положение непоставленной стенки </param>
+    /// <returns></returns>
     public bool HasPath(Point pawnPos, Point includeWallPredict, ETurnType type)
     {
         BoardBlock start = blocks[pawnPos.x, pawnPos.y];
@@ -218,29 +283,6 @@ public class Gameboard
             }
         }
     }
-    /*
-        protected Node DFS(Node first, Node target)
-        {
-            List<Node> visited = new List<Node>();
-            Stack<Node> frontier = new Stack<Node>();
-            frontier.Push(first);
-
-            while (frontier.Count > 0)
-            {
-                var current = frontier.Pop();
-                visited.Add(current);
-
-                if (current == target)
-                    return Node;
-
-                var neighbours = current.GenerateNeighbours();
-                foreach (var neighbour in neighbours)
-                    if (!visited.Contains(neighbour))
-                        frontier.Push(neighbour);
-            }
-
-            return default;
-        }*/
 
     #endregion
 }

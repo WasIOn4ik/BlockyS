@@ -104,6 +104,7 @@ public class GameplayBase : NetworkBehaviour
 
     private void S_UpdateSkins(PlayerCosmetic previousValue, PlayerCosmetic newValue)
     {
+        SpesLogger.Deb("S_UpdateSkins");
         UpdateSkinsClientRpc(GetCosmetics());
     }
 
@@ -377,6 +378,7 @@ public class GameplayBase : NetworkBehaviour
         {
             if (players.Count == GameBase.server.prefs.maxPlayers)
             {
+                SpesLogger.Deb("S_HandleWaitingMenu");
                 ShowWaitingScreenClientRpc(false);
                 UpdateSkinsClientRpc(GetCosmetics());
                 players[0].StartTurn();
@@ -405,8 +407,17 @@ public class GameplayBase : NetworkBehaviour
     [ClientRpc(Delivery = RpcDelivery.Reliable)]
     public void UpdateSkinsClientRpc(PlayerCosmetic[] skins)
     {
+        string title = "";
+        foreach (var s in skins)
+        {
+            title += GameBase.instance.skins.boardSkins[s.boardSkinID].name + " ";
+        }
+        SpesLogger.Deb("USClientRpc update: " + title);
+
+        //Обновление карты
         gameboard.UpdateSkins(skins);
 
+        //Обработка скинов пешек
         if (IsServer)
         {
             for (int i = 0; i < skins.Length; i++)

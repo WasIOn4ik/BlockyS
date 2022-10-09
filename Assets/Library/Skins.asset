@@ -42,17 +42,17 @@ MonoBehaviour:
     mesh: {fileID: 7684625086359004581, guid: 94dc8851960c9264d98e1cf024a19ccb, type: 3}
     mat: {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
     rotation: {x: -15, y: 30, z: -8.5}
-    position: {x: 0, y: -27.5, z: 0}
+    position: {x: 0, y: -70, z: 0}
     scale: 90
   - name: Fruit
     mesh: {fileID: -6140781619218914380, guid: c85e982ae4ec030458df3238ef1f9566, type: 3}
     mat: {fileID: 2100000, guid: 06f9c614d1f1c644ab6152f88491fffc, type: 2}
     rotation: {x: 20, y: 210, z: 12}
-    position: {x: 0, y: -26, z: 0}
+    position: {x: 0, y: -70, z: 0}
     scale: 120
   - name: Tower
-    mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
-    mat: {fileID: 0}
-    rotation: {x: 0, y: 0, z: 0}
-    position: {x: 0, y: 0, z: 0}
+    mesh: {fileID: 6458350417994284289, guid: f7a440f96b22fb048a252192edcfe5ce, type: 3}
+    mat: {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
+    rotation: {x: 7.1, y: 115, z: -15}
+    position: {x: 0, y: -100, z: -50}
     scale: 120

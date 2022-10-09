@@ -84,8 +84,12 @@ MonoBehaviour:
   gameboard:
     boardBlockPrefab: {fileID: 5917460634486126563, guid: 0e3c23059fcd478479fdc26c1c9109c6, type: 3}
     wallPlaceholderPrefab: {fileID: 7104639874787588662, guid: 60b360c7dda8fd742bee266eeec4c81a, type: 3}
-    ats: 2
+    cosmeticMeshPrefab: {fileID: 935843123152200063, guid: 2680ea370b89e1140b4016d7d02927f7, type: 3}
     blocksHolder: {fileID: 4508195497921332306}
+    ats: 2
+    finish: {fileID: 0}
+    halfExtention: 0
+    decors: []
   playersStartPositions:
   - {x: 0, y: 3, z: 1}
   - {x: 0, y: 3, z: -1}

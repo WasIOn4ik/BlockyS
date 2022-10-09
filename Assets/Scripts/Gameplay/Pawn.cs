@@ -99,7 +99,13 @@ public class Pawn : NetworkBehaviour
 
         filter.mesh = skin.mesh;
         mesh.material = skin.mat;
-        
+
+        //Стандартные пешки красятся в разные цвета. Синий - локальный игрок, Красный - враг
+        if (skin.name == "Default")
+        {
+            mesh.material.color = IsOwner ? Color.blue : Color.red;
+        }
+
     }
 
     #endregion

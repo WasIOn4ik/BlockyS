@@ -54,6 +54,7 @@ public class GameBase : MonoBehaviour
         server.networkManager = net;
         client.networkManager = net;
 
+        Application.targetFrameRate = 60;
         Application.quitting += HandleQuit;
 
         storage.LoadPrefs();

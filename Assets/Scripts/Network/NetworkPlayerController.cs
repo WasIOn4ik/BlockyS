@@ -9,7 +9,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
     protected NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
 
-    public NetworkVariable<PlayerCosmetic> cosmetic = new();
+    public NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
     [SerializeField] InGameHUD hudPrefab;
 
@@ -43,6 +43,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             cam.transform.localPosition = Vector3.zero;
             cam.transform.localRotation = Quaternion.identity;
 
+            SpesLogger.Detail("Установлены скины: " + GameBase.storage.currentBoardSkin + " " + GameBase.storage.currentPawnSkin);
             cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.currentBoardSkin, pawnSkinID = GameBase.storage.currentPawnSkin };
         }
     }
@@ -61,6 +62,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             return;
 
         GetPlayerInfo().state = EPlayerState.Waiting;
+        if (IsOwner)
+        {
+            inputComp.turnValid -= hud.OnTurnValidationChanged;
+        }
         SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " завершил ход");
         EndTurnServerRpc(turn);
     }
@@ -101,6 +106,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     {
         SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " начал ход");
         GetPlayerInfo().state = EPlayerState.ActivePlayer;
+        if (IsOwner)
+        {
+            inputComp.turnValid += hud.OnTurnValidationChanged;
+        }
         inputComp.UpdateTurnValid(false);
     }
 
@@ -111,6 +120,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
     public PlayerCosmetic GetCosmetic()
     {
+        SpesLogger.Detail("Игрок: " + name + " скины: " + GameBase.storage.currentBoardSkin + " " + GameBase.storage.currentPawnSkin);
         return cosmetic.Value;
     }
 
