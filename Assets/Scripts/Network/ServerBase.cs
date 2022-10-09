@@ -98,6 +98,28 @@ public class ServerBase : MonoBehaviour
 
     public void HostGame(ushort port = 2545)
     {
+        ClearAll();
+        StartCoroutine(HostGameCoroutine(port));
+    }
+
+    public void SetupSingleDevice()
+    {
+        ClearAll();
+        StartCoroutine(SetupSingleDeviceCoroutine());
+    }
+
+    public void ClearAll()
+    {
+        clients.Clear();
+        networkManager.Shutdown();
+    }
+
+    protected IEnumerator HostGameCoroutine(ushort port)
+    {
+        while (networkManager.ShutdownInProgress)
+        {
+            yield return null;
+        }
         UnityTransport net = networkManager.GetComponent<UnityTransport>();
         net.ConnectionData.Port = port;
 
@@ -112,9 +134,12 @@ public class ServerBase : MonoBehaviour
 
         networkManager.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
-
-    public void SetupSingleDevice()
+    protected IEnumerator SetupSingleDeviceCoroutine()
     {
+        while (networkManager.ShutdownInProgress)
+        {
+            yield return null;
+        }
         networkManager.NetworkConfig.ConnectionApproval = false;
         ConnectionPayload payload = new ConnectionPayload() { client = GameBase.client.clientInfo, password = "" };
         string jsonData = JsonUtility.ToJson(payload);
@@ -125,12 +150,6 @@ public class ServerBase : MonoBehaviour
         networkManager.StartHost();
 
         networkManager.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
-    }
-
-    public void ClearAll()
-    {
-        clients.Clear();
-        networkManager.Shutdown();
     }
 
     protected void SetupManagerCallbacks()

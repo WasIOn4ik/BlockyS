@@ -51,6 +51,22 @@ public class ClientBase : MonoBehaviour
 
     public void ConnectToGame(string address, ushort port)
     {
+        ClearAll();
+        StartCoroutine(ConnectCoroutine(address, port));
+    }
+
+    public void ClearAll()
+    {
+        clientInfo = new();
+        networkManager.Shutdown(true);
+    }
+
+    protected IEnumerator ConnectCoroutine(string address, ushort port)
+    {
+        while (networkManager.ShutdownInProgress)
+        {
+            yield return null;
+        }
         UnityTransport net = networkManager.GetComponent<UnityTransport>();
         net.ConnectionData.Address = address;
         net.ConnectionData.Port = port;
@@ -62,13 +78,8 @@ public class ClientBase : MonoBehaviour
         SetupManagerCallbacks();
         SetupSceneCallbacks();
 
+        SpesLogger.Detail("Подключение к узлу: " + net.ConnectionData.Address + ":" + net.ConnectionData.Port);
         networkManager.StartClient();
-    }
-
-    public void ClearAll()
-    {
-        clientInfo = new();
-        networkManager.Shutdown();
     }
 
     protected void SetupManagerCallbacks()

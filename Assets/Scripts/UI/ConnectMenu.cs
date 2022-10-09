@@ -28,5 +28,11 @@ public class ConnectMenu : MenuBase
         }
     }
 
+    public void BackToMenu(string str)
+    {
+        GameBase.client.ClearAll();
+        GoToMenu(str);
+    }
+
     #endregion
 }

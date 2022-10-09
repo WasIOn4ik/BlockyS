@@ -622,6 +622,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameBase
       objectReference: {fileID: 0}
+    - target: {fileID: 2286906215338914204, guid: 75340a4aea2f5c64daa83980cb246375, type: 3}
+      propertyPath: LogLevel
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2286906215338914206, guid: 75340a4aea2f5c64daa83980cb246375, type: 3}
       propertyPath: m_RootOrder
       value: 4

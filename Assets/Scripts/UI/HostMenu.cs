@@ -69,7 +69,8 @@ public class HostMenu : MenuBase
         WriteServerData();
         if (bNetMode)
         {
-            GameBase.server.HostGame(2545);
+            SpesLogger.Warning("Game created in netMode");
+            GameBase.server.HostGame(portInput.text.Length == 0 ? (ushort)2545 : ushort.Parse(portInput.text));
         }
         else
         {
