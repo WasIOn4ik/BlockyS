@@ -38,6 +38,8 @@ public class GameplayBase : NetworkBehaviour
 
     public Gameboard gameboard = new Gameboard();
 
+    public InGameHUD hud;
+
     [Header("Gameplay")]
     [Tooltip("X и Z умножаютс€ на halfExtent, а Y остаетс€ без изменений")]
     [SerializeField] protected List<Vector3> playersStartPositions = new();
@@ -54,6 +56,10 @@ public class GameplayBase : NetworkBehaviour
     protected Dictionary<int, ulong> ordersToNetIDs = new();
 
     protected MenuBase waitingMenu;
+
+    public bool bGameActive = false;
+
+    protected SpesAnimator cameraAnimator = new();
 
     #endregion
 
@@ -178,11 +184,23 @@ public class GameplayBase : NetworkBehaviour
                     controller.StartTurn();
                     return;
                 }
-                var wph = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
+                var infoX = controller.GetPlayerInfo();
 
-                var wall = Instantiate(wallPrefab, wph.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.instance.transform);
-                wall.NetworkObject.Spawn();
-                wall.coords.Value = turn;
+                if (infoX.WallCount <= 0)
+                {
+                    SpesLogger.Warning("»грок не может построить больше стен: " + controller.GetPlayerInfo().playerOrder);
+                    controller.StartTurn();
+                    return;
+                }
+                var wphX = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
+
+                var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.instance.transform);
+                wallX.NetworkObject.Spawn();
+                wallX.coords.Value = turn;
+                wallX.OnAnimated += cameraAnimator.AnimateCamera;
+
+                infoX.WallCount -= 1;
+                controller.SetPlayerInfo(infoX);
 
                 break;
             case ETurnType.PlaceZForward:
@@ -192,11 +210,23 @@ public class GameplayBase : NetworkBehaviour
                     controller.StartTurn();
                     return;
                 }
+                var infoZ = controller.GetPlayerInfo();
+
+                if (infoZ.WallCount <= 0)
+                {
+                    SpesLogger.Warning("»грок не может построить больше стен: " + controller.GetPlayerInfo().playerOrder);
+                    controller.StartTurn();
+                    return;
+                }
                 var wphZ = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
                 var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.instance.transform);
                 wallZ.NetworkObject.Spawn();
                 wallZ.coords.Value = turn;
+                wallZ.OnAnimated += cameraAnimator.AnimateCamera;
+
+                infoZ.WallCount -= 1;
+                controller.SetPlayerInfo(infoZ);
 
                 break;
             case ETurnType.DestroyXWall:
@@ -219,11 +249,13 @@ public class GameplayBase : NetworkBehaviour
     /// ѕередает ход активному игроку в следующем Tick'е
     /// </summary>
     /// <returns></returns>
-    private IEnumerator nextTurn()
+    protected IEnumerator nextTurn()
     {
         yield return new WaitForEndOfFrame();
         yield return null;
+        cameraAnimator.controller = players[activePlayer];
         players[activePlayer].StartTurn();
+        S_UpdatePlayersTurn();
     }
 
     /// <summary>
@@ -264,6 +296,9 @@ public class GameplayBase : NetworkBehaviour
         var info = player.GetPlayerInfo();
         info.playerOrder = playerOrder;
         info.pawn = SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
+        info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
+        info.WallCount = wallsCount;
+        info.state = EPlayerState.Waiting;
 
         player.SetPlayerInfo(info);
 
@@ -372,6 +407,9 @@ public class GameplayBase : NetworkBehaviour
         return true;
     }
 
+    /// <summary>
+    /// ”бирает окно ожидани€, когда все игроки подключились, передает ход нулевому игроку и обновл€ет флаг bGameActive на true, сообщает игрокам чей сейчас ход
+    /// </summary>
     protected void S_HandleWaitingMenu()
     {
         if (IsServer)
@@ -381,7 +419,10 @@ public class GameplayBase : NetworkBehaviour
                 SpesLogger.Deb("S_HandleWaitingMenu");
                 ShowWaitingScreenClientRpc(false);
                 UpdateSkinsClientRpc(GetCosmetics());
+                cameraAnimator.controller = players[0];
                 players[0].StartTurn();
+                bGameActive = true;
+                S_UpdatePlayersTurn();
             }
             else
             {
@@ -398,6 +439,14 @@ public class GameplayBase : NetworkBehaviour
             list.Add(pl.GetCosmetic());
         }
         return list.ToArray();
+    }
+
+    protected void S_UpdatePlayersTurn()
+    {
+        foreach (var pl in players)
+        {
+            pl.UpdateTurn(activePlayer);
+        }
     }
 
     #endregion

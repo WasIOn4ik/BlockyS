@@ -37,7 +37,12 @@ public class ClientBase : MonoBehaviour
 
     private void OnDisconnected(ulong clientID)
     {
-        SpesLogger.Detail("Клиент " + clientID + " отключился " + (networkManager.IsServer ? "{Сервер}" : "{Клиент}"));
+        SpesLogger.Detail("Клиент " + clientID + " отключился " + (networkManager.IsServer ? "{Сервер}" : "{Клиент}" + " localID: " + networkManager.LocalClientId));
+
+        if (clientID == networkManager.LocalClientId || clientID == 0)
+        {
+            MenuBase.OpenMenu("StartupMenu");
+        }
     }
 
     private void OnConnected(ulong clientID)

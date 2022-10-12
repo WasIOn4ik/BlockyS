@@ -17,12 +17,26 @@ public class InputComponent : MonoBehaviour
     [Header("Preferences")]
     [SerializeField] protected LayerMask moveLayer;
     [SerializeField] protected LayerMask placeLayer;
+    /// <summary>
+    /// Порог срабатывания "Движения" вместо нажатия в пикселях
+    /// </summary>
+    public float clickThreshold = 5f;
+
+    [SerializeField] float displace = 2f;
 
     protected bool bMoveMode = true;
 
-    protected IPlayerController controller;
+    public IPlayerController controller;
 
+    /// <summary>
+    /// Координаты, на которых мышь была нажата или началось касание
+    /// </summary>
     protected Vector3 startPos;
+
+    /// <summary>
+    /// Становится false, когда произошло движение вместо клика
+    /// </summary>
+    protected bool bClick = false;
 
     /// <summary>
     /// Вектор движения камеры "Вперед"
@@ -81,7 +95,99 @@ public class InputComponent : MonoBehaviour
         if (Input.touchCount > 0)
         {
             var touch = Input.GetTouch(0);
-            transform.position = new Vector3(transform.position.x - touch.deltaPosition.x, 0, transform.position.z - touch.deltaPosition.y);
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                startPos = new Vector3(touch.position.x, touch.position.y);
+                bClick = true;
+            }
+            else if (touch.phase == TouchPhase.Moved)
+            {
+                bClick = false;
+            }
+            else if (bClick && touch.phase == TouchPhase.Ended && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
+            {
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+                //Режим перемещения пешки
+                if (bMoveMode)
+                {
+                    if (Physics.Raycast(ray, out RaycastHit hit, 1000f, moveLayer))
+                    {
+                        var bb = hit.collider.gameObject.GetComponentInParent<BoardBlock>();
+
+                        if (bb)
+                        {
+                            SpesLogger.Deb("Нажатие на блок: " + bb.name);
+
+                            //Начало хода за пешку
+                            if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
+                            {
+                                if (bb.bSelected)
+                                    bb.UnHighlightAround();
+                                else
+                                    bb.HighlightAround();
+                            }
+                            //Подтверждение хода за пешку
+                            else if (bb.bHighlighted)
+                            {
+                                turn = new();
+                                turn.type = ETurnType.Move;
+                                turn.pos = bb.coords;
+                                ConfirmTurn();
+                            }
+                        }
+                    }
+                }
+                //Режим строительства стенок
+                else
+                {
+                    if (Physics.Raycast(ray, out RaycastHit hit, 1000f, placeLayer))
+                    {
+                        var wph = hit.collider.gameObject.GetComponentInParent<WallPlaceholder>();
+
+                        if (wph)
+                        {
+                            turn = new();
+
+                            if (previousClickedPlaceholder == wph)
+                            {
+                                placeType = (placeType == ETurnType.PlaceXForward ? ETurnType.PlaceZForward : ETurnType.PlaceXForward);
+                            }
+                            previousClickedPlaceholder = wph;
+
+                            turn.type = placeType;
+                            turn.pos = wph.coords;
+
+                            if (!GameplayBase.instance.CheckPlace(turn))
+                            {
+                                SpesLogger.Detail("Ход не является допустимым");
+                                turn = new();
+                                UpdateTurnValid(false);
+                                wallPredict.gameObject.SetActive(false);
+                                return;
+                            }
+                            UpdateTurnValid(true);
+
+                            wallPredict.gameObject.SetActive(true);
+                            wallPredict.position = wph.transform.position;
+                            wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 90, 0);
+                        }
+                    }
+                }
+            }
+            if (touch.phase == TouchPhase.Moved)
+            {
+                var delta = new Vector3(touch.position.x, touch.position.y) - startPos;
+                startPos = new Vector3(touch.position.x, touch.position.y);
+                int halfExtent = GameplayBase.instance.gameboard.halfExtention;
+                var temp = transform.position - (forwardDir * delta.y + rightDir * delta.x) / 100;
+
+                temp.x = Mathf.Clamp(temp.x, -halfExtent - displace, halfExtent - displace);
+                temp.z = Mathf.Clamp(temp.z, -halfExtent - displace, halfExtent - displace);
+
+                transform.position = temp;
+            }
         }
 #endif
 
@@ -90,8 +196,13 @@ public class InputComponent : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             startPos = Input.mousePosition;
+            bClick = true;
         }
-        else if (Input.GetMouseButtonUp(0))
+        else if ((Input.mousePosition - startPos).magnitude > clickThreshold)
+        {
+            bClick = false;
+        }
+        else if (bClick && Input.GetMouseButtonUp(0) && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -162,19 +273,19 @@ public class InputComponent : MonoBehaviour
                 }
             }
         }
-        else if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0))
         {
-            var mouse = Input.mousePosition - startPos;
+            var delta = Input.mousePosition - startPos;
             startPos = Input.mousePosition;
-            transform.position = transform.position - (forwardDir * mouse.y + rightDir * mouse.x) / 100;//new Vector3(transform.position.x + mouse.x / 100, transform.position.y, transform.position.z + mouse.y / 100);
-        }
 
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            Turn turn = new();
-            controller.EndTurn(turn);
-        }
+            int halfExtent = GameplayBase.instance.gameboard.halfExtention;
+            var temp = transform.position - (forwardDir * delta.y + rightDir * delta.x) / 100;
 
+            temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * forwardDir.x, halfExtent - displace * forwardDir.x);
+            temp.z = Mathf.Clamp(temp.z, -halfExtent - displace * forwardDir.z, halfExtent - displace * forwardDir.z);
+
+            transform.position = temp;
+        }
 #endif
     }
 

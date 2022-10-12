@@ -12,11 +12,14 @@ public class Pawn : NetworkBehaviour
     [SerializeField] protected MeshFilter filter;
     [SerializeField] protected MeshRenderer mesh;
     [SerializeField] protected float jumpHeight;
-    [SerializeField] protected float animationTime;
+    [SerializeField] public float animationTime;
 
     [Header("InGame data")]
     public int playerOrder;
     public NetworkVariable<Point> block;
+
+    public delegate void MovedDelegate();
+    public event MovedDelegate OnAnimated;
 
     #endregion
 
@@ -90,6 +93,9 @@ public class Pawn : NetworkBehaviour
                 GameplayBase.instance.GameFinishedClientRpc(playerOrder);
             }
         }
+
+        if (OnAnimated != null)
+            OnAnimated();
     }
 
     [ClientRpc(Delivery = RpcDelivery.Reliable)]

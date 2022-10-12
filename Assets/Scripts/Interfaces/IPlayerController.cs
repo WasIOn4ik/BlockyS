@@ -13,4 +13,6 @@ public interface IPlayerController
     public void SetPlayerInfo(PlayerInGameInfo inf);
 
     public PlayerCosmetic GetCosmetic();
+
+    public void UpdateTurn(int active);
 }

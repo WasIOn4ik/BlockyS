@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 {
@@ -26,14 +27,29 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         inputComp = GetComponent<InputComponent>();
     }
 
+
+    private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
+    {
+        if (!IsServer)
+            hud.SetWallsCount(newValue.WallCount);
+    }
+
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
-        if (!IsServer)
+        if (IsServer)
+        {
+            var info = GetPlayerInfo();
+            info.state = EPlayerState.Operator;
+            SetPlayerInfo(info);
+        }
+        else
         {
             hud = Instantiate(hudPrefab);
             hud.SetInputComponent(inputComp);
+
+            playerInfo.OnValueChanged += OnPlayerInfoChanged;
         }
 
         if (IsOwner)
@@ -61,7 +77,6 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         if (GetPlayerInfo().state != EPlayerState.ActivePlayer)
             return;
 
-        GetPlayerInfo().state = EPlayerState.Waiting;
         if (IsOwner)
         {
             inputComp.turnValid -= hud.OnTurnValidationChanged;
@@ -86,31 +101,12 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     public void StartTurn()
     {
         SpesLogger.Deb("Начало хода сетевого игрока " + GetPlayerInfo().playerOrder);
+
+        var info = GetPlayerInfo();
+        info.state = EPlayerState.ActivePlayer;
+        SetPlayerInfo(info);
+
         StartTurnClientRpc();
-    }
-
-    #endregion
-
-    #region RPCs
-
-    [ServerRpc(RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
-    public void EndTurnServerRpc(Turn turn)
-    {
-        SpesLogger.Deb("Сетевой игрок завершил ход " + GetPlayerInfo().playerOrder);
-        GetPlayerInfo().state = EPlayerState.Operator;
-        GameplayBase.instance.S_EndTurn(this, turn);
-    }
-
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void StartTurnClientRpc()
-    {
-        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " начал ход");
-        GetPlayerInfo().state = EPlayerState.ActivePlayer;
-        if (IsOwner)
-        {
-            inputComp.turnValid += hud.OnTurnValidationChanged;
-        }
-        inputComp.UpdateTurnValid(false);
     }
 
     public void SetPlayerInfo(PlayerInGameInfo inf)
@@ -122,6 +118,46 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     {
         SpesLogger.Detail("Игрок: " + name + " скины: " + GameBase.storage.currentBoardSkin + " " + GameBase.storage.currentPawnSkin);
         return cosmetic.Value;
+    }
+
+    public void UpdateTurn(int active)
+    {
+        UpdateTurnClientRpc(active);
+    }
+
+    #endregion
+
+    #region RPCs
+
+    [ServerRpc(RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
+    public void EndTurnServerRpc(Turn turn)
+    {
+        SpesLogger.Deb("Сетевой игрок завершил ход " + GetPlayerInfo().playerOrder);
+
+        var info = GetPlayerInfo();
+        info.state = EPlayerState.Operator;
+        SetPlayerInfo(info);
+
+        GameplayBase.instance.S_EndTurn(this, turn);
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void StartTurnClientRpc()
+    {
+        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " начал ход");
+
+        if (IsOwner)
+        {
+            inputComp.turnValid += hud.OnTurnValidationChanged;
+        }
+        inputComp.UpdateTurnValid(false);
+    }
+
+    [ClientRpc(Delivery = RpcDelivery.Reliable)]
+    public void UpdateTurnClientRpc(int active)
+    {
+        if (!IsServer)
+            hud.SetPlayerTurn(active);
     }
 
     #endregion

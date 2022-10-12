@@ -23,6 +23,8 @@ public class BoardBlock : MonoBehaviour
 
     public static BoardBlock selectedBlock = null;
 
+    public int skinID;
+
     public void Awake()
     {
         color = mesh.material.color;
@@ -79,6 +81,7 @@ public class BoardBlock : MonoBehaviour
 
     public void SetSkin(int ind)
     {
+        skinID = ind;
         var skin = GameBase.instance.skins.boardSkins[ind];
         filter.mesh = skin.blocks[0];
         mesh.material = skin.mat;

@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using TMPro;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 [RequireComponent(typeof(Animator))]
 public class InGameHUD : MonoBehaviour
@@ -18,9 +22,14 @@ public class InGameHUD : MonoBehaviour
     [Tooltip("»конка на кнопке подтверждени€ хода")]
     [SerializeField] protected Image confirmTurnImage;
 
+    [SerializeField] protected LocalizeStringEvent turnHelperLocalizeEvent;
+    [SerializeField] protected TMP_Text wallsCountText;
+
     [Header("Preferences")]
     [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - движение пешки")]
     [SerializeField] protected Sprite moveTurnSprite;
+    [SerializeField] protected LocalizedString yourTurnLocalized;
+    [SerializeField] protected LocalizedString oponentTurnLocalized;
 
     protected InputComponent inputComp;
 
@@ -69,7 +78,6 @@ public class InGameHUD : MonoBehaviour
     public void OnTurnValidationChanged(bool b)
     {
         confirmTurnButton.interactable = b;
-        SpesLogger.Detail(b.ToString());
     }
 
     public void SetInputComponent(InputComponent comp)
@@ -87,6 +95,31 @@ public class InGameHUD : MonoBehaviour
 
             animator.Play("HideConfirmTurn");
         }
+    }
+
+    public void SetPlayerTurn(int activePlayer)
+    {
+        bool local = inputComp.controller.GetPlayerInfo().playerOrder == activePlayer;
+        SpesLogger.Detail("ќбновлено отображение хода ");
+
+        if (local)
+        {
+            var iv = yourTurnLocalized["playerNum"] as IntVariable;
+            iv.Value = activePlayer;
+            turnHelperLocalizeEvent.StringReference = yourTurnLocalized;
+        }
+        else
+        {
+            var iv = oponentTurnLocalized["playerNum"] as IntVariable;
+            iv.Value = activePlayer;
+            turnHelperLocalizeEvent.StringReference = oponentTurnLocalized;
+        }
+        turnHelperLocalizeEvent.RefreshString();
+    }
+
+    public void SetWallsCount(int x)
+    {
+        wallsCountText.text = " X " + x;
     }
 
     #endregion

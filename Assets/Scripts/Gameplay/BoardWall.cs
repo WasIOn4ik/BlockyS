@@ -6,11 +6,24 @@ using System;
 
 public class BoardWall : NetworkBehaviour
 {
+    [SerializeField] protected MeshRenderer meshRenderer;
+    [SerializeField] protected MeshFilter meshFilter;
+
     public NetworkVariable<Turn> coords = new();
+
+    public delegate void MovedDelegate();
+    public event MovedDelegate OnAnimated;
 
     public void Awake()
     {
         coords.OnValueChanged += OnPlaced;
+    }
+
+    private void OnSkinChanged(int newValue)
+    {
+        var skin = GameBase.instance.skins.boardSkins[newValue];
+        meshRenderer.material = skin.mat;
+        meshFilter.mesh = skin.wallMesh;
     }
 
     private void OnPlaced(Turn previousValue, Turn newValue)
@@ -47,5 +60,44 @@ public class BoardWall : NetworkBehaviour
             }
         }
         GameplayBase.instance.gameboard.wallsPlaces[newValue.pos.x, newValue.pos.y].bEmpty = false;
+
+        OnSkinChanged(blocks[newValue.pos.x, newValue.pos.y].skinID);
+        Animate();
+    }
+
+    private void Animate()
+    {
+        StartCoroutine(HandleAnimation());
+    }
+
+    private IEnumerator HandleAnimation()
+    {
+        float time = Time.deltaTime;
+        float animationTime = 2f;
+
+        Vector3 targetPos = transform.position;
+
+        transform.position = targetPos - Vector3.up;
+
+        float multiplier;
+
+        while ((transform.position - targetPos).magnitude > 0.01f)
+        {
+            time += Time.deltaTime;
+            multiplier = time / animationTime;
+
+            transform.position = Vector3.Lerp(transform.position, targetPos, multiplier);
+
+            yield return null;
+        }
+
+        if (OnAnimated != null)
+        {
+            OnAnimated();
+            foreach (MovedDelegate d in OnAnimated.GetInvocationList())
+            {
+                OnAnimated -= d;
+            }
+        }
     }
 }

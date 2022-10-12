@@ -91,6 +91,14 @@ MonoBehaviour:
     m_Key: Host_Text_LocalPlayers
     m_Metadata:
       m_Items: []
+  - m_Id: 18049265483862016
+    m_Key: HUD_Text_YourTurn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 18049571571585024
+    m_Key: HUD_Text_OponentTurn
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
