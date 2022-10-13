@@ -99,6 +99,10 @@ MonoBehaviour:
     m_Key: HUD_Text_OponentTurn
     m_Metadata:
       m_Items: []
+  - m_Id: 18640012004249600
+    m_Key: Custom_Txt_Select
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

@@ -105,6 +105,10 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 7559043748698521611
+  - m_Id: 18640012004249600
+    m_Localized: Select
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

@@ -129,6 +129,61 @@ public class GameStorage : MonoBehaviour
         SpesLogger.Detail("Сохранение игровых данных прошло успешно");
     }
 
+    public bool CheckBoard(int id)
+    {
+        return progress.availableBoardSkins.Contains(id);
+    }
+
+    public bool CheckPawn(int id)
+    {
+        return progress.availablePawnSkins.Contains(id);
+    }
+
+    public int GetCoins()
+    {
+        return progress.coins;
+    }
+
+    public bool TryBuyBoard(int id)
+    {
+        var skin = GameBase.instance.skins.boardSkins[id];
+
+        if (GetCoins() >= skin.cost)
+        {
+            progress.coins -= skin.cost;
+            progress.availableBoardSkins.Add(id);
+
+            GameBase.storage.currentBoardSkin = id;
+
+            SaveProgress();
+
+            return true;
+        }
+
+        SpesLogger.Detail("Недостаточно средст для покупки " + skin.name + " " + GetCoins() + "/" + skin.cost);
+        return false;
+    }
+
+    public bool TryBuyPawn(int id)
+    {
+        var skin = GameBase.instance.skins.pawnSkins[id];
+
+        if (GetCoins() >= skin.cost)
+        {
+            progress.coins -= skin.cost;
+            progress.availableBoardSkins.Add(id);
+
+            GameBase.storage.currentPawnSkin = id;
+
+            SaveProgress();
+
+            return true;
+        }
+
+        SpesLogger.Detail("Недостаточно средст для покупки " + skin.name + " " + GetCoins() + "/" + skin.cost);
+        return false;
+    }
+
     #endregion
 }
 

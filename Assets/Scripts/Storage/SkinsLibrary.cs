@@ -17,6 +17,8 @@ public struct SkinDescription
     public Material mat;
 
     public List<Mesh> blocks;
+
+    public int cost;
 }
 
 [Serializable]
@@ -28,6 +30,8 @@ public struct PawnDescription
     public Vector3 rotation;
     public Vector3 position;
     public float scale;
+
+    public int cost;
 }
 
 [CreateAssetMenu(menuName = "Spes/Skins")]
