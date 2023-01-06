@@ -42,7 +42,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         if (!hud)
             hud = Instantiate(hudPrefab);
 
-        cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.storage.currentBoardSkin, pawnSkinID = GameBase.storage.currentPawnSkin };
+        cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
     }
 
     #endregion

@@ -59,8 +59,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             cam.transform.localPosition = Vector3.zero;
             cam.transform.localRotation = Quaternion.identity;
 
-            SpesLogger.Detail("Установлены скины: " + GameBase.storage.currentBoardSkin + " " + GameBase.storage.currentPawnSkin);
-            cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.currentBoardSkin, pawnSkinID = GameBase.storage.currentPawnSkin };
+            SpesLogger.Detail("Установлены скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
+            cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
         }
     }
 
@@ -116,7 +116,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
     public PlayerCosmetic GetCosmetic()
     {
-        SpesLogger.Detail("Игрок: " + name + " скины: " + GameBase.storage.currentBoardSkin + " " + GameBase.storage.currentPawnSkin);
+        SpesLogger.Detail("Игрок: " + name + " скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
         return cosmetic.Value;
     }
 

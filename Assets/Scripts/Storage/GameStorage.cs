@@ -37,9 +37,15 @@ public class GameStorage : MonoBehaviour
 
     public Progress progress = new() { availableBoardSkins = new(), availablePawnSkins = new(), coins = 0 };
 
-    public int currentBoardSkin;
+    /// <summary>
+    /// При обновлении значения сохраняет изменения
+    /// </summary>
+    public int CurrentBoardSkin { get { return prefs.selectedBoardSkin; } set { prefs.selectedBoardSkin = value; SavePrefs(); } }
 
-    public int currentPawnSkin;
+    /// <summary>
+    /// При обновлении значения сохраняет изменения
+    /// </summary>
+    public int CurrentPawnSkin { get { return prefs.selectedPawnSkin; } set { prefs.selectedPawnSkin = value; SavePrefs(); } }
 
     #endregion
 
@@ -144,18 +150,26 @@ public class GameStorage : MonoBehaviour
         return progress.coins;
     }
 
-    public bool TryBuyBoard(int id)
+    public bool TryBuyOrEquipBoard(int id)
     {
         var skin = GameBase.instance.skins.boardSkins[id];
+
+        if (CheckBoard(id) || skin.cost == 0)
+        {
+            SpesLogger.Detail("Доска " + skin.name + " выбрана");
+            return true;
+        }
 
         if (GetCoins() >= skin.cost)
         {
             progress.coins -= skin.cost;
             progress.availableBoardSkins.Add(id);
 
-            GameBase.storage.currentBoardSkin = id;
+            CurrentBoardSkin = id;
 
             SaveProgress();
+
+            SpesLogger.Detail("Доска " + skin.name + " Куплена и выбрана");
 
             return true;
         }
@@ -164,18 +178,26 @@ public class GameStorage : MonoBehaviour
         return false;
     }
 
-    public bool TryBuyPawn(int id)
+    public bool TryBuyOrEquipPawn(int id)
     {
         var skin = GameBase.instance.skins.pawnSkins[id];
+
+        if (CheckPawn(id) || skin.cost == 0)
+        {
+            SpesLogger.Detail("Пешка " + skin.name + " выбрана");
+            return true;
+        }
 
         if (GetCoins() >= skin.cost)
         {
             progress.coins -= skin.cost;
-            progress.availableBoardSkins.Add(id);
+            progress.availablePawnSkins.Add(id);
 
-            GameBase.storage.currentPawnSkin = id;
+            CurrentPawnSkin = id;
 
             SaveProgress();
+
+            SpesLogger.Detail("Пешка " + skin.name + " куплена и выбрана");
 
             return true;
         }

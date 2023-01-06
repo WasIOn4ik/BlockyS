@@ -59,6 +59,16 @@ public class GameBase : MonoBehaviour
 
         storage.LoadPrefs();
         storage.LoadProgress();
+
+        if (storage.CurrentBoardSkin != 0 && !storage.CheckBoard(storage.CurrentBoardSkin))
+        {
+            storage.CurrentBoardSkin = 0;
+        }
+
+        if (storage.CurrentPawnSkin != 0 && !storage.CheckPawn(storage.CurrentPawnSkin))
+        {
+            storage.CurrentPawnSkin = 0;
+        }
     }
 
     #endregion

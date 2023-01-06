@@ -1139,7 +1139,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5758040529280110568}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3312697031805634623}
+        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
+        m_MethodName: ConfirmSelectPawn
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2328895698357239682
 GameObject:
   m_ObjectHideFlags: 0
@@ -2107,7 +2119,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4190382884634940989}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 3312697031805634623}
+        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
+        m_MethodName: ConfirmSelectBoard
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &5896973013232127418
 GameObject:
   m_ObjectHideFlags: 0

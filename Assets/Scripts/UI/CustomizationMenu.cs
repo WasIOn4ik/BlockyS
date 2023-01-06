@@ -46,9 +46,28 @@ public class CustomizationMenu : MenuBase
         base.Awake();
 
         storage = GameBase.storage;
+        skins = GameBase.instance.skins;
 
         canvas = GetComponent<Canvas>();
         canvas.worldCamera = Camera.main;
+    }
+
+    public void OnEnable()
+    {
+        bPreviousOrtho = canvas.worldCamera.orthographic;
+        canvas.worldCamera.orthographic = true;
+
+        selectedPawn = storage.CurrentPawnSkin;
+        selectedBoard = storage.CurrentBoardSkin;
+
+        UpdateStats();
+    }
+
+    public void OnDisable()
+    {
+        if (canvas && canvas.worldCamera)
+            canvas.worldCamera.orthographic = bPreviousOrtho;
+        SpesLogger.Detail("Выбраны скины: " + storage.CurrentBoardSkin + " " + storage.CurrentPawnSkin);
     }
 
     #endregion
@@ -57,11 +76,72 @@ public class CustomizationMenu : MenuBase
 
     private void UpdateStats()
     {
-        skins = GameBase.instance.skins;
-        SelectBoardSkin(GameBase.storage.currentBoardSkin);
-        SelectPawnSkin(GameBase.storage.currentPawnSkin);
+        SelectBoardSkin(selectedBoard);
+        SelectPawnSkin(selectedPawn);
 
         coinsCountText.text = storage.GetCoins().ToString();
+    }
+
+    protected void SelectBoardSkin(int skinNumber)
+    {
+        var skin = skins.boardSkins[skinNumber];
+        boardMesh.mesh = skin.variation1Mesh;
+        boardMesh.GetComponent<MeshRenderer>().material = skin.mat;
+
+        //Если скин бесплтаный или куплен
+        if (skin.cost == 0 || storage.CheckBoard(skinNumber))
+        {
+            boardSelectText.text = selectString.GetLocalizedString();
+            boardSelectButton.interactable = storage.CurrentBoardSkin != skinNumber;
+        }
+        else
+        {
+            boardSelectText.text = "<color=#FFD700>" + skin.cost;
+            boardSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
+        }
+    }
+
+    protected void SelectPawnSkin(int skinNumber)
+    {
+        var skin = skins.pawnSkins[skinNumber];
+        pawnMesh.mesh = skin.mesh;
+        pawnMesh.GetComponent<MeshRenderer>().material = skin.mat;
+        pawnMesh.transform.localScale = Vector3.one * skin.scale;
+        pawnMesh.transform.localRotation = Quaternion.Euler(skin.rotation);
+        pawnMesh.transform.localPosition = skin.position;
+
+        if (skin.cost == 0 || storage.CheckPawn(skinNumber))
+        {
+            pawnSelectText.text = selectString.GetLocalizedString();
+            pawnSelectButton.interactable = storage.CurrentPawnSkin != skinNumber;
+        }
+        else
+        {
+            pawnSelectText.text = "<color=#FFD700>" + skin.cost;
+            pawnSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
+        }
+    }
+
+    #endregion
+
+    #region UIFunctions
+
+    public void ConfirmSelectBoard()
+    {
+        if (storage.TryBuyOrEquipBoard(selectedBoard))
+        {
+            storage.CurrentBoardSkin = selectedBoard;
+            UpdateStats();
+        }
+    }
+
+    public void ConfirmSelectPawn()
+    {
+        if (storage.TryBuyOrEquipPawn(selectedPawn))
+        {
+            storage.CurrentPawnSkin = selectedPawn;
+            UpdateStats();
+        }
     }
 
     public void NextBoard()
@@ -84,24 +164,6 @@ public class CustomizationMenu : MenuBase
         SelectBoardSkin(selectedBoard);
     }
 
-    protected void SelectBoardSkin(int skinNumber)
-    {
-        var skin = skins.boardSkins[skinNumber];
-        boardMesh.mesh = skin.variation1Mesh;
-        boardMesh.GetComponent<MeshRenderer>().material = skin.mat;
-        GameBase.storage.currentBoardSkin = skinNumber;
-
-        if (skin.cost == 0 || GameBase.storage.CheckBoard(skinNumber))
-        {
-            boardSelectText.text = selectString.GetLocalizedString();
-        }
-        else
-        {
-            boardSelectText.text = "<color=#FFD700>" + skin.cost;
-            boardSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
-        }
-    }
-
     public void NextPawn()
     {
         selectedPawn++;
@@ -120,58 +182,6 @@ public class CustomizationMenu : MenuBase
             selectedPawn = skins.pawnSkins.Count - 1;
 
         SelectPawnSkin(selectedPawn);
-    }
-
-    protected void SelectPawnSkin(int skinNumber)
-    {
-        var skin = skins.pawnSkins[skinNumber];
-        pawnMesh.mesh = skin.mesh;
-        pawnMesh.GetComponent<MeshRenderer>().material = skin.mat;
-        pawnMesh.transform.localScale = Vector3.one * skin.scale;
-        pawnMesh.transform.localRotation = Quaternion.Euler(skin.rotation);
-        pawnMesh.transform.localPosition = skin.position;
-        storage.currentPawnSkin = skinNumber;
-
-        if (skin.cost == 0 || storage.CheckPawn(skinNumber))
-        {
-            pawnSelectText.text = selectString.GetLocalizedString();
-        }
-        else
-        {
-            pawnSelectText.text = "<color=#FFD700>" + skin.cost;
-            pawnSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
-        }
-    }
-
-    protected void ConfirmSelectBoard()
-    {
-        if (storage.TryBuyBoard(selectedBoard))
-        {
-            UpdateStats();
-        }
-    }
-
-    protected void ConfirmSelectPawn()
-    {
-        if (storage.TryBuyPawn(selectedBoard))
-        {
-            UpdateStats();
-        }
-    }
-
-    public void OnEnable()
-    {
-        bPreviousOrtho = canvas.worldCamera.orthographic;
-        canvas.worldCamera.orthographic = true;
-
-        UpdateStats();
-    }
-
-    public void OnDisable()
-    {
-        if (canvas && canvas.worldCamera)
-            canvas.worldCamera.orthographic = bPreviousOrtho;
-        SpesLogger.Detail("Выбраны скины: " + selectedBoard + " " + selectedPawn);
     }
 
     #endregion
