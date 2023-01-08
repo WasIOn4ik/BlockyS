@@ -8,10 +8,7 @@ public class SpesAnimator
 
     public void AnimateCamera()
     {
-        if (controller is SinglePlayerController single)
-        {
-            single.StartCoroutine(HandleAnimation(Camera.main));
-        }
+        GameplayBase.instance.StartCoroutine(HandleAnimation(Camera.main));
     }
 
     protected IEnumerator HandleAnimation(Camera cam)
@@ -26,5 +23,6 @@ public class SpesAnimator
 
             yield return null;
         }
+        GameplayBase.instance.UpdateDefaultSkinColorForPawns();
     }
 }

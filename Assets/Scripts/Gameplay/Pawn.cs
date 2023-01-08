@@ -15,11 +15,13 @@ public class Pawn : NetworkBehaviour
     [SerializeField] public float animationTime;
 
     [Header("InGame data")]
-    public int playerOrder;
-    public NetworkVariable<Point> block;
+    public NetworkVariable<int> playerOrder = new NetworkVariable<int>();
+    public NetworkVariable<Point> block = new NetworkVariable<Point>();
 
     public delegate void MovedDelegate();
     public event MovedDelegate OnAnimated;
+
+    protected PawnDescription skin;
 
     #endregion
 
@@ -28,6 +30,14 @@ public class Pawn : NetworkBehaviour
     public void Awake()
     {
         block.OnValueChanged += OnMoved;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (!IsOwner || IsServer)
+            OnAnimated += GameplayBase.instance.cameraAnimator.AnimateCamera;
     }
 
     private void OnMoved(Point previousValue, Point newValue)
@@ -90,7 +100,15 @@ public class Pawn : NetworkBehaviour
         {
             if (block.Value.x == GameBase.server.prefs.boardHalfExtent && block.Value.y == GameBase.server.prefs.boardHalfExtent)
             {
-                GameplayBase.instance.GameFinishedClientRpc(playerOrder);
+                if (GameBase.server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
+                {
+                    string res = playerInfo;
+                    if (IsOwner)
+                    {
+                        res = res + "_" + playerOrder.Value;
+                    }
+                    GameplayBase.instance.GameFinishedClientRpc(res);
+                }
             }
         }
 
@@ -98,20 +116,24 @@ public class Pawn : NetworkBehaviour
             OnAnimated();
     }
 
+    public void UpdateColor()
+    {
+        //Стандартные пешки красятся в разные цвета. Синий - локальный игрок, Красный - враг
+        if (skin.name == "Default")
+        {
+            mesh.material.color = (IsServer || IsOwner) && playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
+        }
+    }
+
     [ClientRpc(Delivery = RpcDelivery.Reliable)]
     public void SetSkinClientRpc(int ind)
     {
-        var skin = GameBase.instance.skins.pawnSkins[ind];
+        skin = GameBase.instance.skins.pawnSkins[ind];
 
         filter.mesh = skin.mesh;
         mesh.material = skin.mat;
 
-        //Стандартные пешки красятся в разные цвета. Синий - локальный игрок, Красный - враг
-        if (skin.name == "Default")
-        {
-            mesh.material.color = IsOwner ? Color.blue : Color.red;
-        }
-
+        UpdateColor();
     }
 
     #endregion

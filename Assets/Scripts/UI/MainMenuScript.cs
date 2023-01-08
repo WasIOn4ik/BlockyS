@@ -6,7 +6,7 @@ public class MainMenuScript : MenuBase
 {
     #region Variables
 
-    [SerializeField] GameObject connectMenu, hostMenu, settingsMenu;
+    [SerializeField] private GameObject connectMenu, hostMenu, settingsMenu;
 
     #endregion
 

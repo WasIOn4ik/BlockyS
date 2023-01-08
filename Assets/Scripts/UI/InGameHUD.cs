@@ -28,12 +28,11 @@ public class InGameHUD : MonoBehaviour
     [Header("Preferences")]
     [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - движение пешки")]
     [SerializeField] protected Sprite moveTurnSprite;
+    [SerializeField] protected Sprite buildWallSprite;
     [SerializeField] protected LocalizedString yourTurnLocalized;
     [SerializeField] protected LocalizedString oponentTurnLocalized;
 
     protected InputComponent inputComp;
-
-    protected Sprite buildWallSprite;
 
     protected Animator animator;
 
@@ -53,9 +52,18 @@ public class InGameHUD : MonoBehaviour
 
     public void OnPlaceWallClicked()
     {
+        if (inputComp.GetMoveMode())
+        {
+            if (inputComp.controller.GetPlayerInfo().WallCount <= 0)
+            {
+                animator.Play("WallsCountWarning");
+                return;
+            }
+        }
+
         inputComp.SetMoveMode(!inputComp.GetMoveMode());
 
-        placeWallButtonImage.sprite = inputComp.GetMoveMode() ? buildWallSprite : moveTurnSprite;
+        UpdateActionButton();
 
         animator.Play(inputComp.GetMoveMode() ? "HideConfirmTurn" : "ShowConfirmTurn");
     }
@@ -87,11 +95,12 @@ public class InGameHUD : MonoBehaviour
 
     public void ToDefault()
     {
+        UpdateActionButton();
+
+
         if (!inputComp.GetMoveMode())
         {
             inputComp.SetMoveMode(true);
-
-            placeWallButtonImage.sprite = buildWallSprite;
 
             animator.Play("HideConfirmTurn");
         }
@@ -120,6 +129,11 @@ public class InGameHUD : MonoBehaviour
     public void SetWallsCount(int x)
     {
         wallsCountText.text = " X " + x;
+    }
+
+    protected void UpdateActionButton()
+    {
+        placeWallButtonImage.sprite = inputComp.GetMoveMode() ? buildWallSprite : moveTurnSprite;
     }
 
     #endregion

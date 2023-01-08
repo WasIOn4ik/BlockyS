@@ -1000,6 +1000,7 @@ MonoBehaviour:
   turnHelperLocalizeEvent: {fileID: 7499490117957717983}
   wallsCountText: {fileID: 6977578626294521173}
   moveTurnSprite: {fileID: 21300000, guid: 40c1aac64a7242d4b9d7b595cb254ae0, type: 3}
+  buildWallSprite: {fileID: 21300000, guid: 236a8e5f4d42be4438a1207c4e8cadd2, type: 3}
   yourTurnLocalized:
     m_TableReference:
       m_TableCollectionName: GUID:8c87fa0d0590c614c985ca6a5fb8223e

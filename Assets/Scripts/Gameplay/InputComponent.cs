@@ -107,75 +107,19 @@ public class InputComponent : MonoBehaviour
             }
             else if (bClick && touch.phase == TouchPhase.Ended && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
             {
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
                 //Режим перемещения пешки
                 if (bMoveMode)
                 {
-                    if (Physics.Raycast(ray, out RaycastHit hit, 1000f, moveLayer))
-                    {
-                        var bb = hit.collider.gameObject.GetComponentInParent<BoardBlock>();
-
-                        if (bb)
-                        {
-                            SpesLogger.Deb("Нажатие на блок: " + bb.name);
-
-                            //Начало хода за пешку
-                            if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
-                            {
-                                if (bb.bSelected)
-                                    bb.UnHighlightAround();
-                                else
-                                    bb.HighlightAround();
-                            }
-                            //Подтверждение хода за пешку
-                            else if (bb.bHighlighted)
-                            {
-                                turn = new();
-                                turn.type = ETurnType.Move;
-                                turn.pos = bb.coords;
-                                ConfirmTurn();
-                            }
-                        }
-                    }
+                    TryMovePawn();
                 }
                 //Режим строительства стенок
                 else
                 {
-                    if (Physics.Raycast(ray, out RaycastHit hit, 1000f, placeLayer))
-                    {
-                        var wph = hit.collider.gameObject.GetComponentInParent<WallPlaceholder>();
-
-                        if (wph)
-                        {
-                            turn = new();
-
-                            if (previousClickedPlaceholder == wph)
-                            {
-                                placeType = (placeType == ETurnType.PlaceXForward ? ETurnType.PlaceZForward : ETurnType.PlaceXForward);
-                            }
-                            previousClickedPlaceholder = wph;
-
-                            turn.type = placeType;
-                            turn.pos = wph.coords;
-
-                            if (!GameplayBase.instance.CheckPlace(turn))
-                            {
-                                SpesLogger.Detail("Ход не является допустимым");
-                                turn = new();
-                                UpdateTurnValid(false);
-                                wallPredict.gameObject.SetActive(false);
-                                return;
-                            }
-                            UpdateTurnValid(true);
-
-                            wallPredict.gameObject.SetActive(true);
-                            wallPredict.position = wph.transform.position;
-                            wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 90, 0);
-                        }
-                    }
+                    TryPlaceWall();
                 }
             }
+
+            //Управление камерой
             if (touch.phase == TouchPhase.Moved)
             {
                 var delta = new Vector3(touch.position.x, touch.position.y) - startPos;
@@ -202,77 +146,22 @@ public class InputComponent : MonoBehaviour
         {
             bClick = false;
         }
+
         else if (bClick && Input.GetMouseButtonUp(0) && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
         {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-
             //Режим перемещения пешки
             if (bMoveMode)
             {
-                if (Physics.Raycast(ray, out RaycastHit hit, 1000f, moveLayer))
-                {
-                    var bb = hit.collider.gameObject.GetComponentInParent<BoardBlock>();
-
-                    if (bb)
-                    {
-                        SpesLogger.Deb("Нажатие на блок: " + bb.name);
-
-                        //Начало хода за пешку
-                        if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
-                        {
-                            if (bb.bSelected)
-                                bb.UnHighlightAround();
-                            else
-                                bb.HighlightAround();
-                        }
-                        //Подтверждение хода за пешку
-                        else if (bb.bHighlighted)
-                        {
-                            turn = new();
-                            turn.type = ETurnType.Move;
-                            turn.pos = bb.coords;
-                            ConfirmTurn();
-                        }
-                    }
-                }
+                TryMovePawn();
             }
             //Режим строительства стенок
             else
             {
-                if (Physics.Raycast(ray, out RaycastHit hit, 1000f, placeLayer))
-                {
-                    var wph = hit.collider.gameObject.GetComponentInParent<WallPlaceholder>();
-
-                    if (wph)
-                    {
-                        turn = new();
-
-                        if (previousClickedPlaceholder == wph)
-                        {
-                            placeType = (placeType == ETurnType.PlaceXForward ? ETurnType.PlaceZForward : ETurnType.PlaceXForward);
-                        }
-                        previousClickedPlaceholder = wph;
-
-                        turn.type = placeType;
-                        turn.pos = wph.coords;
-
-                        if (!GameplayBase.instance.CheckPlace(turn))
-                        {
-                            SpesLogger.Detail("Ход не является допустимым");
-                            turn = new();
-                            UpdateTurnValid(false);
-                            wallPredict.gameObject.SetActive(false);
-                            return;
-                        }
-                        UpdateTurnValid(true);
-
-                        wallPredict.gameObject.SetActive(true);
-                        wallPredict.position = wph.transform.position;
-                        wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 90, 0);
-                    }
-                }
+                TryPlaceWall();
             }
         }
+
+        //Управление камерой
         if (Input.GetMouseButton(0))
         {
             var delta = Input.mousePosition - startPos;
@@ -296,6 +185,7 @@ public class InputComponent : MonoBehaviour
     public void ConfirmTurn()
     {
         controller.EndTurn(turn);
+        placeType = ETurnType.PlaceXForward;
         SetMoveMode(true);
     }
 
@@ -320,6 +210,88 @@ public class InputComponent : MonoBehaviour
     public bool GetMoveMode()
     {
         return bMoveMode;
+    }
+
+    protected bool TryPlaceWall()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, placeLayer))
+        {
+            var wph = hit.collider.gameObject.GetComponentInParent<WallPlaceholder>();
+
+            if (wph)
+            {
+                //Обработка поворота стенки
+                if (previousClickedPlaceholder == wph)
+                {
+                    placeType = RotateWall(placeType);
+                }
+                previousClickedPlaceholder = wph;
+
+                turn = new(placeType, wph.coords);
+
+                //Проверка положения строительства
+                if (!GameplayBase.instance.CheckPlace(turn))
+                {
+                    turn.type = RotateWall(turn.type);
+                    placeType = turn.type;
+
+                    //Если стенку можно построить только в одном положении
+                    if (!GameplayBase.instance.CheckPlace(turn))
+                    {
+                        SpesLogger.Detail("Ход не является допустимым");
+                        turn = new();
+                        UpdateTurnValid(false);
+                        wallPredict.gameObject.SetActive(false);
+                        return false;
+                    }
+                }
+                UpdateTurnValid(true);
+
+                wallPredict.gameObject.SetActive(true);
+                wallPredict.position = wph.transform.position;
+                wallPredict.rotation = turn.type == ETurnType.PlaceXForward ? Quaternion.Euler(0, 0, 0) : Quaternion.Euler(0, 90, 0);
+            }
+        }
+        return true;
+    }
+
+    protected bool TryMovePawn()
+    {
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, moveLayer))
+        {
+            var bb = hit.collider.gameObject.GetComponentInParent<BoardBlock>();
+
+            if (bb)
+            {
+                SpesLogger.Deb("Нажатие на блок: " + bb.name);
+
+                //Начало хода за пешку
+                if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
+                {
+                    if (bb.bSelected)
+                        bb.UnHighlightAround();
+                    else
+                        bb.HighlightAround();
+                }
+                //Подтверждение хода за пешку
+                else if (bb.bHighlighted)
+                {
+                    turn = new(ETurnType.Move, bb.coords);
+                    ConfirmTurn();
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    protected ETurnType RotateWall(ETurnType wt)
+    {
+        return (wt == ETurnType.PlaceXForward ? ETurnType.PlaceZForward : ETurnType.PlaceXForward);
     }
 
     #endregion

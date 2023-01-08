@@ -3,6 +3,6 @@ using System;
 [Serializable]
 public struct ConnectionPayload
 {
-    public PlayerInfo client;
+    public string playerName;
     public string password;
 }

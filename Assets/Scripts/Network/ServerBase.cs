@@ -16,7 +16,7 @@ public class ServerBase : MonoBehaviour
 
     public int localPlayers;
 
-    protected Dictionary<ulong, PlayerInfo> clients = new Dictionary<ulong, PlayerInfo>();
+    public Dictionary<ulong, string> Clients { get; protected set; } = new Dictionary<ulong, string>();
 
     #endregion
 
@@ -70,14 +70,14 @@ public class ServerBase : MonoBehaviour
     {
         var payloadBytes = request.Payload;
         string payload = System.Text.Encoding.UTF8.GetString(payloadBytes);
-        if (clients.Count < prefs.maxPlayers)
+        if (Clients.Count < prefs.maxPlayers)
         {
             var cinfo = JsonUtility.FromJson<ConnectionPayload>(payload);
             if (cinfo.password == prefs.password || String.IsNullOrEmpty(prefs.password))
             {
                 response.Approved = true;
                 response.CreatePlayerObject = false;
-                clients.Add(request.ClientNetworkId, cinfo.client);
+                Clients.Add(request.ClientNetworkId, cinfo.playerName);
                 SpesLogger.Detail("Клиенту " + request.ClientNetworkId + " одобрен вход");
                 return;
             }
@@ -110,8 +110,27 @@ public class ServerBase : MonoBehaviour
 
     public void ClearAll()
     {
-        clients.Clear();
+        Clients.Clear();
         networkManager.Shutdown();
+        UnbindAll();
+    }
+
+    protected void UnbindAll()
+    {
+        if (networkManager)
+        {
+            networkManager.OnClientConnectedCallback -= OnConnected;
+            networkManager.OnClientDisconnectCallback -= OnDisconnected;
+            networkManager.OnTransportFailure -= OnTransportFailure;
+            networkManager.OnServerStarted -= OnServerStarted;
+            networkManager.ConnectionApprovalCallback -= ApproveClient;
+            if (networkManager.SceneManager != null)
+            {
+                networkManager.SceneManager.OnLoad -= OnLoadStarted;
+                networkManager.SceneManager.OnLoadComplete -= OnInstanceLoadComplete;
+                networkManager.SceneManager.OnLoadEventCompleted -= OnAllClientsLoaded;
+            }
+        }
     }
 
     protected IEnumerator HostGameCoroutine(ushort port)
@@ -123,7 +142,7 @@ public class ServerBase : MonoBehaviour
         UnityTransport net = networkManager.GetComponent<UnityTransport>();
         net.ConnectionData.Port = port;
 
-        ConnectionPayload payload = new ConnectionPayload() { client = GameBase.client.clientInfo, password = "" };
+        ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.client.playerName, password = "" };
         string jsonData = JsonUtility.ToJson(payload);
         networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
@@ -134,6 +153,7 @@ public class ServerBase : MonoBehaviour
 
         networkManager.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
+
     protected IEnumerator SetupSingleDeviceCoroutine()
     {
         while (networkManager.ShutdownInProgress)
@@ -141,13 +161,15 @@ public class ServerBase : MonoBehaviour
             yield return null;
         }
         networkManager.NetworkConfig.ConnectionApproval = false;
-        ConnectionPayload payload = new ConnectionPayload() { client = GameBase.client.clientInfo, password = "" };
+        ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.client.playerName, password = "" };
         string jsonData = JsonUtility.ToJson(payload);
         networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
         SetupSceneCallbacks();
 
         networkManager.StartHost();
+
+        Clients.Add(networkManager.LocalClientId, GameBase.client.playerName);
 
         networkManager.SceneManager.LoadScene("GameScene", UnityEngine.SceneManagement.LoadSceneMode.Single);
     }
@@ -181,21 +203,7 @@ public class ServerBase : MonoBehaviour
 
     public void OnDestroy()
     {
-        if (networkManager)
-        {
-            networkManager.OnClientConnectedCallback -= OnConnected;
-            networkManager.OnClientDisconnectCallback -= OnDisconnected;
-            networkManager.OnTransportFailure -= OnTransportFailure;
-            networkManager.OnServerStarted -= OnServerStarted;
-            networkManager.ConnectionApprovalCallback -= ApproveClient;
-
-            if (networkManager.SceneManager != null)
-            {
-                networkManager.SceneManager.OnLoad -= OnLoadStarted;
-                networkManager.SceneManager.OnLoadComplete -= OnInstanceLoadComplete;
-                networkManager.SceneManager.OnLoadEventCompleted -= OnAllClientsLoaded;
-            }
-        }
+        UnbindAll();
     }
 
     #endregion

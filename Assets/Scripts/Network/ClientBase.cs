@@ -8,11 +8,20 @@ using UnityEngine.SceneManagement;
 
 public class ClientBase : MonoBehaviour
 {
-    #region Varaibles
+    #region Variables
 
-    public PlayerInfo clientInfo;
+    public string playerName;
 
     public NetworkManager networkManager;
+
+    #endregion
+
+    #region UnityCallbacks
+
+    public void OnDestroy()
+    {
+        UnbindAll();
+    }
 
     #endregion
 
@@ -41,7 +50,7 @@ public class ClientBase : MonoBehaviour
 
         if (clientID == networkManager.LocalClientId || clientID == 0)
         {
-            MenuBase.OpenMenu("StartupMenu");
+            SceneManager.LoadScene("StartupScene");
         }
     }
 
@@ -60,10 +69,13 @@ public class ClientBase : MonoBehaviour
         StartCoroutine(ConnectCoroutine(address, port));
     }
 
+    /// <summary>
+    /// Сброс информации о настройках клиента и выключение NetworkManager'а
+    /// </summary>
     public void ClearAll()
     {
-        clientInfo = new();
         networkManager.Shutdown(true);
+        UnbindAll();
     }
 
     protected IEnumerator ConnectCoroutine(string address, ushort port)
@@ -76,7 +88,7 @@ public class ClientBase : MonoBehaviour
         net.ConnectionData.Address = address;
         net.ConnectionData.Port = port;
 
-        ConnectionPayload payload = new ConnectionPayload() { client = clientInfo, password = "" };
+        ConnectionPayload payload = new ConnectionPayload() { playerName = playerName, password = "" };
         string jsonData = JsonUtility.ToJson(payload);
         networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
@@ -106,12 +118,7 @@ public class ClientBase : MonoBehaviour
             SpesLogger.Warning("Попытка привязки к SceneManager, который не существует");
         }
     }
-
-    #endregion
-
-    #region UnityCallbacks
-
-    public void OnDestroy()
+    protected void UnbindAll()
     {
         if (networkManager)
         {
@@ -128,5 +135,4 @@ public class ClientBase : MonoBehaviour
     }
 
     #endregion
-
 }

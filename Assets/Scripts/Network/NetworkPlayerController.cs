@@ -8,15 +8,18 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 {
     #region Variables
 
-    protected NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
-
     public NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    [SerializeField] InGameHUD hudPrefab;
+    [SerializeField] private InGameHUD hudPrefab;
+
+    protected NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
 
     protected InputComponent inputComp;
 
     protected InGameHUD hud;
+
+    protected Camera cam;
+
 
     #endregion
 
@@ -25,13 +28,6 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     public void Awake()
     {
         inputComp = GetComponent<InputComponent>();
-    }
-
-
-    private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
-    {
-        if (!IsServer)
-            hud.SetWallsCount(newValue.WallCount);
     }
 
     public override void OnNetworkSpawn()
@@ -54,14 +50,21 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
         if (IsOwner)
         {
-            var cam = Camera.main;
+            cam = Camera.main;
             cam.transform.SetParent(transform);
             cam.transform.localPosition = Vector3.zero;
             cam.transform.localRotation = Quaternion.identity;
+            AllignCamera();
 
             SpesLogger.Detail("Установлены скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
             cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
         }
+    }
+
+    private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
+    {
+        if (!IsServer)
+            hud.SetWallsCount(newValue.WallCount);
     }
 
     #endregion
@@ -82,6 +85,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             inputComp.turnValid -= hud.OnTurnValidationChanged;
         }
         SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " завершил ход");
+
         EndTurnServerRpc(turn);
     }
 
@@ -125,6 +129,20 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         UpdateTurnClientRpc(active);
     }
 
+    /// <summary>
+    /// Выравнивает контроллер на нужное положение
+    /// </summary>
+    /// <returns>Текущее положение камеры до обновления</returns>
+    protected Vector3 AllignCamera()
+    {
+        var cameraPosition = cam.transform.position;
+        var cameraRotation = cam.transform.rotation;
+        //Расчет нового положения камеры
+        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
+        transform.SetPositionAndRotation(pos, cameraRotation);
+        return cameraPosition;
+    }
+
     #endregion
 
     #region RPCs
@@ -149,7 +167,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         if (IsOwner)
         {
             inputComp.turnValid += hud.OnTurnValidationChanged;
+
+            cam.transform.position = AllignCamera();
         }
+
         inputComp.UpdateTurnValid(false);
     }
 

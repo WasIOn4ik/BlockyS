@@ -13,6 +13,9 @@ public class GameBase : MonoBehaviour
 
     [SerializeField] private MenusLibrary menusLibrary;
     public SkinsLibrary skins;
+    public GameRules gameRules;
+
+    public bool bNetMode;
 
     #endregion
 
@@ -22,12 +25,6 @@ public class GameBase : MonoBehaviour
     public static ServerBase server;
     public static ClientBase client;
     public static GameStorage storage;
-
-    #endregion
-
-    #region Variables
-
-    public bool bNetMode;
 
     #endregion
 

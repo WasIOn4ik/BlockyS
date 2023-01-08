@@ -74,14 +74,6 @@ public class CustomizationMenu : MenuBase
 
     #region Functions
 
-    private void UpdateStats()
-    {
-        SelectBoardSkin(selectedBoard);
-        SelectPawnSkin(selectedPawn);
-
-        coinsCountText.text = storage.GetCoins().ToString();
-    }
-
     protected void SelectBoardSkin(int skinNumber)
     {
         var skin = skins.boardSkins[skinNumber];
@@ -120,6 +112,14 @@ public class CustomizationMenu : MenuBase
             pawnSelectText.text = "<color=#FFD700>" + skin.cost;
             pawnSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
         }
+    }
+
+    private void UpdateStats()
+    {
+        SelectBoardSkin(selectedBoard);
+        SelectPawnSkin(selectedPawn);
+
+        coinsCountText.text = storage.GetCoins().ToString();
     }
 
     #endregion

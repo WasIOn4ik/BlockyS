@@ -49,17 +49,17 @@ public class GameplayBase : NetworkBehaviour
     [Range(0, 20)]
     [SerializeField] protected int wallsCount = 5;
 
+    public bool bGameActive = false;
+
+    public SpesAnimator cameraAnimator = new();
+
     protected List<IPlayerController> players = new();
 
-    protected int activePlayer = 0;
+    public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
 
     protected Dictionary<int, ulong> ordersToNetIDs = new();
 
     protected MenuBase waitingMenu;
-
-    public bool bGameActive = false;
-
-    protected SpesAnimator cameraAnimator = new();
 
     #endregion
 
@@ -88,12 +88,38 @@ public class GameplayBase : NetworkBehaviour
             instance = null;
         }
 
+        NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+
         base.OnDestroy();
     }
 
     #endregion
 
     #region NetworkCallbakcs
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Сервер}" : "{Клиент}"));
+
+        if (IsServer)
+        {
+            gameboard.Initialize(GameBase.server.prefs.boardHalfExtent);
+
+            for (int i = 0; i < GameBase.server.localPlayers; i++)
+            {
+                ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
+                var player = S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
+            }
+            S_HandleWaitingMenu();
+            ActivePlayer.Value = 0;
+        }
+        else if (IsClient)
+        {
+            RequestInitializeServerRpc();
+        }
+    }
 
     private void OnClientConnected(ulong clientID)
     {
@@ -114,32 +140,20 @@ public class GameplayBase : NetworkBehaviour
         UpdateSkinsClientRpc(GetCosmetics());
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-
-        SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Сервер}" : "{Клиент}"));
-
-        if (IsServer)
-        {
-            gameboard.Initialize(GameBase.server.prefs.boardHalfExtent);
-
-            for (int i = 0; i < GameBase.server.localPlayers; i++)
-            {
-                ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
-                var player = S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
-            }
-            S_HandleWaitingMenu();
-        }
-        else if (IsClient)
-        {
-            RequestInitializeServerRpc();
-        }
-    }
-
     #endregion
 
     #region Functions
+
+    public void UpdateDefaultSkinColorForPawns()
+    {
+        foreach (var el in players)
+        {
+            if (el != null)
+            {
+                el.GetPlayerInfo().pawn.UpdateColor();
+            }
+        }
+    }
 
     /// <summary>
     /// SERVER-FUNCTION: Вызывается сервером у локальной копии GameplayBase для завершения хода
@@ -148,7 +162,7 @@ public class GameplayBase : NetworkBehaviour
     /// <param name="turn"></param>
     public void S_EndTurn(IPlayerController controller, Turn turn)
     {
-        if (activePlayer != controller.GetPlayerInfo().playerOrder)
+        if (ActivePlayer.Value != controller.GetPlayerInfo().playerOrder)
         {
             SpesLogger.Warning("Получен ход от игрока" + controller.GetPlayerInfo().playerOrder + " но сейчас не его ход");
             return;
@@ -157,7 +171,7 @@ public class GameplayBase : NetworkBehaviour
         switch (turn.type)
         {
             case ETurnType.Move:
-                var pawn = players[activePlayer].GetPlayerInfo().pawn;
+                var pawn = players[ActivePlayer.Value].GetPlayerInfo().pawn;
 
                 if (!CheckMove(pawn, turn))
                 {
@@ -236,95 +250,13 @@ public class GameplayBase : NetworkBehaviour
         }
 
         //Если не сработал return, то ход передается следующеу игроку в следующем кадре
-        activePlayer++;
-        if (activePlayer >= GameBase.server.prefs.maxPlayers)
+        ActivePlayer.Value++;
+        if (ActivePlayer.Value >= GameBase.server.prefs.maxPlayers)
         {
-            activePlayer = 0;
+            ActivePlayer.Value = 0;
         }
 
         StartCoroutine(nextTurn());
-    }
-
-    /// <summary>
-    /// Передает ход активному игроку в следующем Tick'е
-    /// </summary>
-    /// <returns></returns>
-    protected IEnumerator nextTurn()
-    {
-        yield return new WaitForEndOfFrame();
-        yield return null;
-        cameraAnimator.controller = players[activePlayer];
-        players[activePlayer].StartTurn();
-        S_UpdatePlayersTurn();
-    }
-
-    /// <summary>
-    /// Преобразует координаты стартовой позиции Vector3 из x,y,z[0:1] в Point x,y[0:halfExt*2]
-    /// </summary>
-    /// <param name="vec"></param>
-    /// <returns></returns>
-    protected Point PreselectedPoint(Vector3 vec)
-    {
-        Point p = new Point();
-        p.x = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.x);
-        p.y = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.z);
-
-        return p;
-    }
-
-    /// <summary>
-    /// SERVER-FUNCTION: Создает контроллер игрока.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="prefab"></param>
-    /// <returns></returns>
-    protected T S_SpawnAbstractPlayer<T>(IPlayerController prefab) where T : MonoBehaviour, IPlayerController
-    {
-        int playerOrder = players.Count;
-
-        Vector3 playerStartPosition = playersStartPositions[playerOrder];
-        float y = playerStartPosition.y;
-        playerStartPosition *= GameBase.server.prefs.boardHalfExtent;
-        playerStartPosition.y = y;
-
-        var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
-        player.name = "Controller_" + playerOrder;
-        players.Add(player);
-
-        var point = PreselectedPoint(playersStartPositions[playerOrder]);
-
-        var info = player.GetPlayerInfo();
-        info.playerOrder = playerOrder;
-        info.pawn = SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
-        info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
-        info.WallCount = wallsCount;
-        info.state = EPlayerState.Waiting;
-
-        player.SetPlayerInfo(info);
-
-        return player as T;
-    }
-
-    /// <summary>
-    /// SERVER-FUNCTION: Создает пешку игрока, спавнит в мире, регистрирует у игрока
-    /// </summary>
-    /// <param name="playerOrder"></param>
-    /// <param name="block"></param>
-    /// <returns></returns>
-    protected Pawn SpawnPawn(int playerOrder, BoardBlock block)
-    {
-        Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.Euler(0, playersStartRotation[playerOrder].y, 0));
-        newPawn.name = "Pawn_" + playerOrder;
-
-        newPawn.NetworkObject.SpawnWithOwnership(ordersToNetIDs[playerOrder]);
-
-        var info = players[playerOrder].GetPlayerInfo();
-        info.pawn = newPawn;
-        players[playerOrder].SetPlayerInfo(info);
-
-        newPawn.block.Value = block.coords;
-        newPawn.playerOrder = playerOrder;
-        return newPawn;
     }
 
     /// <summary>
@@ -408,6 +340,88 @@ public class GameplayBase : NetworkBehaviour
     }
 
     /// <summary>
+    /// Передает ход активному игроку в следующем Tick'е
+    /// </summary>
+    /// <returns></returns>
+    protected IEnumerator nextTurn()
+    {
+        yield return new WaitForEndOfFrame();
+        yield return null;
+        cameraAnimator.controller = players[ActivePlayer.Value];
+        players[ActivePlayer.Value].StartTurn();
+        S_UpdatePlayersTurn();
+    }
+
+    /// <summary>
+    /// Преобразует координаты стартовой позиции Vector3 из x,y,z[0:1] в Point x,y[0:halfExt*2]
+    /// </summary>
+    /// <param name="vec"></param>
+    /// <returns></returns>
+    protected Point PreselectedPoint(Vector3 vec)
+    {
+        Point p = new Point();
+        p.x = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.x);
+        p.y = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.z);
+
+        return p;
+    }
+
+    /// <summary>
+    /// SERVER-FUNCTION: Создает контроллер игрока.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="prefab"></param>
+    /// <returns></returns>
+    protected T S_SpawnAbstractPlayer<T>(IPlayerController prefab) where T : MonoBehaviour, IPlayerController
+    {
+        int playerOrder = players.Count;
+
+        Vector3 playerStartPosition = playersStartPositions[playerOrder];
+        float y = playerStartPosition.y;
+        playerStartPosition *= GameBase.server.prefs.boardHalfExtent;
+        playerStartPosition.y = y;
+
+        var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
+        player.name = "Controller_" + playerOrder;
+        players.Add(player);
+
+        var point = PreselectedPoint(playersStartPositions[playerOrder]);
+
+        var info = player.GetPlayerInfo();
+        info.playerOrder = playerOrder;
+        info.pawn = S_SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
+        //info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
+        info.WallCount = wallsCount;
+        info.state = EPlayerState.Waiting;
+
+        player.SetPlayerInfo(info);
+
+        return player as T;
+    }
+
+    /// <summary>
+    /// SERVER-FUNCTION: Создает пешку игрока, спавнит в мире, регистрирует у игрока
+    /// </summary>
+    /// <param name="playerOrder"></param>
+    /// <param name="block"></param>
+    /// <returns></returns>
+    protected Pawn S_SpawnPawn(int playerOrder, BoardBlock block)
+    {
+        Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.Euler(0, playersStartRotation[playerOrder].y, 0));
+        newPawn.name = "Pawn_" + playerOrder;
+
+        newPawn.NetworkObject.SpawnWithOwnership(ordersToNetIDs[playerOrder]);
+
+        var info = players[playerOrder].GetPlayerInfo();
+        info.pawn = newPawn;
+        players[playerOrder].SetPlayerInfo(info);
+
+        newPawn.block.Value = block.coords;
+        newPawn.playerOrder.Value = playerOrder;
+        return newPawn;
+    }
+
+    /// <summary>
     /// Убирает окно ожидания, когда все игроки подключились, передает ход нулевому игроку и обновляет флаг bGameActive на true, сообщает игрокам чей сейчас ход
     /// </summary>
     protected void S_HandleWaitingMenu()
@@ -445,7 +459,7 @@ public class GameplayBase : NetworkBehaviour
     {
         foreach (var pl in players)
         {
-            pl.UpdateTurn(activePlayer);
+            pl.UpdateTurn(ActivePlayer.Value);
         }
     }
 
@@ -506,9 +520,12 @@ public class GameplayBase : NetworkBehaviour
     }
 
     [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void GameFinishedClientRpc(int winner)
+    public void GameFinishedClientRpc(string winner)
     {
-        SpesLogger.Detail("Победил игрок №" + winner);
+        SpesLogger.Detail("Победил игрок " + winner);
+
+        if (IsServer)
+            GameBase.server.ClearAll();
 
         SceneManager.LoadScene("StartupScene");
     }

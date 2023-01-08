@@ -7,17 +7,15 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
     #region Variables
 
     [SerializeField] protected InGameHUD hudPrefab;
-    [SerializeField] protected float cameraHeight;
-    [SerializeField] protected float cameraBackwardOffset;
+
+    [SerializeField] protected PlayerInGameInfo playerInfo = new();
+
+    [SerializeField] protected PlayerCosmetic cosmetic;
 
     protected Vector3 cameraPosition;
     protected Quaternion cameraRotation;
 
     protected InputComponent inputComp;
-
-    [SerializeField] protected PlayerInGameInfo playerInfo = new();
-
-    [SerializeField] protected PlayerCosmetic cosmetic;
 
     #endregion
 
@@ -72,7 +70,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         cam.transform.SetParent(transform);
 
         //Расчет нового положения камеры
-        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * cameraBackwardOffset + Vector3.up * cameraHeight;
+        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
         transform.SetPositionAndRotation(pos, cameraRotation);
 
         //Настройка компонентов
@@ -97,6 +95,14 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
     public void EndTurn(Turn turn)
     {
+        if (turn.type == ETurnType.PlaceXForward || turn.type == ETurnType.PlaceZForward)
+        {
+            if (GetPlayerInfo().WallCount <= 0)
+            {
+                SpesLogger.Detail("У игрока " + GetPlayerInfo().playerOrder + " недостаточно стен для строительства");
+                return;
+            }
+        }
         SpesLogger.Deb("Локальный игрок " + GetPlayerInfo().playerOrder + " завершил ход");
 
         previousLocalController = this;
@@ -111,7 +117,6 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
         inputComp.turnValid -= hud.OnTurnValidationChanged;
     }
-
 
     public MonoBehaviour GetMono()
     {

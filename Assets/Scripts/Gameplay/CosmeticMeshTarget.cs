@@ -2,10 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Обертка для декораций по углам игрового поля
+/// </summary>
 public class CosmeticMeshTarget : MonoBehaviour
 {
+    #region Variables
+
     public MeshRenderer meshRenderer;
     public MeshFilter filter;
+
+    #endregion
+
+    #region Functions
 
     public void SetSkin(int id, int num)
     {
@@ -31,4 +40,6 @@ public class CosmeticMeshTarget : MonoBehaviour
         filter.mesh = m;
         meshRenderer.material = skin.mat;
     }
+
+    #endregion
 }

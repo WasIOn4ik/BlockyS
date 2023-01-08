@@ -6,6 +6,8 @@ using System;
 
 public class BoardWall : NetworkBehaviour
 {
+    #region Variables
+
     [SerializeField] protected MeshRenderer meshRenderer;
     [SerializeField] protected MeshFilter meshFilter;
 
@@ -14,10 +16,18 @@ public class BoardWall : NetworkBehaviour
     public delegate void MovedDelegate();
     public event MovedDelegate OnAnimated;
 
+    #endregion
+
+    #region UnityCallbacks
+
     public void Awake()
     {
         coords.OnValueChanged += OnPlaced;
     }
+
+    #endregion
+
+    #region Callbacks
 
     private void OnSkinChanged(int newValue)
     {
@@ -65,6 +75,10 @@ public class BoardWall : NetworkBehaviour
         Animate();
     }
 
+    #endregion
+
+    #region Functions
+
     private void Animate()
     {
         StartCoroutine(HandleAnimation());
@@ -100,4 +114,6 @@ public class BoardWall : NetworkBehaviour
             }
         }
     }
+
+    #endregion
 }

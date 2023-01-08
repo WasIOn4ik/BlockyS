@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717823da340e04d4ba843d6f8973dd4e, type: 3}
+  m_Name: GameRules
+  m_EditorClassIdentifier: 
+  x5Count: 12
+  x7Count: 25
+  x9Count: 42
+  cameraHeight: 3
+  cameraBackwardOffset: -2

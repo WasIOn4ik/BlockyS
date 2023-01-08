@@ -33,7 +33,7 @@ public class GameStorage : MonoBehaviour
 
     [SerializeField] protected string progressString;
 
-    public Preferences prefs = new() { masterVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0 };
+    public Preferences prefs = new() { masterVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0, playerName = "Guest" };
 
     public Progress progress = new() { availableBoardSkins = new(), availablePawnSkins = new(), coins = 0 };
 
@@ -58,6 +58,7 @@ public class GameStorage : MonoBehaviour
             string jsonString = PlayerPrefs.GetString(preferencesString);
             prefs = JsonUtility.FromJson<Preferences>(jsonString);
             SpesLogger.Detail("Загрузка настроек прошла успешно");
+            GameBase.client.playerName = prefs.playerName;
             return true;
         }
         SavePrefs();
@@ -71,6 +72,7 @@ public class GameStorage : MonoBehaviour
         PlayerPrefs.SetString(preferencesString, jsonString);
         PlayerPrefs.Save();
         SpesLogger.Detail("Сохранение настроек прошло успешно");
+        GameBase.client.playerName = prefs.playerName;
     }
 
     public bool LoadProgress()

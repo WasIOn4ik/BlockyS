@@ -192,7 +192,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "f4282e8e46b1675cb515d7a1a7d7c89f57ee1064"
+      "hash": "2f8d5ed6977abe43d2df9f06340e6ed57fcb433f"
     },
     "com.unity.test-framework": {
       "version": "1.1.31",

@@ -4,8 +4,12 @@ using UnityEngine;
 
 public class BoardBlock : MonoBehaviour
 {
+    #region Variables
+
     [SerializeField] protected MeshRenderer mesh;
     [SerializeField] protected MeshFilter filter;
+
+    public int skinID;
 
     public Point coords;
     public BoardBlock xDir;
@@ -23,7 +27,9 @@ public class BoardBlock : MonoBehaviour
 
     public static BoardBlock selectedBlock = null;
 
-    public int skinID;
+    #endregion
+
+    #region Functions
 
     public void Awake()
     {
@@ -87,4 +93,6 @@ public class BoardBlock : MonoBehaviour
         mesh.material = skin.mat;
         color = mesh.material.color;
     }
+
+    #endregion
 }

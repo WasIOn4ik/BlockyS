@@ -51,6 +51,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   menusLibrary: {fileID: 11400000, guid: b3969f9d8f134c149822ad56c0ecb2f5, type: 2}
   skins: {fileID: 11400000, guid: a8cbca5e0bceaa44da1b47ca741ce5f8, type: 2}
+  gameRules: {fileID: 11400000, guid: df044f2c5a4c38d45a29017685f37039, type: 2}
   bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:
@@ -146,9 +147,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a258f31c7ba1814b966f2d6d988aa6e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clientInfo:
-    playerSkinID: 0
-    boardSkinID: 0
+  playerName: 
   networkManager: {fileID: 0}
 --- !u!114 &671335786993086212
 MonoBehaviour:
@@ -194,5 +193,3 @@ MonoBehaviour:
     availableBoardSkins: 
     availablePawnSkins: 
     coins: 0
-  currentBoardSkin: 0
-  currentPawnSkin: 0

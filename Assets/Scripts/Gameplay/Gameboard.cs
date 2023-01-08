@@ -8,16 +8,6 @@ using UnityEngine;
 public class Gameboard
 {
     #region Variables
-    [SerializeField] protected BoardBlock boardBlockPrefab;
-
-    [SerializeField] protected WallPlaceholder wallPlaceholderPrefab;
-
-    [SerializeField] protected CosmeticMeshTarget cosmeticMeshPrefab;
-
-    [SerializeField] protected Transform blocksHolder;
-
-    [Tooltip("AnglesTowersSize Размер вырезов по краям доски")]
-    [SerializeField] protected int ats = 2;
 
     public BoardBlock[,] blocks;
 
@@ -28,6 +18,17 @@ public class Gameboard
     public int halfExtention;
 
     public List<CosmeticMeshTarget> decors = new();
+
+    [SerializeField] protected BoardBlock boardBlockPrefab;
+
+    [SerializeField] protected WallPlaceholder wallPlaceholderPrefab;
+
+    [SerializeField] protected CosmeticMeshTarget cosmeticMeshPrefab;
+
+    [SerializeField] protected Transform blocksHolder;
+
+    [Tooltip("AnglesTowersSize Размер вырезов по краям доски")]
+    [SerializeField] protected int ats = 2;
 
     #endregion
 
