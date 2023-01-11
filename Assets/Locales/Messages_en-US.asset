@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Messages_en-US
+  m_EditorClassIdentifier: 
+  m_LocaleId:
+    m_Code: en-US
+  m_SharedData: {fileID: 11400000, guid: 4436af34f9313254e80a108d9e839295, type: 2}
+  m_Metadata:
+    m_Items:
+    - rid: 2194714487162929173
+  m_TableData:
+  - m_Id: 108332535808
+    m_Localized: Connection lost
+    m_Metadata:
+      m_Items: []
+  - m_Id: 8277163200512
+    m_Localized: 'Winner: {winnerName}
+
+      You earned: <color=#FFD700>{gold}</color>'
+    m_Metadata:
+      m_Items:
+      - rid: 2194714487162929173
+  references:
+    version: 2
+    RefIds:
+    - rid: 2194714487162929173
+      type: {class: SmartFormatTag, ns: UnityEngine.Localization.Metadata, asm: Unity.Localization}
+      data:
+        m_Entries: 00505f2d87070000

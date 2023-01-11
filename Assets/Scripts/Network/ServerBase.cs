@@ -111,8 +111,8 @@ public class ServerBase : MonoBehaviour
     public void ClearAll()
     {
         Clients.Clear();
-        networkManager.Shutdown();
         UnbindAll();
+        networkManager.Shutdown();
     }
 
     protected void UnbindAll()

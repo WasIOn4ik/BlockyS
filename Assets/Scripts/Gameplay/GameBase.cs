@@ -14,8 +14,11 @@ public class GameBase : MonoBehaviour
     [SerializeField] private MenusLibrary menusLibrary;
     public SkinsLibrary skins;
     public GameRules gameRules;
+    public MessageScript messageMenuPrefab;
 
     public bool bNetMode;
+
+    protected MessageScript currentMessage;
 
     #endregion
 
@@ -94,6 +97,16 @@ public class GameBase : MonoBehaviour
     {
         server.ClearAll();
         client.ClearAll();
+    }
+
+    public void ShowMessage(string entry, MessageAction action, bool bLocalized, string param = "")
+    {
+        if (!currentMessage)
+        {
+            currentMessage = Instantiate(messageMenuPrefab);
+        }
+
+        currentMessage.ShowMessage(entry, action, bLocalized, param);
     }
 
     #endregion

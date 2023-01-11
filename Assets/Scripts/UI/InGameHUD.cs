@@ -31,10 +31,15 @@ public class InGameHUD : MonoBehaviour
     [SerializeField] protected Sprite buildWallSprite;
     [SerializeField] protected LocalizedString yourTurnLocalized;
     [SerializeField] protected LocalizedString oponentTurnLocalized;
+    [SerializeField] protected Image timeImage;
 
     protected InputComponent inputComp;
 
     protected Animator animator;
+
+    protected float turnStartTime;
+
+    protected float turnTime;
 
     #endregion
 
@@ -44,6 +49,7 @@ public class InGameHUD : MonoBehaviour
     {
         buildWallSprite = placeWallButtonImage.sprite;
         animator = GetComponent<Animator>();
+        turnTime = GameBase.instance.gameRules.turnTime;
     }
 
     #endregion
@@ -123,6 +129,9 @@ public class InGameHUD : MonoBehaviour
             iv.Value = activePlayer;
             turnHelperLocalizeEvent.StringReference = oponentTurnLocalized;
         }
+
+        turnStartTime = Time.time;
+        StartCoroutine(updateFillAmount());
         turnHelperLocalizeEvent.RefreshString();
     }
 
@@ -136,5 +145,18 @@ public class InGameHUD : MonoBehaviour
         placeWallButtonImage.sprite = inputComp.GetMoveMode() ? buildWallSprite : moveTurnSprite;
     }
 
+    protected IEnumerator updateFillAmount()
+    {
+        float remain = (turnTime + turnStartTime - Time.time);
+        while (remain > 0.5f)
+        {
+            remain = (turnTime + turnStartTime - Time.time);
+            SpesLogger.Warning(remain.ToString());
+            timeImage.fillAmount = remain / turnTime;
+
+            yield return new WaitForSeconds(1);
+        }
+        StopCoroutine(updateFillAmount());
+    }
     #endregion
 }

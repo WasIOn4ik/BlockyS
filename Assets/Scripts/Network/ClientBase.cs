@@ -74,8 +74,8 @@ public class ClientBase : MonoBehaviour
     /// </summary>
     public void ClearAll()
     {
-        networkManager.Shutdown(true);
         UnbindAll();
+        networkManager.Shutdown(true);
     }
 
     protected IEnumerator ConnectCoroutine(string address, ushort port)

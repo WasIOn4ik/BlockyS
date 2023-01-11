@@ -52,6 +52,7 @@ MonoBehaviour:
   menusLibrary: {fileID: 11400000, guid: b3969f9d8f134c149822ad56c0ecb2f5, type: 2}
   skins: {fileID: 11400000, guid: a8cbca5e0bceaa44da1b47ca741ce5f8, type: 2}
   gameRules: {fileID: 11400000, guid: df044f2c5a4c38d45a29017685f37039, type: 2}
+  messageMenuPrefab: {fileID: 8940077981459349060, guid: 7e2fab40175409849a941f5d6090c1c1, type: 3}
   bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:

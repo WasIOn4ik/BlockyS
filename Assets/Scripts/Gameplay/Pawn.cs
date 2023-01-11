@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using UnityEngine.Localization;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public class Pawn : NetworkBehaviour
 {
@@ -55,7 +57,7 @@ public class Pawn : NetworkBehaviour
         {
             var newBlock = arr[newValue.x, newValue.y];
             newBlock.bEmpty = false;
-            StartCoroutine(Animate(newBlock));
+            HandleAnimation(newBlock);
             //transform.position = newBlock.transform.position;
         }
         else
@@ -67,6 +69,11 @@ public class Pawn : NetworkBehaviour
     #endregion 
 
     #region Functions
+
+    public void HandleAnimation(BoardBlock newBlock)
+    {
+        StartCoroutine(Animate(newBlock));
+    }
 
     public IEnumerator Animate(BoardBlock point)
     {
@@ -102,12 +109,13 @@ public class Pawn : NetworkBehaviour
             {
                 if (GameBase.server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
                 {
-                    string res = playerInfo;
+                    string winnerName = playerInfo;
+                    //Если игрок локальный, то добавляется суффикс тк только локальный игрок может быть и сервером и владельцем
                     if (IsOwner)
                     {
-                        res = res + "_" + playerOrder.Value;
+                        winnerName = winnerName + "_" + playerOrder.Value;
                     }
-                    GameplayBase.instance.GameFinishedClientRpc(res);
+                    GameplayBase.instance.GameFinishedClientRpc(winnerName);
                 }
             }
         }

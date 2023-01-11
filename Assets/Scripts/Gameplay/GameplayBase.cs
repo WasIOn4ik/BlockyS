@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.SmartFormat.PersistentVariables;
 using UnityEngine.SceneManagement;
 
 [Serializable]
@@ -46,9 +48,6 @@ public class GameplayBase : NetworkBehaviour
 
     [SerializeField] protected List<Vector3> playersStartRotation = new();
 
-    [Range(0, 20)]
-    [SerializeField] protected int wallsCount = 5;
-
     public bool bGameActive = false;
 
     public SpesAnimator cameraAnimator = new();
@@ -60,7 +59,6 @@ public class GameplayBase : NetworkBehaviour
     protected Dictionary<int, ulong> ordersToNetIDs = new();
 
     protected MenuBase waitingMenu;
-
     #endregion
 
     #region StaticVariables
@@ -187,6 +185,7 @@ public class GameplayBase : NetworkBehaviour
                 if (pawn.block.Value.x == GameBase.server.prefs.boardHalfExtent && pawn.block.Value.y == GameBase.server.prefs.boardHalfExtent)
                 {
                     SpesLogger.Detail("Игра завершена, пешка входит в финальную клетку");
+                    CancelInvoke("OnTimeout");
                     return;
                 }
                 break;
@@ -216,6 +215,8 @@ public class GameplayBase : NetworkBehaviour
                 infoX.WallCount -= 1;
                 controller.SetPlayerInfo(infoX);
 
+                CancelInvoke("OnTimeout");
+
                 break;
             case ETurnType.PlaceZForward:
                 if (!CheckPlace(turn))
@@ -242,6 +243,8 @@ public class GameplayBase : NetworkBehaviour
                 infoZ.WallCount -= 1;
                 controller.SetPlayerInfo(infoZ);
 
+                CancelInvoke("OnTimeout");
+
                 break;
             case ETurnType.DestroyXWall:
                 break;
@@ -255,6 +258,8 @@ public class GameplayBase : NetworkBehaviour
         {
             ActivePlayer.Value = 0;
         }
+
+        CancelInvoke("OnTimeout");
 
         StartCoroutine(nextTurn());
     }
@@ -350,6 +355,29 @@ public class GameplayBase : NetworkBehaviour
         cameraAnimator.controller = players[ActivePlayer.Value];
         players[ActivePlayer.Value].StartTurn();
         S_UpdatePlayersTurn();
+        SpesLogger.Detail("Ход передается игроку: " + ActivePlayer.Value);
+        Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
+    }
+
+    protected void OnTimeout()
+    {
+        var info = players[ActivePlayer.Value].GetPlayerInfo();
+        info.state = EPlayerState.Operator;
+        players[ActivePlayer.Value].SetPlayerInfo(info);
+        ActivePlayer.Value++;
+        if (ActivePlayer.Value >= GameBase.server.prefs.maxPlayers)
+        {
+            ActivePlayer.Value = 0;
+        }
+        StartCoroutine(nextTurn());
+        StartCoroutine(check());
+    }
+    protected IEnumerator check()
+    {
+        yield return new WaitForEndOfFrame();
+        yield return null;
+        var p = players[ActivePlayer.Value].GetPlayerInfo().pawn.block.Value;
+        players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.instance.gameboard.blocks[p.x, p.y]);
     }
 
     /// <summary>
@@ -391,6 +419,21 @@ public class GameplayBase : NetworkBehaviour
         info.playerOrder = playerOrder;
         info.pawn = S_SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
         //info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
+        int wallsCount = 5;
+        switch (GameBase.server.prefs.boardHalfExtent)
+        {
+            case 5:
+                wallsCount = GameBase.instance.gameRules.x5Count;
+                break;
+
+            case 7:
+                wallsCount = GameBase.instance.gameRules.x7Count;
+                break;
+
+            case 9:
+                wallsCount = GameBase.instance.gameRules.x7Count;
+                break;
+        }
         info.WallCount = wallsCount;
         info.state = EPlayerState.Waiting;
 
@@ -435,6 +478,7 @@ public class GameplayBase : NetworkBehaviour
                 UpdateSkinsClientRpc(GetCosmetics());
                 cameraAnimator.controller = players[0];
                 players[0].StartTurn();
+                Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
                 bGameActive = true;
                 S_UpdatePlayersTurn();
             }
@@ -524,10 +568,32 @@ public class GameplayBase : NetworkBehaviour
     {
         SpesLogger.Detail("Победил игрок " + winner);
 
-        if (IsServer)
-            GameBase.server.ClearAll();
+        string pureName = winner.Split("_")[0];
 
-        SceneManager.LoadScene("StartupScene");
+        int coinsValue = pureName == GameBase.client.playerName ? 100 : 25;
+
+        GameBase.storage.progress.coins += coinsValue;
+
+        ShowWinMessage(winner, coinsValue);
+
+        if (IsServer)
+            GameBase.server.Invoke("ClearAll", 5);
+        else
+            GameBase.client.ClearAll();
+
+        //SceneManager.LoadScene("StartupScene");
+    }
+
+    protected void ShowWinMessage(string winner, int coinsValue)
+    {
+
+        LocalizedString winnerStr = new LocalizedString("Messages", "GameEnd")
+                    {
+                        {"winnerName", new StringVariable{Value = winner } },
+                        {"gold", new IntVariable{Value =  coinsValue } }
+                    };
+
+        GameBase.instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
     }
 
     #endregion
