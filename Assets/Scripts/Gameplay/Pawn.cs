@@ -129,7 +129,8 @@ public class Pawn : NetworkBehaviour
         //Стандартные пешки красятся в разные цвета. Синий - локальный игрок, Красный - враг
         if (skin.name == "Default")
         {
-            mesh.material.color = (IsServer || IsOwner) && playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
+            Color col = playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
+            mesh.material.color = col;
         }
     }
 

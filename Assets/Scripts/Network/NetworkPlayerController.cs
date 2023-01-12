@@ -51,10 +51,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         if (IsOwner)
         {
             cam = Camera.main;
-            cam.transform.SetParent(transform);
-            cam.transform.localPosition = Vector3.zero;
-            cam.transform.localRotation = Quaternion.identity;
             AllignCamera();
+            GameplayBase.instance.cameraAnimator.AnimateCamera();
 
             SpesLogger.Detail("Установлены скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
             cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
@@ -135,6 +133,9 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
     /// <returns>Текущее положение камеры до обновления</returns>
     protected Vector3 AllignCamera()
     {
+        cam.transform.SetParent(transform);
+        cam.transform.localPosition = Vector3.zero;
+        cam.transform.localRotation = Quaternion.identity;
         var cameraPosition = cam.transform.position;
         var cameraRotation = cam.transform.rotation;
         //Расчет нового положения камеры
@@ -169,6 +170,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
             inputComp.turnValid += hud.OnTurnValidationChanged;
 
             cam.transform.position = AllignCamera();
+            GameplayBase.instance.cameraAnimator.AnimateCamera();
         }
 
         inputComp.UpdateTurnValid(false);

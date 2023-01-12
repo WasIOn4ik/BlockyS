@@ -52,9 +52,11 @@ public class GameplayBase : NetworkBehaviour
 
     public SpesAnimator cameraAnimator = new();
 
-    protected List<IPlayerController> players = new();
+    protected List<IPlayerController> S_players = new();
 
     public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
+
+    public NetworkList<NetworkBehaviourReference> C_pawns = new NetworkList<NetworkBehaviourReference>();
 
     protected Dictionary<int, ulong> ordersToNetIDs = new();
 
@@ -117,6 +119,18 @@ public class GameplayBase : NetworkBehaviour
         {
             RequestInitializeServerRpc();
         }
+        ActivePlayer.OnValueChanged += OnActivePlayerChanged;
+    }
+
+    private void OnActivePlayerChanged(int previousValue, int newValue)
+    {
+        foreach (var p in C_pawns)
+        {
+            if (p.TryGet(out Pawn pawn))
+            {
+                pawn.UpdateColor();
+            }
+        }
     }
 
     private void OnClientConnected(ulong clientID)
@@ -124,7 +138,7 @@ public class GameplayBase : NetworkBehaviour
         SpesLogger.Detail("GmplB: Клиент " + clientID + " подключился");
         if (IsServer && clientID != OwnerClientId)
         {
-            ordersToNetIDs.Add(players.Count, clientID);
+            ordersToNetIDs.Add(S_players.Count, clientID);
             var player = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab);
             player.NetworkObject.SpawnAsPlayerObject(clientID);
             player.cosmetic.OnValueChanged += S_UpdateSkins;
@@ -144,7 +158,7 @@ public class GameplayBase : NetworkBehaviour
 
     public void UpdateDefaultSkinColorForPawns()
     {
-        foreach (var el in players)
+        foreach (var el in S_players)
         {
             if (el != null)
             {
@@ -169,7 +183,7 @@ public class GameplayBase : NetworkBehaviour
         switch (turn.type)
         {
             case ETurnType.Move:
-                var pawn = players[ActivePlayer.Value].GetPlayerInfo().pawn;
+                var pawn = S_players[ActivePlayer.Value].GetPlayerInfo().pawn;
 
                 if (!CheckMove(pawn, turn))
                 {
@@ -331,7 +345,7 @@ public class GameplayBase : NetworkBehaviour
 
     public bool CheckDestination(Turn turn)
     {
-        foreach (var pl in players)
+        foreach (var pl in S_players)
         {
             var pawn = pl.GetPlayerInfo().pawn;
 
@@ -352,8 +366,8 @@ public class GameplayBase : NetworkBehaviour
     {
         yield return new WaitForEndOfFrame();
         yield return null;
-        cameraAnimator.controller = players[ActivePlayer.Value];
-        players[ActivePlayer.Value].StartTurn();
+        cameraAnimator.controller = S_players[ActivePlayer.Value];
+        S_players[ActivePlayer.Value].StartTurn();
         S_UpdatePlayersTurn();
         SpesLogger.Detail("Ход передается игроку: " + ActivePlayer.Value);
         Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
@@ -361,9 +375,9 @@ public class GameplayBase : NetworkBehaviour
 
     protected void OnTimeout()
     {
-        var info = players[ActivePlayer.Value].GetPlayerInfo();
+        var info = S_players[ActivePlayer.Value].GetPlayerInfo();
         info.state = EPlayerState.Operator;
-        players[ActivePlayer.Value].SetPlayerInfo(info);
+        S_players[ActivePlayer.Value].SetPlayerInfo(info);
         ActivePlayer.Value++;
         if (ActivePlayer.Value >= GameBase.server.prefs.maxPlayers)
         {
@@ -376,8 +390,8 @@ public class GameplayBase : NetworkBehaviour
     {
         yield return new WaitForEndOfFrame();
         yield return null;
-        var p = players[ActivePlayer.Value].GetPlayerInfo().pawn.block.Value;
-        players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.instance.gameboard.blocks[p.x, p.y]);
+        var p = S_players[ActivePlayer.Value].GetPlayerInfo().pawn.block.Value;
+        S_players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.instance.gameboard.blocks[p.x, p.y]);
     }
 
     /// <summary>
@@ -402,7 +416,7 @@ public class GameplayBase : NetworkBehaviour
     /// <returns></returns>
     protected T S_SpawnAbstractPlayer<T>(IPlayerController prefab) where T : MonoBehaviour, IPlayerController
     {
-        int playerOrder = players.Count;
+        int playerOrder = S_players.Count;
 
         Vector3 playerStartPosition = playersStartPositions[playerOrder];
         float y = playerStartPosition.y;
@@ -411,7 +425,7 @@ public class GameplayBase : NetworkBehaviour
 
         var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
         player.name = "Controller_" + playerOrder;
-        players.Add(player);
+        S_players.Add(player);
 
         var point = PreselectedPoint(playersStartPositions[playerOrder]);
 
@@ -455,12 +469,13 @@ public class GameplayBase : NetworkBehaviour
 
         newPawn.NetworkObject.SpawnWithOwnership(ordersToNetIDs[playerOrder]);
 
-        var info = players[playerOrder].GetPlayerInfo();
+        var info = S_players[playerOrder].GetPlayerInfo();
         info.pawn = newPawn;
-        players[playerOrder].SetPlayerInfo(info);
+        S_players[playerOrder].SetPlayerInfo(info);
 
         newPawn.block.Value = block.coords;
         newPawn.playerOrder.Value = playerOrder;
+        C_pawns.Add(newPawn);
         return newPawn;
     }
 
@@ -471,13 +486,13 @@ public class GameplayBase : NetworkBehaviour
     {
         if (IsServer)
         {
-            if (players.Count == GameBase.server.prefs.maxPlayers)
+            if (S_players.Count == GameBase.server.prefs.maxPlayers)
             {
                 SpesLogger.Deb("S_HandleWaitingMenu");
                 ShowWaitingScreenClientRpc(false);
                 UpdateSkinsClientRpc(GetCosmetics());
-                cameraAnimator.controller = players[0];
-                players[0].StartTurn();
+                cameraAnimator.controller = S_players[0];
+                S_players[0].StartTurn();
                 Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
                 bGameActive = true;
                 S_UpdatePlayersTurn();
@@ -492,7 +507,7 @@ public class GameplayBase : NetworkBehaviour
     protected PlayerCosmetic[] GetCosmetics()
     {
         List<PlayerCosmetic> list = new();
-        foreach (var pl in players)
+        foreach (var pl in S_players)
         {
             list.Add(pl.GetCosmetic());
         }
@@ -501,7 +516,7 @@ public class GameplayBase : NetworkBehaviour
 
     protected void S_UpdatePlayersTurn()
     {
-        foreach (var pl in players)
+        foreach (var pl in S_players)
         {
             pl.UpdateTurn(ActivePlayer.Value);
         }
@@ -529,7 +544,7 @@ public class GameplayBase : NetworkBehaviour
         {
             for (int i = 0; i < skins.Length; i++)
             {
-                players[i].GetPlayerInfo().pawn.SetSkinClientRpc(skins[i].pawnSkinID);
+                S_players[i].GetPlayerInfo().pawn.SetSkinClientRpc(skins[i].pawnSkinID);
             }
         }
 
@@ -595,6 +610,5 @@ public class GameplayBase : NetworkBehaviour
 
         GameBase.instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
     }
-
     #endregion
 }
