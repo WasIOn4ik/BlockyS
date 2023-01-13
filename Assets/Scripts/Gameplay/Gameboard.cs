@@ -45,6 +45,8 @@ public class Gameboard
         blocks = new BoardBlock[size, size];
         wallsPlaces = new WallPlaceholder[size - 1, size - 1];
 
+        List<GameObject> sba = new();
+
         for (int i = 0; i < size; i++)
         {
             for (int j = 0; j < size; j++)
@@ -54,6 +56,7 @@ public class Gameboard
                 if (!((i < ats && j < ats) || (i > size - (ats + 1) && j < ats) || (i < ats && j > size - (ats + 1)) || (i > size - (ats + 1) && j > size - (ats + 1))))
                 {
                     var block = GameObject.Instantiate(boardBlockPrefab, position, Quaternion.identity, blocksHolder);
+                    sba.Add(block.gameObject);
                     blocks[i, j] = block;
                     block.coords = new Point(i, j);
                     block.name = "BLock_" + i + "x" + j;
@@ -84,6 +87,7 @@ public class Gameboard
         decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(0.5f - halfExtent, 0, 0.5f - halfExtent), Quaternion.identity, blocksHolder)); // 1
         decors.Add(GameObject.Instantiate(cosmeticMeshPrefab, new Vector3(halfExtent - 0.5f, 0, 0.5f - halfExtent), Quaternion.identity, blocksHolder)); // 1
 
+        StaticBatchingUtility.Combine(sba.ToArray(), sba[0]);
         finish = blocks[halfExtent, halfExtent];
         GenConnections(halfExtent);
     }

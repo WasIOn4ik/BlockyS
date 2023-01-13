@@ -59,6 +59,14 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
         }
     }
 
+    public void OnDestroy()
+    {
+        if (cam && cam.transform.parent == transform)
+        {
+            cam.transform.SetParent(null);
+        }
+    }
+
     private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
     {
         if (!IsServer)

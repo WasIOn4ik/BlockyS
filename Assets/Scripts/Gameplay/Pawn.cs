@@ -32,6 +32,7 @@ public class Pawn : NetworkBehaviour
     public void Awake()
     {
         block.OnValueChanged += OnMoved;
+        playerOrder.OnValueChanged += OnPlayerOrderAssigned;
     }
 
     public override void OnNetworkSpawn()
@@ -40,6 +41,11 @@ public class Pawn : NetworkBehaviour
 
         if (!IsOwner || IsServer)
             OnAnimated += GameplayBase.instance.cameraAnimator.AnimateCamera;
+    }
+
+    private void OnPlayerOrderAssigned(int previousValue, int newValue)
+    {
+        UpdateColor();
     }
 
     private void OnMoved(Point previousValue, Point newValue)

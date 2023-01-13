@@ -127,8 +127,8 @@ public class InputComponent : MonoBehaviour
                 int halfExtent = GameplayBase.instance.gameboard.halfExtention;
                 var temp = transform.position - (forwardDir * delta.y + rightDir * delta.x) / 100;
 
-                temp.x = Mathf.Clamp(temp.x, -halfExtent - displace, halfExtent - displace);
-                temp.z = Mathf.Clamp(temp.z, -halfExtent - displace, halfExtent - displace);
+                temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * forwardDir.x, halfExtent - displace * forwardDir.x);
+                temp.z = Mathf.Clamp(temp.z, -halfExtent - displace * forwardDir.z, halfExtent - displace * forwardDir.z);
 
                 transform.position = temp;
             }

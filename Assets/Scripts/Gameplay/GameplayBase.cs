@@ -56,7 +56,7 @@ public class GameplayBase : NetworkBehaviour
 
     public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
 
-    public NetworkList<NetworkBehaviourReference> C_pawns = new NetworkList<NetworkBehaviourReference>();
+    public NetworkList<NetworkBehaviourReference> C_pawns;
 
     protected Dictionary<int, ulong> ordersToNetIDs = new();
 
@@ -77,7 +77,7 @@ public class GameplayBase : NetworkBehaviour
             Destroy(this);
 
         instance = this;
-
+        C_pawns = new NetworkList<NetworkBehaviourReference>();
         NetworkManager.OnClientConnectedCallback += OnClientConnected;
     }
 

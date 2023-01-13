@@ -17,6 +17,8 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
     protected InputComponent inputComp;
 
+    protected Camera cam;
+
     #endregion
 
     #region StaticVariables
@@ -63,7 +65,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         SetPlayerInfo(info);
 
         //Локальные переменные
-        var cam = Camera.main;
+        cam = Camera.main;
         var tp = cam.transform.position;
         var tr = cam.transform.rotation;
 
