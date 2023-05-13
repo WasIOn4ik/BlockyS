@@ -13,50 +13,46 @@ public class InGameHUD : MonoBehaviour
     #region Variables
 
     [Header("Components")]
-    [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - создание стены")]
-    [SerializeField] protected Image placeWallButtonImage;
+    [SerializeField] private Image placeWallButtonImage;
 
-    [Tooltip(" нопка подтверждени€ хода")]
-    [SerializeField] protected Button confirmTurnButton;
+    [SerializeField] private Button confirmTurnButton;
 
-    [Tooltip("»конка на кнопке подтверждени€ хода")]
-    [SerializeField] protected Image confirmTurnImage;
+    [SerializeField] private Image confirmTurnImage;
 
-    [SerializeField] protected LocalizeStringEvent turnHelperLocalizeEvent;
-    [SerializeField] protected TMP_Text wallsCountText;
+    [SerializeField] private LocalizeStringEvent turnHelperLocalizeEvent;
+    [SerializeField] private TMP_Text wallsCountText;
 
     [Header("Preferences")]
-    [Tooltip("»конка, котора€ показываетс€, когда действие по нажатию кнопки - движение пешки")]
-    [SerializeField] protected Sprite moveTurnSprite;
-    [SerializeField] protected Sprite buildWallSprite;
-    [SerializeField] protected LocalizedString yourTurnLocalized;
-    [SerializeField] protected LocalizedString oponentTurnLocalized;
-    [SerializeField] protected Image timeImage;
+    [SerializeField] private Sprite moveTurnSprite;
+    [SerializeField] private Sprite buildWallSprite;
+    [SerializeField] private LocalizedString yourTurnLocalized;
+    [SerializeField] private LocalizedString oponentTurnLocalized;
+    [SerializeField] private Image timeImage;
 
-    protected InputComponent inputComp;
+	private InputComponent inputComp;
 
-    protected Animator animator;
+	private Animator animator;
 
-    protected float turnStartTime;
+	private float turnStartTime;
 
-    protected float turnTime;
+	private float turnTime;
 
-    #endregion
+	#endregion
 
-    #region UnityCallbacks
+	#region UnityCallbacks
 
-    public void Awake()
+	private void Awake()
     {
         buildWallSprite = placeWallButtonImage.sprite;
         animator = GetComponent<Animator>();
         turnTime = GameBase.instance.gameRules.turnTime;
     }
 
-    #endregion
+	#endregion
 
-    #region UIFUnctions
+	#region UIFUnctions
 
-    public void OnPlaceWallClicked()
+	private void OnPlaceWallClicked()
     {
         if (inputComp.GetMoveMode())
         {
@@ -74,15 +70,10 @@ public class InGameHUD : MonoBehaviour
         animator.Play(inputComp.GetMoveMode() ? "HideConfirmTurn" : "ShowConfirmTurn");
     }
 
-    public void OnConfirmTurnClicked()
+	private void OnConfirmTurnClicked()
     {
         inputComp.ConfirmTurn();
         animator.Play("HideConfirmTurn");
-    }
-
-    public void OnDestroyWallClicked()
-    {
-
     }
 
     #endregion
@@ -115,7 +106,7 @@ public class InGameHUD : MonoBehaviour
     public void SetPlayerTurn(int activePlayer)
     {
         bool local = inputComp.controller.GetPlayerInfo().playerOrder == activePlayer;
-        SpesLogger.Detail("ќбновлено отображение хода ");
+        SpesLogger.Detail("Turn display updated");
 
         if (local)
         {
@@ -140,12 +131,12 @@ public class InGameHUD : MonoBehaviour
         wallsCountText.text = " X " + x;
     }
 
-    protected void UpdateActionButton()
+	private void UpdateActionButton()
     {
         placeWallButtonImage.sprite = inputComp.GetMoveMode() ? buildWallSprite : moveTurnSprite;
     }
 
-    protected IEnumerator updateFillAmount()
+	private IEnumerator updateFillAmount()
     {
         float remain = (turnTime + turnStartTime - Time.time);
         while (remain > 0.5f)

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2551518497993276044}
   m_Layer: 8
-  m_Name: WallPredict
+  m_Name: GhostWallVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -1,15 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BoardBlock : MonoBehaviour
 {
     #region Variables
 
-    [SerializeField] protected MeshRenderer mesh;
-    [SerializeField] protected MeshFilter filter;
+    [SerializeField] private MeshRenderer mesh;
+    [SerializeField] private MeshFilter filter;
 
-    public int skinID;
+	public int skinID;
 
     public Point coords;
     public BoardBlock xDir;
@@ -23,20 +21,28 @@ public class BoardBlock : MonoBehaviour
 
     public bool bHighlighted = false;
 
-    protected Color color = new();
+	private Color color = new();
 
-    public static BoardBlock selectedBlock = null;
+	#endregion
+
+	#region StaticVariables
+
+	public static BoardBlock selectedBlock = null;
 
     #endregion
 
-    #region Functions
+    #region UnityCallbacks
 
     public void Awake()
     {
         color = mesh.material.color;
     }
 
-    public void HighlightAround()
+	#endregion
+
+	#region Functions
+
+	public void HighlightAround()
     {
         if (selectedBlock)
             selectedBlock.UnHighlightAround();
@@ -52,9 +58,18 @@ public class BoardBlock : MonoBehaviour
             mxDir.HighlightSelf();
         if (mzDir)
             mzDir.HighlightSelf();
-    }
+	}
 
-    public void UnHighlightAround()
+	public void SetSkin(int ind)
+	{
+		skinID = ind;
+		var skin = GameBase.instance.skins.GetUncheckedBoardSkin(ind);
+		filter.mesh = skin.blocks[0];
+		mesh.material = skin.mat;
+		color = mesh.material.color;
+	}
+
+	public void UnHighlightAround()
     {
         if (selectedBlock == this)
             selectedBlock = null;
@@ -71,27 +86,18 @@ public class BoardBlock : MonoBehaviour
             mzDir.UnHighlightSelf();
     }
 
-    public void HighlightSelf()
+	private void HighlightSelf()
     {
         bHighlighted = true;
 
         mesh.material.color = Color.green;
     }
 
-    public void UnHighlightSelf()
+	private void UnHighlightSelf()
     {
         bHighlighted = false;
 
         mesh.material.color = color;
-    }
-
-    public void SetSkin(int ind)
-    {
-        skinID = ind;
-        var skin = GameBase.instance.skins.boardSkins[ind];
-        filter.mesh = skin.blocks[0];
-        mesh.material = skin.mat;
-        color = mesh.material.color;
     }
 
     #endregion

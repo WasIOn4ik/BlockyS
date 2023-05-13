@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class StartupMenu : MenuBase
 {
     #region UIFunctions
 
-    public void OnQuitClicked()
+    private void OnQuitClicked()
     {
         Application.Quit();
     }

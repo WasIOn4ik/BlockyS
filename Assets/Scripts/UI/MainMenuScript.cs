@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MainMenuScript : MenuBase
@@ -18,7 +16,7 @@ public class MainMenuScript : MenuBase
 
     #region UIFunctions
 
-    public void OnConnectClicked()
+    private void OnConnectClicked()
     {
         Destroy(gameObject);
     }

@@ -1,195 +1,206 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using System;
 
 public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 {
-    #region Variables
+	#region Variables
 
-    public NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+	public NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
-    [SerializeField] private InGameHUD hudPrefab;
+	[SerializeField] private InGameHUD hudPrefab;
 
-    protected NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
+	private NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
 
-    protected InputComponent inputComp;
+	private InputComponent inputComp;
 
-    protected InGameHUD hud;
+	private InGameHUD hud;
 
-    protected Camera cam;
+	private Camera cam;
 
 
-    #endregion
+	#endregion
 
-    #region UnityCallbacks
+	#region UnityCallbacks
 
-    public void Awake()
-    {
-        inputComp = GetComponent<InputComponent>();
-    }
+	private void Awake()
+	{
+		inputComp = GetComponent<InputComponent>();
+	}
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+	#endregion
 
-        if (IsServer)
-        {
-            var info = GetPlayerInfo();
-            info.state = EPlayerState.Operator;
-            SetPlayerInfo(info);
-        }
-        else
-        {
-            hud = Instantiate(hudPrefab);
-            hud.SetInputComponent(inputComp);
+	#region Overrides
 
-            playerInfo.OnValueChanged += OnPlayerInfoChanged;
-        }
+	public override void OnNetworkSpawn()
+	{
+		base.OnNetworkSpawn();
 
-        if (IsOwner)
-        {
-            cam = Camera.main;
-            AllignCamera();
-            GameplayBase.instance.cameraAnimator.AnimateCamera();
+		if (IsServer)
+		{
+			var info = GetPlayerInfo();
+			info.state = EPlayerState.Operator;
+			SetPlayerInfo(info);
+		}
+		else
+		{
+			hud = Instantiate(hudPrefab);
+			hud.SetInputComponent(inputComp);
 
-            SpesLogger.Detail("Установлены скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
-            cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
-        }
-    }
+			playerInfo.OnValueChanged += OnPlayerInfoChanged;
+		}
 
-    public void OnDestroy()
-    {
-        if (cam && cam.transform.parent == transform)
-        {
-            cam.transform.SetParent(null);
-        }
-    }
+		if (IsOwner)
+		{
+			cam = Camera.main;
+			AllignCamera();
+			GameplayBase.instance.cameraAnimator.AnimateCamera();
 
-    private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
-    {
-        if (!IsServer)
-            hud.SetWallsCount(newValue.WallCount);
-    }
+			SpesLogger.Detail("Skins Selected: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
+			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
+		}
+	}
 
-    #endregion
+	public override void OnDestroy()
+	{
+		if (cam && cam.transform.parent == transform)
+		{
+			cam.transform.SetParent(null);
+		}
 
-    #region IPlayerController
+		base.OnDestroy();
+	}
 
-    /// <summary>
-    /// В NetworkController'e вызывается на клиенте, а обрабатывается внутри ServerRpc
-    /// </summary>
-    /// <param name="turn"></param>
-    public void EndTurn(Turn turn)
-    {
-        if (GetPlayerInfo().state != EPlayerState.ActivePlayer)
-            return;
+	#endregion
 
-        if (IsOwner)
-        {
-            inputComp.turnValid -= hud.OnTurnValidationChanged;
-        }
-        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " завершил ход");
+	#region Callbacks
 
-        EndTurnServerRpc(turn);
-    }
+	private void OnPlayerInfoChanged(PlayerNetworkedInfo previousValue, PlayerNetworkedInfo newValue)
+	{
+		if (!IsServer)
+			hud.SetWallsCount(newValue.WallCount);
+	}
 
-    public MonoBehaviour GetMono()
-    {
-        return this;
-    }
+	#endregion
 
-    public PlayerInGameInfo GetPlayerInfo()
-    {
-        return playerInfo.Value;
-    }
+	#region IPlayerController
 
-    /// <summary>
-    /// В NetworkController'e вызывается на сервере, а обрабатывается внутри RPC
-    /// </summary>
-    public void StartTurn()
-    {
-        SpesLogger.Deb("Начало хода сетевого игрока " + GetPlayerInfo().playerOrder);
+	/// <summary>
+	/// In NetworkController'e It calls from client and handles in ServerRPC
+	/// </summary>
+	/// <param name="turn"></param>
+	public void EndTurn(Turn turn)
+	{
+		if (GetPlayerInfo().state != EPlayerState.ActivePlayer)
+			return;
 
-        var info = GetPlayerInfo();
-        info.state = EPlayerState.ActivePlayer;
-        SetPlayerInfo(info);
+		if (IsOwner)
+		{
+			inputComp.turnValid -= hud.OnTurnValidationChanged;
+		}
+		SpesLogger.Deb("Local network player " + GetPlayerInfo().playerOrder + " ends turn");
 
-        StartTurnClientRpc();
-    }
+		EndTurnServerRpc(turn);
+	}
 
-    public void SetPlayerInfo(PlayerInGameInfo inf)
-    {
-        playerInfo.Value = inf;
-    }
+	public MonoBehaviour GetMono()
+	{
+		return this;
+	}
 
-    public PlayerCosmetic GetCosmetic()
-    {
-        SpesLogger.Detail("Игрок: " + name + " скины: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
-        return cosmetic.Value;
-    }
+	public PlayerInGameInfo GetPlayerInfo()
+	{
+		return playerInfo.Value;
+	}
 
-    public void UpdateTurn(int active)
-    {
-        UpdateTurnClientRpc(active);
-    }
+	/// <summary>
+	/// In NetworkController calls by server and handles in ClientRpc
+	/// </summary>
+	public void StartTurn()
+	{
+		SpesLogger.Deb("Start of remote player turn: " + GetPlayerInfo().playerOrder);
 
-    /// <summary>
-    /// Выравнивает контроллер на нужное положение
-    /// </summary>
-    /// <returns>Текущее положение камеры до обновления</returns>
-    protected Vector3 AllignCamera()
-    {
-        cam.transform.SetParent(transform);
-        cam.transform.localPosition = Vector3.zero;
-        cam.transform.localRotation = Quaternion.identity;
-        var cameraPosition = cam.transform.position;
-        var cameraRotation = cam.transform.rotation;
-        //Расчет нового положения камеры
-        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
-        transform.SetPositionAndRotation(pos, cameraRotation);
-        return cameraPosition;
-    }
+		var info = GetPlayerInfo();
+		info.state = EPlayerState.ActivePlayer;
+		SetPlayerInfo(info);
 
-    #endregion
+		StartTurnClientRpc();
+	}
 
-    #region RPCs
+	public void SetPlayerInfo(PlayerInGameInfo inf)
+	{
+		playerInfo.Value = inf;
+	}
 
-    [ServerRpc(RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
-    public void EndTurnServerRpc(Turn turn)
-    {
-        SpesLogger.Deb("Сетевой игрок завершил ход " + GetPlayerInfo().playerOrder);
+	public PlayerCosmetic GetCosmetic()
+	{
+		SpesLogger.Detail("Player: " + name + " B-Skin: " + GameBase.storage.CurrentBoardSkin + " _ P-Skin: " + GameBase.storage.CurrentPawnSkin);
+		return cosmetic.Value;
+	}
 
-        var info = GetPlayerInfo();
-        info.state = EPlayerState.Operator;
-        SetPlayerInfo(info);
+	public void UpdateTurn(int active)
+	{
+		UpdateTurnClientRpc(active);
+	}
 
-        GameplayBase.instance.S_EndTurn(this, turn);
-    }
+	#endregion
 
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void StartTurnClientRpc()
-    {
-        SpesLogger.Deb("Локальный сетевой игрок " + GetPlayerInfo().playerOrder + " начал ход");
+	#region Functions
 
-        if (IsOwner)
-        {
-            inputComp.turnValid += hud.OnTurnValidationChanged;
+	/// <summary>
+	/// Aligns controller to right position
+	/// </summary>
+	/// <returns>пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ</returns>
+	private Vector3 AllignCamera()
+	{
+		cam.transform.SetParent(transform);
+		cam.transform.localPosition = Vector3.zero;
+		cam.transform.localRotation = Quaternion.identity;
+		var cameraPosition = cam.transform.position;
+		var cameraRotation = cam.transform.rotation;
+		//Calculates new Camera position
+		Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
+		transform.SetPositionAndRotation(pos, cameraRotation);
+		return cameraPosition;
+	}
 
-            cam.transform.position = AllignCamera();
-            GameplayBase.instance.cameraAnimator.AnimateCamera();
-        }
+	#endregion
 
-        inputComp.UpdateTurnValid(false);
-    }
+	#region RPCs
 
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void UpdateTurnClientRpc(int active)
-    {
-        if (!IsServer)
-            hud.SetPlayerTurn(active);
-    }
+	[ServerRpc(RequireOwnership = true, Delivery = RpcDelivery.Reliable)]
+	private void EndTurnServerRpc(Turn turn)
+	{
+		SpesLogger.Deb("Remote player ended turn " + GetPlayerInfo().playerOrder);
 
-    #endregion
+		var info = GetPlayerInfo();
+		info.state = EPlayerState.Operator;
+		SetPlayerInfo(info);
+
+		GameplayBase.instance.S_EndTurn(this, turn);
+	}
+
+	[ClientRpc(Delivery = RpcDelivery.Reliable)]
+	private void StartTurnClientRpc()
+	{
+		SpesLogger.Deb($"Local player {GetPlayerInfo().playerOrder} started turn");
+
+		if (IsOwner)
+		{
+			inputComp.turnValid += hud.OnTurnValidationChanged;
+
+			cam.transform.position = AllignCamera();
+			GameplayBase.instance.cameraAnimator.AnimateCamera();
+		}
+
+		inputComp.UpdateTurnValid(false);
+	}
+
+	[ClientRpc(Delivery = RpcDelivery.Reliable)]
+	private void UpdateTurnClientRpc(int active)
+	{
+		if (!IsServer)
+			hud.SetPlayerTurn(active);
+	}
+
+	#endregion
 }

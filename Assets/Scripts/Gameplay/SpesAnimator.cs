@@ -1,10 +1,8 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 public class SpesAnimator
 {
     [SerializeField] protected float cameraMoveDuration = 2f;
-    public IPlayerController controller;
 
     public void AnimateCamera()
     {

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using System;
@@ -8,19 +7,19 @@ public class BoardWall : NetworkBehaviour
 {
     #region Variables
 
-    [SerializeField] protected MeshRenderer meshRenderer;
-    [SerializeField] protected MeshFilter meshFilter;
+    [SerializeField] private MeshRenderer meshRenderer;
+    [SerializeField] private MeshFilter meshFilter;
 
     public NetworkVariable<Turn> coords = new();
 
     public delegate void MovedDelegate();
     public event MovedDelegate OnAnimated;
 
-    #endregion
+	#endregion
 
-    #region UnityCallbacks
+	#region UnityCallbacks
 
-    public void Awake()
+	private void Awake()
     {
         coords.OnValueChanged += OnPlaced;
     }
@@ -31,7 +30,7 @@ public class BoardWall : NetworkBehaviour
 
     private void OnSkinChanged(int newValue)
     {
-        var skin = GameBase.instance.skins.boardSkins[newValue];
+        var skin = GameBase.instance.skins.GetUncheckedBoardSkin(newValue);
         meshRenderer.material = skin.mat;
         meshFilter.mesh = skin.wallMesh;
     }
@@ -52,7 +51,7 @@ public class BoardWall : NetworkBehaviour
             }
             catch (Exception ex)
             {
-                SpesLogger.Exception(ex, "Ошибка при разрушении связей между блоками внутри OnPlaced в BoardWall");
+                SpesLogger.Exception(ex, "Can't break connections while X placing");
             }
         }
         else if (newValue.type == ETurnType.PlaceZForward)
@@ -66,7 +65,7 @@ public class BoardWall : NetworkBehaviour
             }
             catch (Exception ex)
             {
-                SpesLogger.Exception(ex, "Ошибка при разрушении связей между блоками внутри OnPlaced в BoardWall");
+                SpesLogger.Exception(ex, "Can't break connections while Z placing");
             }
         }
         GameplayBase.instance.gameboard.wallsPlaces[newValue.pos.x, newValue.pos.y].bEmpty = false;

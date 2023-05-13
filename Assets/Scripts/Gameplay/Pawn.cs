@@ -1,155 +1,162 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using System;
-using UnityEngine.Localization;
-using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
 public class Pawn : NetworkBehaviour
 {
-    #region Variables
+	#region Variables
 
-    [Header("Preferences")]
-    [SerializeField] protected MeshFilter filter;
-    [SerializeField] protected MeshRenderer mesh;
-    [SerializeField] protected float jumpHeight;
-    [SerializeField] public float animationTime;
+	[Header("Preferences")]
+	[SerializeField] protected MeshFilter filter;
+	[SerializeField] protected MeshRenderer mesh;
+	[SerializeField] protected float jumpHeight;
+	[SerializeField] public float animationTime;
 
-    [Header("InGame data")]
-    public NetworkVariable<int> playerOrder = new NetworkVariable<int>();
-    public NetworkVariable<Point> block = new NetworkVariable<Point>();
+	[Header("InGame data")]
+	public NetworkVariable<int> playerOrder = new NetworkVariable<int>();
+	public NetworkVariable<Point> block = new NetworkVariable<Point>();
 
-    public delegate void MovedDelegate();
-    public event MovedDelegate OnAnimated;
+	public delegate void MovedDelegate();
+	public event MovedDelegate OnAnimated;
 
-    protected PawnDescription skin;
+	protected PawnSkinDescription skin;
 
-    #endregion
+	#endregion
 
-    #region UnityCallbacks
+	#region UnityCallbacks
 
-    public void Awake()
-    {
-        block.OnValueChanged += OnMoved;
-        playerOrder.OnValueChanged += OnPlayerOrderAssigned;
-    }
+	private void Awake()
+	{
+		block.OnValueChanged += OnMoved;
+		playerOrder.OnValueChanged += OnPlayerOrderAssigned;
+	}
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
+	#endregion
 
-        if (!IsOwner || IsServer)
-            OnAnimated += GameplayBase.instance.cameraAnimator.AnimateCamera;
-    }
+	#region Overrides
 
-    private void OnPlayerOrderAssigned(int previousValue, int newValue)
-    {
-        UpdateColor();
-    }
+	public override void OnNetworkSpawn()
+	{
+		base.OnNetworkSpawn();
 
-    private void OnMoved(Point previousValue, Point newValue)
-    {
-        var arr = GameplayBase.instance.gameboard.blocks;
-        if (previousValue != null)
-        {
-            var prevBlock = arr[previousValue.x, previousValue.y];
-            if (prevBlock)
-            {
-                prevBlock.bEmpty = true;
-            }
-        }
-        if (newValue.x < arr.GetLength(0) && newValue.y < arr.GetLength(1))
-        {
-            var newBlock = arr[newValue.x, newValue.y];
-            newBlock.bEmpty = false;
-            HandleAnimation(newBlock);
-            //transform.position = newBlock.transform.position;
-        }
-        else
-        {
-            SpesLogger.Error("Выход за пределы карты при обновлении block в Pawn: " + name);
-        }
-    }
+		if (!IsOwner || IsServer)
+			OnAnimated += GameplayBase.instance.cameraAnimator.AnimateCamera;
+	}
 
-    #endregion 
+	#endregion
 
-    #region Functions
+	#region Callbacks
 
-    public void HandleAnimation(BoardBlock newBlock)
-    {
-        StartCoroutine(Animate(newBlock));
-    }
+	private void OnPlayerOrderAssigned(int previousValue, int newValue)
+	{
+		UpdateColor();
+	}
 
-    public IEnumerator Animate(BoardBlock point)
-    {
-        float time = Time.deltaTime;
+	private void OnMoved(Point previousValue, Point newValue)
+	{
+		var arr = GameplayBase.instance.gameboard.blocks;
+		if (previousValue != null)
+		{
+			var prevBlock = arr[previousValue.x, previousValue.y];
+			if (prevBlock)
+			{
+				prevBlock.bEmpty = true;
+			}
+		}
+		if (newValue.x < arr.GetLength(0) && newValue.y < arr.GetLength(1))
+		{
+			var newBlock = arr[newValue.x, newValue.y];
+			newBlock.bEmpty = false;
+			HandleAnimation(newBlock);
+		}
+		else
+		{
+			SpesLogger.Error("Out of map while updating block in Pawn: " + name);
+		}
+	}
 
-        Vector3 targetPos = point.transform.position;
+	#endregion
 
-        float distance = (transform.position - targetPos).magnitude;
+	#region Functions
 
-        float sinus = 0.0f;
+	public void HandleAnimation(BoardBlock newBlock)
+	{
+		StartCoroutine(Animate(newBlock));
+	}
 
-        float multiplier;
+	public void UpdateColor()
+	{
+		//Standard pawns coloring. Local pawns - blue, remote - red
+		if (skin.name == "Default")
+		{
+			Color col = playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
+			mesh.material.color = col;
+		}
+	}
 
-        while ((transform.position - targetPos).magnitude > 0.01f)
-        {
-            time += Time.deltaTime;
-            multiplier = time / animationTime;
+	private IEnumerator Animate(BoardBlock point)
+	{
+		float time = Time.deltaTime;
 
-            Vector3 zeroedYCurrent = transform.position;
-            zeroedYCurrent.y = targetPos.y;
+		Vector3 targetPos = point.transform.position;
 
-            sinus = Mathf.Lerp(sinus, 1, multiplier * distance);
+		float distance = (transform.position - targetPos).magnitude;
 
-            transform.position = Vector3.Lerp(zeroedYCurrent, targetPos, multiplier)
-                + (Vector3.up * (jumpHeight * Mathf.Sin(Mathf.PI * sinus)));
+		float sinus = 0.0f;
 
-            yield return null;
-        }
+		float multiplier;
 
-        if (IsServer)
-        {
-            if (block.Value.x == GameBase.server.prefs.boardHalfExtent && block.Value.y == GameBase.server.prefs.boardHalfExtent)
-            {
-                if (GameBase.server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
-                {
-                    string winnerName = playerInfo;
-                    //Если игрок локальный, то добавляется суффикс тк только локальный игрок может быть и сервером и владельцем
-                    if (IsOwner)
-                    {
-                        winnerName = winnerName + "_" + playerOrder.Value;
-                    }
-                    GameplayBase.instance.GameFinishedClientRpc(winnerName);
-                }
-            }
-        }
+		while ((transform.position - targetPos).magnitude > 0.01f)
+		{
+			time += Time.deltaTime;
+			multiplier = time / animationTime;
 
-        if (OnAnimated != null)
-            OnAnimated();
-    }
+			Vector3 zeroedYCurrent = transform.position;
+			zeroedYCurrent.y = targetPos.y;
 
-    public void UpdateColor()
-    {
-        //Стандартные пешки красятся в разные цвета. Синий - локальный игрок, Красный - враг
-        if (skin.name == "Default")
-        {
-            Color col = playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
-            mesh.material.color = col;
-        }
-    }
+			sinus = Mathf.Lerp(sinus, 1, multiplier * distance);
 
-    [ClientRpc(Delivery = RpcDelivery.Reliable)]
-    public void SetSkinClientRpc(int ind)
-    {
-        skin = GameBase.instance.skins.pawnSkins[ind];
+			transform.position = Vector3.Lerp(zeroedYCurrent, targetPos, multiplier)
+				+ (Vector3.up * (jumpHeight * Mathf.Sin(Mathf.PI * sinus)));
 
-        filter.mesh = skin.mesh;
-        mesh.material = skin.mat;
+			yield return null;
+		}
 
-        UpdateColor();
-    }
+		if (IsServer)
+		{
+			if (block.Value.x == GameBase.server.prefs.boardHalfExtent && block.Value.y == GameBase.server.prefs.boardHalfExtent)
+			{
+				if (GameBase.server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
+				{
+					string winnerName = playerInfo;
+					//If it's local player, adding suffix with playerOrder
+					if (IsOwner)
+					{
+						winnerName = winnerName + "_" + playerOrder.Value;
+					}
+					GameplayBase.instance.GameFinishedClientRpc(winnerName);
+				}
+			}
+		}
 
-    #endregion
+		if (OnAnimated != null)
+			OnAnimated();
+	}
+
+	#endregion
+
+	#region RPCs
+
+	[ClientRpc(Delivery = RpcDelivery.Reliable)]
+	public void SetSkinClientRpc(int ind)
+	{
+		skin = GameBase.instance.skins.GetUncheckedPawnSkin(ind);
+
+		filter.mesh = skin.mesh;
+		mesh.material = skin.mat;
+
+		UpdateColor();
+	}
+
+	#endregion
 }

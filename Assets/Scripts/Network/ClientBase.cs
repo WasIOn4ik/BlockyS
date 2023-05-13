@@ -1,6 +1,4 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -14,11 +12,11 @@ public class ClientBase : MonoBehaviour
 
     public NetworkManager networkManager;
 
-    #endregion
+	#endregion
 
-    #region UnityCallbacks
+	#region UnityCallbacks
 
-    public void OnDestroy()
+	private void OnDestroy()
     {
         UnbindAll();
     }
@@ -27,14 +25,14 @@ public class ClientBase : MonoBehaviour
 
     #region Callbacks
 
-    private void OnInstanceLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
+    private void NetworkManager_OnLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
     {
-        SpesLogger.Deb("Клиент " + clientId + " загрузил карту " + sceneName);
+        SpesLogger.Deb("Client " + clientId + " loaded map " + sceneName);
     }
 
-    private void OnLoadStarted(ulong clientId, string sceneName, LoadSceneMode loadSceneMode, AsyncOperation asyncOperation)
+    private void NetworkManager_OnLoad(ulong clientId, string sceneName, LoadSceneMode loadSceneMode, AsyncOperation asyncOperation)
     {
-        SpesLogger.Deb("Клиент " + clientId + " начал загруку карты " + sceneName);
+        SpesLogger.Deb("Client " + clientId + " started loading of map " + sceneName);
     }
 
     private void OnTransportFailure()
@@ -46,7 +44,7 @@ public class ClientBase : MonoBehaviour
 
     private void OnDisconnected(ulong clientID)
     {
-        SpesLogger.Detail("Клиент " + clientID + " отключился " + (networkManager.IsServer ? "{Сервер}" : "{Клиент}" + " localID: " + networkManager.LocalClientId));
+        SpesLogger.Detail("Client " + clientID + " disconnected " + (networkManager.IsServer ? "{Server}" : "{Client}" + " localID: " + networkManager.LocalClientId));
 
         if (clientID == networkManager.LocalClientId || clientID == 0)
         {
@@ -56,7 +54,7 @@ public class ClientBase : MonoBehaviour
 
     private void OnConnected(ulong clientID)
     {
-        SpesLogger.Detail("Клиент " + clientID + " подключился " + (networkManager.IsServer ? "{Сервер}" : "{Клиент}"));
+        SpesLogger.Detail("Client " + clientID + " connected " + (networkManager.IsServer ? "{Server}" : "{Client}"));
     }
 
     #endregion
@@ -70,7 +68,7 @@ public class ClientBase : MonoBehaviour
     }
 
     /// <summary>
-    /// Сброс информации о настройках клиента и выключение NetworkManager'а
+    /// Reset bindings and shutdown networkManager
     /// </summary>
     public void ClearAll()
     {
@@ -78,7 +76,7 @@ public class ClientBase : MonoBehaviour
         networkManager.Shutdown(true);
     }
 
-    protected IEnumerator ConnectCoroutine(string address, ushort port)
+	private IEnumerator ConnectCoroutine(string address, ushort port)
     {
         while (networkManager.ShutdownInProgress)
         {
@@ -95,30 +93,30 @@ public class ClientBase : MonoBehaviour
         SetupManagerCallbacks();
         SetupSceneCallbacks();
 
-        SpesLogger.Detail("Подключение к узлу: " + net.ConnectionData.Address + ":" + net.ConnectionData.Port);
+        SpesLogger.Detail("Connectiong to host: " + net.ConnectionData.Address + ":" + net.ConnectionData.Port);
         networkManager.StartClient();
     }
 
-    protected void SetupManagerCallbacks()
+	private void SetupManagerCallbacks()
     {
         networkManager.OnClientConnectedCallback += OnConnected;
         networkManager.OnClientDisconnectCallback += OnDisconnected;
         networkManager.OnTransportFailure += OnTransportFailure;
     }
 
-    protected void SetupSceneCallbacks()
+	private void SetupSceneCallbacks()
     {
         if (networkManager.SceneManager != null)
         {
-            networkManager.SceneManager.OnLoad += OnLoadStarted;
-            networkManager.SceneManager.OnLoadComplete += OnInstanceLoadComplete;
+            networkManager.SceneManager.OnLoad += NetworkManager_OnLoad;
+            networkManager.SceneManager.OnLoadComplete += NetworkManager_OnLoadComplete;
         }
         else
         {
-            SpesLogger.Warning("Попытка привязки к SceneManager, который не существует");
+            SpesLogger.Warning("Tring to bind to not existing SceneManager");
         }
     }
-    protected void UnbindAll()
+    private void UnbindAll()
     {
         if (networkManager)
         {
@@ -128,8 +126,8 @@ public class ClientBase : MonoBehaviour
 
             if (networkManager.SceneManager != null)
             {
-                networkManager.SceneManager.OnLoad -= OnLoadStarted;
-                networkManager.SceneManager.OnLoadComplete -= OnInstanceLoadComplete;
+                networkManager.SceneManager.OnLoad -= NetworkManager_OnLoad;
+                networkManager.SceneManager.OnLoadComplete -= NetworkManager_OnLoadComplete;
             }
         }
     }

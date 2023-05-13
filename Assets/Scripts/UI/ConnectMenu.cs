@@ -1,13 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ConnectMenu : MenuBase
 {
-    #region UIFunctions
+	#region Variables
 
-    [SerializeField] private TMPro.TMP_InputField address;
-    public void OnConfrimConnectClicked()
+	[SerializeField] private TMPro.TMP_InputField address;
+
+	#endregion
+
+	#region UIFunctions
+
+	private void OnConfrimConnectClicked()
     {
         string str = address.text;
         var add = str.Split(':');
@@ -19,16 +22,16 @@ public class ConnectMenu : MenuBase
             }
             else
             {
-                SpesLogger.Warning("Для введенных IP:port, port не корректен!");
+                SpesLogger.Warning("Port is incorrect");
             }
         }
         else
         {
-            SpesLogger.Warning("Введенный IP:port имеет неверный формат!");
+            SpesLogger.Warning("Write address:port");
         }
     }
 
-    public void BackToMenu(string str)
+    private void BackToMenu(string str)
     {
         GameBase.client.ClearAll();
         GoToMenu(str);

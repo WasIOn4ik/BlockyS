@@ -30,7 +30,7 @@ public struct Point : INetworkSerializeByMemcpy
         }
         catch (Exception ex)
         {
-            SpesLogger.Error("Не удалось преобразовать тип к Point: " + ex.Message + " " + ex.StackTrace);
+            SpesLogger.Error("Can't cast type to Point: " + ex.Message + " " + ex.StackTrace);
             return false;
         }
     }

@@ -26,11 +26,11 @@ public class HostMenu : MenuBase
 
     protected bool bNetMode;
 
-    #endregion
+	#endregion
 
-    #region Functions
+	#region Functions
 
-    protected void WriteServerData()
+	private void WriteServerData()
     {
         var serv = GameBase.server;
         serv.prefs.boardHalfExtent = int.Parse(cellsCountText.text);
@@ -38,11 +38,11 @@ public class HostMenu : MenuBase
         serv.localPlayers = GameBase.instance.bNetMode ? (int)localPlayersSlider.value : serv.prefs.maxPlayers;
     }
 
-    #endregion
+	#endregion
 
-    #region UIFunctions
+	#region UIFunctions
 
-    public void OnPlayersCountChanged()
+	private void OnPlayersCountChanged()
     {
         int playersCount = (int)playersCountSlider.value;
         playersCountText.text = playersCount.ToString() + " / 4";
@@ -59,12 +59,12 @@ public class HostMenu : MenuBase
         }
     }
 
-    public void OnLocalPlayrsCountChanged()
+	private void OnLocalPlayrsCountChanged()
     {
         localPlayersText.text = localPlayersSlider.value.ToString() + " / " + (playersCountSlider.value - 1);
     }
 
-    public void OnConfirmHostClicked()
+	private void OnConfirmHostClicked()
     {
         WriteServerData();
         if (bNetMode)
@@ -78,18 +78,18 @@ public class HostMenu : MenuBase
         }
     }
 
-    public void OnBoardSizeChanged()
+	private void OnBoardSizeChanged()
     {
         cellsCountText.text = (2 + (int)cellsCountSlider.value * 2 + 1).ToString();
     }
 
-    public void OnBackToSelectNetModeClicked()
+	private void OnBackToSelectNetModeClicked()
     {
         setupSubmenu.SetActive(false);
         startSubmenu.SetActive(true);
     }
 
-    public void SetupSingleMode()
+	private void SetupSingleMode()
     {
         portInput.gameObject.SetActive(false);
         startSubmenu.SetActive(false);
@@ -98,7 +98,7 @@ public class HostMenu : MenuBase
         bNetMode = false;
     }
 
-    public void SetupNetMode()
+	private void SetupNetMode()
     {
         portInput.gameObject.SetActive(true);
         startSubmenu.SetActive(false);

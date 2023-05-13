@@ -1,38 +1,37 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SinglePlayerController : MonoBehaviour, IPlayerController
 {
     #region Variables
 
-    [SerializeField] protected InGameHUD hudPrefab;
+    [SerializeField] private InGameHUD hudPrefab;
 
-    [SerializeField] protected PlayerInGameInfo playerInfo = new();
+    [SerializeField] private PlayerInGameInfo playerInfo = new();
 
-    [SerializeField] protected PlayerCosmetic cosmetic;
+    [SerializeField] private PlayerCosmetic cosmetic;
 
-    protected Vector3 cameraPosition;
-    protected Quaternion cameraRotation;
+	private Vector3 cameraPosition;
+	private Quaternion cameraRotation;
 
-    protected InputComponent inputComp;
+	private InputComponent inputComp;
 
-    protected Camera cam;
+	private Camera cam;
 
-    #endregion
+	#endregion
 
-    #region StaticVariables
+	#region StaticVariables
 
-    protected static InGameHUD hud;
-    protected static SinglePlayerController previousLocalController;
+	private static InGameHUD hud;
+	private static SinglePlayerController previousLocalController;
 
-    protected static bool bTurnDisplayUpToDate = false;
+	private static bool bTurnDisplayUpToDate = false;
 
     #endregion
 
     #region UnityCallbacks
 
-    public void Awake()
+    private void Awake()
     {
         cameraPosition = transform.position;
         cameraRotation = transform.rotation;
@@ -51,7 +50,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
     public void StartTurn()
     {
-        SpesLogger.Deb("Локальный игрок " + GetPlayerInfo().playerOrder + " начал ход");
+        SpesLogger.Deb($"Turn of local player {GetPlayerInfo().playerOrder} started");
 
         if (previousLocalController)
         {
@@ -64,25 +63,23 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         info.state = EPlayerState.ActivePlayer;
         SetPlayerInfo(info);
 
-        //Локальные переменные
         cam = Camera.main;
         var tp = cam.transform.position;
         var tr = cam.transform.rotation;
 
         cam.transform.SetParent(transform);
 
-        //Расчет нового положения камеры
+        //new camera position
         Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
         transform.SetPositionAndRotation(pos, cameraRotation);
 
-        //Настройка компонентов
         hud.SetInputComponent(inputComp);
         hud.ToDefault();
         hud.SetWallsCount(GetPlayerInfo().WallCount);
         inputComp.turnValid += hud.OnTurnValidationChanged;
         inputComp.UpdateTurnValid(false);
 
-        //Инициализация камеры при старте игры или компенсация "дрожания камеры" при передаче хода
+        //Initialize camera on start and remove "camera jitter effect" on turn transfer
         if (GameplayBase.instance.bGameActive)
         {
             cam.transform.position = tp;
@@ -101,11 +98,11 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         {
             if (GetPlayerInfo().WallCount <= 0)
             {
-                SpesLogger.Detail("У игрока " + GetPlayerInfo().playerOrder + " недостаточно стен для строительства");
+                SpesLogger.Detail($"Player {GetPlayerInfo().playerOrder} can't build anymore");
                 return;
             }
         }
-        SpesLogger.Deb("Локальный игрок " + GetPlayerInfo().playerOrder + " завершил ход");
+        SpesLogger.Deb($"Local player {GetPlayerInfo().playerOrder} ended turn");
 
         previousLocalController = this;
 
@@ -149,15 +146,19 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         StartCoroutine(UpdateDisplayTurn(active));
     }
 
-    public IEnumerator UpdateDisplayTurn(int active)
-    {
-        yield return null;
+	#endregion
 
-        hud.SetPlayerTurn(active);
+	#region Functions
 
-        bTurnDisplayUpToDate = false;
-    }
+	private IEnumerator UpdateDisplayTurn(int active)
+	{
+		yield return null;
 
-    #endregion
+		hud.SetPlayerTurn(active);
+
+		bTurnDisplayUpToDate = false;
+	}
+
+	#endregion
 }
 

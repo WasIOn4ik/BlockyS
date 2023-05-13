@@ -32,7 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1128051090849459902
 MonoBehaviour:
@@ -51,8 +51,6 @@ MonoBehaviour:
       pawnSkinID: 0
       boardSkinID: 0
   hudPrefab: {fileID: 6038861862887020108, guid: 2935b4b80bc384a4687128a7096bec57, type: 3}
-  cameraHeight: 3
-  cameraBackwardOffset: -2
 --- !u!114 &1128051090849459903
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -82,7 +80,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controllerComponent: {fileID: 1128051090849459902}
-  wallPRedictPrefab: {fileID: 2551518497993276044, guid: 3fe41c151785ffe45a8510ddb7e47de5, type: 3}
+  ghostWallVIsualPrefab: {fileID: 2551518497993276044, guid: 3fe41c151785ffe45a8510ddb7e47de5, type: 3}
   wallPrefab: {fileID: -605503641063384765, guid: 0f869a31e66743b4ea2318bcfa2a5fbb, type: 3}
   moveLayer:
     serializedVersion: 2
@@ -90,5 +88,5 @@ MonoBehaviour:
   placeLayer:
     serializedVersion: 2
     m_Bits: 128
-  clickThreshold: 5
+  dragThreshold: 5
   displace: 2

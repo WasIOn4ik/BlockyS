@@ -1,9 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
-using System;
-using UnityEngine.SceneManagement;
 using UnityEngine.Localization.Settings;
 
 [RequireComponent(typeof(ServerBase), typeof(ClientBase), typeof(GameStorage))]
@@ -18,7 +14,7 @@ public class GameBase : MonoBehaviour
 
     public bool bNetMode;
 
-    protected MessageScript currentMessage;
+	private MessageScript currentMessage;
 
     #endregion
 
@@ -33,7 +29,7 @@ public class GameBase : MonoBehaviour
 
     #region UnityCallbacks
 
-    public void Awake()
+    private void Awake()
     {
         if (instance)
         {
@@ -55,7 +51,7 @@ public class GameBase : MonoBehaviour
         client.networkManager = net;
 
         Application.targetFrameRate = 60;
-        Application.quitting += HandleQuit;
+        Application.quitting += Application_OnQuit;
 
         storage.LoadPrefs();
         storage.LoadProgress();
@@ -75,7 +71,7 @@ public class GameBase : MonoBehaviour
 
     #region Callbacks
 
-    private void HandleQuit()
+    private void Application_OnQuit()
     {
         storage.SaveProgress();
         storage.SavePrefs();
@@ -90,13 +86,7 @@ public class GameBase : MonoBehaviour
         var settings = LocalizationSettings.Instance;
         var locale = settings.GetAvailableLocales().GetLocale(code);
         settings.SetSelectedLocale(locale);
-        SpesLogger.Detail("язык установлен на " + code);
-    }
-
-    public void GameplayFinished()
-    {
-        server.ClearAll();
-        client.ClearAll();
+        SpesLogger.Detail("Current language set to " + code);
     }
 
     public void ShowMessage(string entry, MessageAction action, bool bLocalized, string param = "")
