@@ -16,7 +16,22 @@ MonoBehaviour:
   m_Data:
     m_SerializedData: []
   m_GUID: 65fbc926a8760f3408b369a27353c25f
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: 75340a4aea2f5c64daa83980cb246375
+    m_Address: Prefabs/System/GameBase
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f8e1a6502d724b4787c606a55f0edb8
+    m_Address: Assets/Resources_moved/UI
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 070eb6749cb84104d80b0755ee8237da
+    m_Address: Assets/Resources_moved
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: de23945a063e0bf47a4dca6eff5eb4f5, type: 2}
   m_SchemaSet:

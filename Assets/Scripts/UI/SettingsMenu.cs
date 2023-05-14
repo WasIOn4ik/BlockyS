@@ -2,79 +2,89 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.UI;
 
 public class SettingsMenu : MenuBase
 {
-    #region Variables
+	#region Variables
 
-    [SerializeField] private TMP_Dropdown languageDD;
-    [SerializeField] private TMP_InputField playerNameInput;
+	[SerializeField] private TMP_Dropdown languageDD;
+	[SerializeField] private TMP_InputField playerNameInput;
+	[SerializeField] private Button backButton;
+	[SerializeField] private Button confirmButton;
 
-    [SerializeField] private List<string> locales = new List<string>();
+	[SerializeField] private List<string> locales = new List<string>();
 
-    #endregion
+	private GameStorage storage;
 
-    #region UnityCallbacks
+	#endregion
 
-    public override void Awake()
-    {
-        base.Awake();
-        GameStorage storage = GameBase.storage;
-        int languageIndex = 0;
-        languageDD.ClearOptions();
-        locales.Clear();
-        List<string> strings = new();
-        foreach (var loc in LocalizationSettings.Instance.GetAvailableLocales().Locales)
-        {
-            strings.Add(loc.LocaleName);
-            locales.Add(loc.Identifier.Code);
-        }
-        languageDD.AddOptions(strings);
+	#region UnityCallbacks
 
-        playerNameInput.text = storage.prefs.playerName;
+	protected override void Awake()
+	{
+		base.Awake();
 
-        for (int i = 0; i < locales.Count; i++)
-        {
-            if (locales[i] == LocalizationSettings.Instance.GetSelectedLocale().Identifier.Code)
-            {
-                languageIndex = i;
-                break;
-            }
-        }
-        languageDD.value = languageIndex;
-    }
+		List<string> strings = new();
 
-    #endregion
+		storage = GameBase.storage;
 
-    #region UIFunctions
+		int languageIndex = 0;
+		languageDD.ClearOptions();
+		locales.Clear();
 
-    public void OnLanguageChanged()
-    {
-        string code = locales[languageDD.value];
-        GameBase.instance.ApplyLanguage(code);
-    }
+		foreach (var loc in LocalizationSettings.Instance.GetAvailableLocales().Locales)
+		{
+			strings.Add(loc.LocaleName);
+			locales.Add(loc.Identifier.Code);
+		}
+		languageDD.AddOptions(strings);
 
-    public void OnSaveClicked()
-    {
-        var storage = GameBase.storage;
-        storage.prefs.playerName = playerNameInput.text;
-        storage.SavePrefs();
-    }
+		languageDD.onValueChanged.AddListener((x) =>
+		{
+			string code = locales[languageDD.value];
+			GameBase.instance.ApplyLanguage(code);
+		});
 
-    #endregion
+		confirmButton.onClick.AddListener(() =>
+		{
+			storage.prefs.playerName = playerNameInput.text;
+			storage.SavePrefs();
+		});
 
-    #region Functions
+		backButton.onClick.AddListener(() =>
+		{
+			BackToPreviousMenu();
+		});
 
-    public override void Reset()
-    {
-        base.Reset();
+		playerNameInput.text = storage.prefs.playerName;
 
-        playerNameInput.text = "";
-        var settings = LocalizationSettings.Instance;
-        int langID = locales.FindIndex(x => { return x == settings.GetSelectedLocale().Identifier.Code; });
-        languageDD.value = langID;
-    }
+		for (int i = 0; i < locales.Count; i++)
+		{
+			if (locales[i] == LocalizationSettings.Instance.GetSelectedLocale().Identifier.Code)
+			{
+				languageIndex = i;
+				break;
+			}
+		}
+
+		languageDD.value = languageIndex;
+	}
+
+	#endregion
+
+	#region Functions
+
+	public override void Reset()
+	{
+		base.Reset();
+
+		playerNameInput.text = "";
+		var settings = LocalizationSettings.Instance;
+		int langID = locales.FindIndex(x => { return x == settings.GetSelectedLocale().Identifier.Code; });
+		languageDD.value = langID;
+	}
 
 
-    #endregion
+	#endregion
 }

@@ -417,6 +417,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -475,8 +476,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title: ConnectMenu
-  previousMenu: {fileID: 0}
   address: {fileID: 4298484689168897075}
+  confirmButton: {fileID: 4799580807667645394}
+  backButton: {fileID: 668111148984421250}
 --- !u!1 &2862676363950112103
 GameObject:
   m_ObjectHideFlags: 0
@@ -598,19 +600,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4466669905309225413}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7695786863541121106}
-        m_TargetAssemblyTypeName: ConnectMenu, Spes.Gameplay
-        m_MethodName: BackToMenu
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: StartupMenu
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &4829828250087412143
 GameObject:
   m_ObjectHideFlags: 0
@@ -1105,19 +1095,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 8477098237906301936}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7695786863541121106}
-        m_TargetAssemblyTypeName: ConnectMenu, Assembly-CSharp
-        m_MethodName: OnConfrimConnectClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &7887389206105357211
 GameObject:
   m_ObjectHideFlags: 0

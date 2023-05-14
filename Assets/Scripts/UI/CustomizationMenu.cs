@@ -10,14 +10,21 @@ public class CustomizationMenu : MenuBase
 	[SerializeField] private LocalizedString selectString;
 	[SerializeField] private TMP_Text coinsCountText;
 
+	[Header("Components")]
+	[SerializeField] private Button backButton;
+
 	[Header("Board skin")]
 	[SerializeField] private Button boardSelectButton;
+	[SerializeField] private Button boardLeftButton;
+	[SerializeField] private Button boardRightButton;
 	[SerializeField] private TMP_Text boardSelectText;
 	[SerializeField] private Image boardFrame;
 	[SerializeField] private MeshFilter boardMesh;
 
 	[Header("Pawn skin")]
 	[SerializeField] private Button pawnSelectButton;
+	[SerializeField] private Button pawnLeftButton;
+	[SerializeField] private Button pawnRightButton;
 	[SerializeField] private TMP_Text pawnSelectText;
 	[SerializeField] private Image pawnFrame;
 	[SerializeField] private MeshFilter pawnMesh;
@@ -37,7 +44,7 @@ public class CustomizationMenu : MenuBase
 
 	#region UnityCallbacks
 
-	public override void Awake()
+	protected override void Awake()
 	{
 		base.Awake();
 
@@ -46,6 +53,69 @@ public class CustomizationMenu : MenuBase
 
 		canvas = GetComponent<Canvas>();
 		canvas.worldCamera = Camera.main;
+
+		backButton.onClick.AddListener(() =>
+		{
+			BackToPreviousMenu();
+		});
+
+		boardLeftButton.onClick.AddListener(() =>
+		{
+			selectedBoard--;
+
+			if (selectedBoard < 0)
+				selectedBoard = skins.GetBoardSkinsCount() - 1;
+
+			SelectBoardSkin(selectedBoard);
+		});
+
+		boardRightButton.onClick.AddListener(() =>
+		{
+			selectedBoard++;
+
+			if (selectedBoard >= skins.GetBoardSkinsCount())
+				selectedBoard = 0;
+
+			SelectBoardSkin(selectedBoard);
+		});
+
+		boardSelectButton.onClick.AddListener(() =>
+		{
+			if (storage.TryBuyOrEquipBoard(selectedBoard))
+			{
+				storage.CurrentBoardSkin = selectedBoard;
+				UpdateStats();
+			}
+		});
+
+		pawnLeftButton.onClick.AddListener(() =>
+		{
+			selectedPawn--;
+
+			if (selectedPawn < 0)
+				selectedPawn = skins.GetPawnSkinsCount() - 1;
+
+			SelectPawnSkin(selectedPawn);
+		});
+
+		pawnRightButton.onClick.AddListener(() =>
+		{
+			selectedPawn++;
+
+			if (selectedPawn >= skins.GetPawnSkinsCount())
+				selectedPawn = 0;
+
+			SelectPawnSkin(selectedPawn);
+		});
+
+		pawnSelectButton.onClick.AddListener(() =>
+		{
+			if (storage.TryBuyOrEquipPawn(selectedPawn))
+			{
+				storage.CurrentPawnSkin = selectedPawn;
+				UpdateStats();
+			}
+		});
 	}
 
 	private void OnEnable()
@@ -79,7 +149,7 @@ public class CustomizationMenu : MenuBase
 		//���� ���� ���������� ��� ������
 		if (skin.cost == 0 || storage.CheckBoard(skinNumber))
 		{
-			boardSelectText.text = selectString.GetLocalizedString();
+			boardSelectText.text = selectString.GetLocalizedStringAsync().Result;
 			boardSelectButton.interactable = storage.CurrentBoardSkin != skinNumber;
 		}
 		else
@@ -100,7 +170,7 @@ public class CustomizationMenu : MenuBase
 
 		if (skin.cost == 0 || storage.CheckPawn(skinNumber))
 		{
-			pawnSelectText.text = selectString.GetLocalizedString();
+			pawnSelectText.text = selectString.GetLocalizedStringAsync().Result;
 			pawnSelectButton.interactable = storage.CurrentPawnSkin != skinNumber;
 		}
 		else
@@ -116,68 +186,6 @@ public class CustomizationMenu : MenuBase
 		SelectPawnSkin(selectedPawn);
 
 		coinsCountText.text = storage.GetCoins().ToString();
-	}
-
-	#endregion
-
-	#region UIFunctions
-
-	private void ConfirmSelectBoard()
-	{
-		if (storage.TryBuyOrEquipBoard(selectedBoard))
-		{
-			storage.CurrentBoardSkin = selectedBoard;
-			UpdateStats();
-		}
-	}
-
-	private void ConfirmSelectPawn()
-	{
-		if (storage.TryBuyOrEquipPawn(selectedPawn))
-		{
-			storage.CurrentPawnSkin = selectedPawn;
-			UpdateStats();
-		}
-	}
-
-	private void NextBoard()
-	{
-		selectedBoard++;
-
-		if (selectedBoard >= skins.GetBoardSkinsCount())
-			selectedBoard = 0;
-
-		SelectBoardSkin(selectedBoard);
-	}
-
-	private void PrevBoard()
-	{
-		selectedBoard--;
-
-		if (selectedBoard < 0)
-			selectedBoard = skins.GetBoardSkinsCount() - 1;
-
-		SelectBoardSkin(selectedBoard);
-	}
-
-	private void NextPawn()
-	{
-		selectedPawn++;
-
-		if (selectedPawn >= skins.GetPawnSkinsCount())
-			selectedPawn = 0;
-
-		SelectPawnSkin(selectedPawn);
-	}
-
-	private void PrevPawn()
-	{
-		selectedPawn--;
-
-		if (selectedPawn < 0)
-			selectedPawn = skins.GetPawnSkinsCount() - 1;
-
-		SelectPawnSkin(selectedPawn);
 	}
 
 	#endregion

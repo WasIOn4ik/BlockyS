@@ -1,13 +1,16 @@
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 {
 	#region Variables
 
-	public NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+	public event EventHandler onNetworkCosmeticChanged;
 
 	[SerializeField] private InGameHUD hudPrefab;
+
+	private NetworkVariable<PlayerCosmetic> cosmetic = new(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
 
 	private NetworkVariable<PlayerNetworkedInfo> playerInfo = new();
 
@@ -57,6 +60,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 			SpesLogger.Detail("Skins Selected: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
 			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
+			onNetworkCosmeticChanged?.Invoke(this, EventArgs.Empty);
 		}
 	}
 

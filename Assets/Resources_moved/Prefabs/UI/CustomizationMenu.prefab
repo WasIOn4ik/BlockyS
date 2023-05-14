@@ -227,19 +227,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6088082332249748196}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: NextBoard
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &609421346019673112
 GameObject:
   m_ObjectHideFlags: 0
@@ -1139,19 +1127,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5758040529280110568}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: ConfirmSelectPawn
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &2328895698357239682
 GameObject:
   m_ObjectHideFlags: 0
@@ -1326,9 +1302,17 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2516563604286314610}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2926399524081107842
@@ -1389,6 +1373,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1447,7 +1432,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title: CustomizationMenu
-  previousMenu: {fileID: 0}
   selectString:
     m_TableReference:
       m_TableCollectionName: GUID:8c87fa0d0590c614c985ca6a5fb8223e
@@ -1458,11 +1442,16 @@ MonoBehaviour:
     m_WaitForCompletion: 0
     m_LocalVariables: []
   coinsCountText: {fileID: 649703272273124637}
+  backButton: {fileID: 1059926123637305714}
   boardSelectButton: {fileID: 4455213359324375506}
+  boardLeftButton: {fileID: 8283976544267573643}
+  boardRightButton: {fileID: 57472855430111908}
   boardSelectText: {fileID: 8670625184604307704}
   boardFrame: {fileID: 5539108539750332793}
   boardMesh: {fileID: 2492814845055532729}
   pawnSelectButton: {fileID: 9104457529959106796}
+  pawnLeftButton: {fileID: 1058969852726009318}
+  pawnRightButton: {fileID: 6317962427087071416}
   pawnSelectText: {fileID: 8516924125134045082}
   pawnFrame: {fileID: 2684876275952509118}
   pawnMesh: {fileID: 6186260681649879953}
@@ -1985,19 +1974,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7802568905792078775}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: MenuBase, SpesUtils
-        m_MethodName: GoToMenu
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: StartupMenu
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &5419239197827617001
 GameObject:
   m_ObjectHideFlags: 0
@@ -2119,19 +2096,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4190382884634940989}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: ConfirmSelectBoard
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &5896973013232127418
 GameObject:
   m_ObjectHideFlags: 0
@@ -2705,19 +2670,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 629723158386233037}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: PrevPawn
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8457408786036877668
 GameObject:
   m_ObjectHideFlags: 0
@@ -2839,19 +2792,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2777282729647126431}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: NextPawn
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8466111525982104998
 GameObject:
   m_ObjectHideFlags: 0
@@ -3185,19 +3126,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6777661165365877900}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 3312697031805634623}
-        m_TargetAssemblyTypeName: CustomizationMenu, Spes.Gameplay
-        m_MethodName: PrevBoard
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &9189928209255960871
 GameObject:
   m_ObjectHideFlags: 0
@@ -3295,8 +3224,16 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9189928209255960871}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}

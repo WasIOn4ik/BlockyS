@@ -12,6 +12,49 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2aa3639911eeff44a3f1d9537251f38, type: 3}
   m_Name: Menus
   m_EditorClassIdentifier: 
+  menuAssets:
+  - title: StartupMenu
+    assetReference:
+      m_AssetGUID: 20fe075046402ac4f99dccc9b55e9040
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: HostMenu
+    assetReference:
+      m_AssetGUID: d22c5de1f1b09bd46b0aa1d60dc22ed6
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: ConnectMenu
+    assetReference:
+      m_AssetGUID: e3862dbfb612e2f49b3056b4ec749ddb
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: SettingsMenu
+    assetReference:
+      m_AssetGUID: 395b3054c08411e41bfe6e3b911a6a45
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: CreditsMenu
+    assetReference:
+      m_AssetGUID: 24f0dced80c792c4ab8f0feb546d8ba9
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: WaitingMenu
+    assetReference:
+      m_AssetGUID: 1c848ea01f9a4384681f156cf2072424
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
+  - title: CustomizationMenu
+    assetReference:
+      m_AssetGUID: 4472604a20c833f41a08ec08344f9b60
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_EditorAssetChanged: 0
   prefabs:
   - {fileID: 8719580763229236887, guid: 20fe075046402ac4f99dccc9b55e9040, type: 3}
   - {fileID: 7355204270747131715, guid: d22c5de1f1b09bd46b0aa1d60dc22ed6, type: 3}

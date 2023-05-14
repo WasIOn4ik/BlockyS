@@ -2,7 +2,7 @@ using UnityEngine;
 
 public interface IPlayerController
 {
-    public void StartTurn();
+	public void StartTurn();
 
     public void EndTurn(Turn turn);
 

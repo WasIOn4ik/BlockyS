@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameRules
   m_EditorClassIdentifier: 
   turnTime: 10
-  x5Count: 12
+  x5Count: 1
   x7Count: 25
   x9Count: 42
   cameraHeight: 3

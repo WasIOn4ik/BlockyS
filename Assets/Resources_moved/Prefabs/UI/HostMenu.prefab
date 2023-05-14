@@ -485,7 +485,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 54
+  m_fontSize: 72
   m_fontSizeBase: 54
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -694,19 +694,7 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Spes.UI
-        m_MethodName: OnBoardSizeChanged
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &994430351404174341
 GameObject:
   m_ObjectHideFlags: 0
@@ -797,19 +785,7 @@ MonoBehaviour:
   m_Value: 1
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Assembly-CSharp
-        m_MethodName: OnPlayersCountChanged
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &1041440180672986571
 GameObject:
   m_ObjectHideFlags: 0
@@ -984,19 +960,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2841237509103711870}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Spes.Gameplay
-        m_MethodName: OnConfirmHostClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &1449693431886990721
 GameObject:
   m_ObjectHideFlags: 0
@@ -1345,6 +1309,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1403,7 +1368,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   title: HostMenu
-  previousMenu: {fileID: 0}
+  backButtonStart: {fileID: 1241375814143893018}
+  playLocalButton: {fileID: 2463550952597664581}
+  playOnlineButton: {fileID: 7685902963746218754}
+  confirmButton: {fileID: 6111110493202681604}
+  backButtonSetup: {fileID: 3626470171452029377}
   portInput: {fileID: 3786572527345855660}
   playersCountSlider: {fileID: 3683027955596475257}
   playersCountText: {fileID: 8376627708811768415}
@@ -1865,7 +1834,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 54
+  m_fontSize: 72
   m_fontSizeBase: 54
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2428,7 +2397,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 54
+  m_fontSize: 72
   m_fontSizeBase: 54
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2857,19 +2826,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6829324199747040965}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: MenuBase, SpesUtils
-        m_MethodName: GoToMenu
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: StartupMenu
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &6232124080508545855
 GameObject:
   m_ObjectHideFlags: 0
@@ -3752,19 +3709,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6928513664843227271}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Assembly-CSharp
-        m_MethodName: SetupSingleMode
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8051069256670753417
 GameObject:
   m_ObjectHideFlags: 0
@@ -3855,19 +3800,7 @@ MonoBehaviour:
   m_Value: 2
   m_OnValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Assembly-CSharp
-        m_MethodName: OnPlayersCountChanged
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8139162617952194277
 GameObject:
   m_ObjectHideFlags: 0
@@ -4604,19 +4537,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7244852950907879708}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Assembly-CSharp
-        m_MethodName: OnBackToSelectNetModeClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: StartupMenu
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8662803969621273586
 GameObject:
   m_ObjectHideFlags: 0
@@ -5114,19 +5035,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5138009733332921876}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7355204270747131715}
-        m_TargetAssemblyTypeName: HostMenu, Assembly-CSharp
-        m_MethodName: SetupNetMode
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &9197836212908327963
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,41 +1,48 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ConnectMenu : MenuBase
 {
 	#region Variables
 
 	[SerializeField] private TMPro.TMP_InputField address;
+	[SerializeField] private Button confirmButton;
+	[SerializeField] private Button backButton;
 
 	#endregion
 
-	#region UIFunctions
+	#region UnityCallbacks
 
-	private void OnConfrimConnectClicked()
-    {
-        string str = address.text;
-        var add = str.Split(':');
-        if (add.Length == 2)
-        {
-            if (ushort.TryParse(add[1], out ushort port))
-            {
-                GameBase.client.ConnectToGame(add[0], port);
-            }
-            else
-            {
-                SpesLogger.Warning("Port is incorrect");
-            }
-        }
-        else
-        {
-            SpesLogger.Warning("Write address:port");
-        }
-    }
+	protected override void Awake()
+	{
+		base.Awake();
+		confirmButton.onClick.AddListener(() =>
+		{
+			string str = address.text;
+			var add = str.Split(':');
+			if (add.Length == 2)
+			{
+				if (ushort.TryParse(add[1], out ushort port))
+				{
+					GameBase.client.ConnectToGame(add[0], port);
+				}
+				else
+				{
+					SpesLogger.Warning("Port is incorrect");
+				}
+			}
+			else
+			{
+				SpesLogger.Warning("Write address:port");
+			}
+		});
 
-    private void BackToMenu(string str)
-    {
-        GameBase.client.ClearAll();
-        GoToMenu(str);
-    }
+		backButton.onClick.AddListener(() =>
+		{
+			GameBase.client.ClearAll();
+			BackToPreviousMenu();
+		});
+	}
 
-    #endregion
+	#endregion
 }

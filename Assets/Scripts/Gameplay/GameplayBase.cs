@@ -37,8 +37,6 @@ public class GameplayBase : NetworkBehaviour
 	public SpesAnimator cameraAnimator = new();
 	public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
 
-	public NetworkList<NetworkBehaviourReference> C_pawns;
-
 	[Header("Components")]
 	[SerializeField] private SinglePlayerController singleControllerPrefab;
 
@@ -52,6 +50,8 @@ public class GameplayBase : NetworkBehaviour
 	[SerializeField] private List<Vector3> playersStartPositions = new();
 
 	[SerializeField] private List<Vector3> playersStartRotation = new();
+
+	private NetworkList<NetworkBehaviourReference> C_pawns;
 
 	private List<IPlayerController> S_players = new();
 
@@ -99,7 +99,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
-		SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{������}" : "{������}"));
+		SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Server}" : "{Client}"));
 
 		if (IsServer)
 		{
@@ -139,14 +139,13 @@ public class GameplayBase : NetworkBehaviour
 			ordersToNetIDs.Add(S_players.Count, clientID);
 			var player = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab);
 			player.NetworkObject.SpawnAsPlayerObject(clientID);
-			player.cosmetic.OnValueChanged += Cosmetic_OnValueChanged;
+			player.onNetworkCosmeticChanged += Cosmetic_OnValueChanged;
 		}
 		S_HandleWaitingMenu();
 	}
 
-	private void Cosmetic_OnValueChanged(PlayerCosmetic previousValue, PlayerCosmetic newValue)
+	private void Cosmetic_OnValueChanged(object sender, EventArgs e)
 	{
-		SpesLogger.Deb("S_UpdateSkins");
 		UpdateSkinsClientRpc(GetCosmetics());
 	}
 
@@ -366,7 +365,7 @@ public class GameplayBase : NetworkBehaviour
 		yield return null;
 		S_players[ActivePlayer.Value].StartTurn();
 		S_UpdatePlayersTurn();
-		SpesLogger.Detail("��� ���������� ������: " + ActivePlayer.Value);
+		SpesLogger.Detail("Turn transfered to player: " + ActivePlayer.Value);
 		Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
 	}
 
@@ -597,7 +596,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		if (bShow)
 		{
-			waitingMenu = MenuBase.OpenMenu("WaitingMenu");
+			MenuBase.OpenMenu("WaitingMenu", x => { waitingMenu = x; });
 		}
 		else
 		{

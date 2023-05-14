@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using TMPro;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public enum MessageAction
 {
@@ -17,10 +18,34 @@ public class MessageScript : MonoBehaviour
 	#region Variables
 
 	[SerializeField] protected TMP_Text message;
+	[SerializeField] protected Button messageButton;
 
 	protected string actionParam;
 
 	protected MessageAction buttonAction;
+
+	#endregion
+
+	#region UnityCallbacks
+
+	private void Awake()
+	{
+		messageButton.onClick.AddListener(() =>
+		{
+			switch (buttonAction)
+			{
+				case MessageAction.Close:
+					gameObject.SetActive(false);
+					break;
+				case MessageAction.LoadScene:
+					SceneManager.LoadScene(actionParam);
+					break;
+				case MessageAction.OpenMenu:
+					MenuBase.OpenMenu(actionParam);
+					break;
+			}
+		});
+	}
 
 	#endregion
 
@@ -40,22 +65,6 @@ public class MessageScript : MonoBehaviour
 		}
 		actionParam = param;
 		buttonAction = action;
-	}
-
-	private void OnButtonPressed()
-	{
-		switch (buttonAction)
-		{
-			case MessageAction.Close:
-				gameObject.SetActive(false);
-				break;
-			case MessageAction.LoadScene:
-				SceneManager.LoadScene(actionParam);
-				break;
-			case MessageAction.OpenMenu:
-				MenuBase.OpenMenu(actionParam);
-				break;
-		}
 	}
 
 	#endregion

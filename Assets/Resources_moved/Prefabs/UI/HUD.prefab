@@ -186,19 +186,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5490553913246770418}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6038861862887020108}
-        m_TargetAssemblyTypeName: InGameHUD, Spes.Gameplay
-        m_MethodName: OnPlaceWallClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &599547906761872857
 GameObject:
   m_ObjectHideFlags: 0
@@ -707,19 +695,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 685904082755362155}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 6038861862887020108}
-        m_TargetAssemblyTypeName: InGameHUD, Spes.Gameplay
-        m_MethodName: OnConfirmTurnClicked
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &3915844264022734680
 GameObject:
   m_ObjectHideFlags: 0
@@ -1043,6 +1019,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -1102,6 +1079,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   placeWallButtonImage: {fileID: 1776491827680506483}
   confirmTurnButton: {fileID: 4136162326899311231}
+  placeMoveButton: {fileID: 6485151642092976809}
   confirmTurnImage: {fileID: 6620204735021373219}
   turnHelperLocalizeEvent: {fileID: 7499490117957717983}
   wallsCountText: {fileID: 6977578626294521173}
@@ -1170,6 +1148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_HorizontalAxis: Horizontal
   m_VerticalAxis: Vertical
   m_SubmitButton: Submit
@@ -1179,7 +1158,7 @@ MonoBehaviour:
   m_ForceModuleActive: 0
 --- !u!95 &2887908790463871546
 Animator:
-  serializedVersion: 4
+  serializedVersion: 5
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -1196,7 +1175,8 @@ Animator:
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorControllerStateOnDisable: 0
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &5964058541927712597
 GameObject:
   m_ObjectHideFlags: 0
@@ -1368,7 +1348,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.25
+  m_fontSize: 28.6
   m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 1

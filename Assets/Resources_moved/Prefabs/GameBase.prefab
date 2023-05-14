@@ -52,7 +52,11 @@ MonoBehaviour:
   menusLibrary: {fileID: 11400000, guid: b3969f9d8f134c149822ad56c0ecb2f5, type: 2}
   skins: {fileID: 11400000, guid: a8cbca5e0bceaa44da1b47ca741ce5f8, type: 2}
   gameRules: {fileID: 11400000, guid: df044f2c5a4c38d45a29017685f37039, type: 2}
-  messageMenuPrefab: {fileID: 8940077981459349060, guid: 7e2fab40175409849a941f5d6090c1c1, type: 3}
+  messageMenuAsset:
+    m_AssetGUID: 7e2fab40175409849a941f5d6090c1c1
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
   bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:
@@ -72,7 +76,24 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 2286906215338914207}
     PlayerPrefab: {fileID: 0}
-    NetworkPrefabs:
+    Prefabs:
+      NetworkPrefabsLists: []
+    TickRate: 30
+    ClientConnectionBufferTimeout: 10
+    ConnectionApproval: 1
+    ConnectionData: 
+    EnableTimeResync: 0
+    TimeResyncInterval: 30
+    EnsureNetworkVariableLengthSafety: 0
+    EnableSceneManagement: 1
+    ForceSamePrefabs: 1
+    RecycleNetworkIds: 1
+    NetworkIdRecycleDelay: 120
+    RpcHashSize: 0
+    LoadSceneTimeOut: 120
+    SpawnTimeout: 1
+    EnableNetworkLogs: 1
+    OldPrefabList:
     - Override: 0
       Prefab: {fileID: 1128051090849459896, guid: b1e66adbaf6a56c42821e2305b12ca1a, type: 3}
       SourcePrefabToOverride: {fileID: 0}
@@ -93,21 +114,6 @@ MonoBehaviour:
       SourcePrefabToOverride: {fileID: 0}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
-    TickRate: 30
-    ClientConnectionBufferTimeout: 10
-    ConnectionApproval: 1
-    ConnectionData: 
-    EnableTimeResync: 0
-    TimeResyncInterval: 30
-    EnsureNetworkVariableLengthSafety: 0
-    EnableSceneManagement: 1
-    ForceSamePrefabs: 1
-    RecycleNetworkIds: 1
-    NetworkIdRecycleDelay: 120
-    RpcHashSize: 0
-    LoadSceneTimeOut: 120
-    SpawnTimeout: 1
-    EnableNetworkLogs: 1
 --- !u!114 &2286906215338914207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -123,7 +129,6 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_MaxPacketQueueSize: 1024
   m_MaxPayloadSize: 12288
-  m_MaxSendQueueSize: 393216
   m_HeartbeatTimeoutMS: 2000
   m_ConnectTimeoutMS: 4000
   m_MaxConnectAttempts: 240
@@ -162,7 +167,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc201744476e3f48a14ddf5a197ab6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  networkManager: {fileID: 0}
   prefs:
     password: 
     boardHalfExtent: 0
@@ -170,6 +174,7 @@ MonoBehaviour:
     turnTime: 0
     reconnectionTime: 0
   localPlayers: 0
+  networkManager: {fileID: 0}
 --- !u!114 &3210103588677655027
 MonoBehaviour:
   m_ObjectHideFlags: 0

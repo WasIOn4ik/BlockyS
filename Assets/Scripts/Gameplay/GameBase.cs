@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.Localization.Settings;
+using UnityEngine.AddressableAssets;
 
 [RequireComponent(typeof(ServerBase), typeof(ClientBase), typeof(GameStorage))]
 public class GameBase : MonoBehaviour
@@ -10,7 +11,7 @@ public class GameBase : MonoBehaviour
     [SerializeField] private MenusLibrary menusLibrary;
     public SkinsLibrary skins;
     public GameRules gameRules;
-    public MessageScript messageMenuPrefab;
+    public AssetReference messageMenuAsset;
 
     public bool bNetMode;
 
@@ -93,7 +94,16 @@ public class GameBase : MonoBehaviour
     {
         if (!currentMessage)
         {
-            currentMessage = Instantiate(messageMenuPrefab);
+            Addressables.InstantiateAsync(messageMenuAsset).Completed += (x) =>
+            {
+                if(x.Status != UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+                    SpesLogger.Critical("Error while loading MessageAssetReference");
+
+				currentMessage = x.Result.GetComponent<MessageScript>();
+
+				currentMessage.ShowMessage(entry, action, bLocalized, param);
+			};
+            return;
         }
 
         currentMessage.ShowMessage(entry, action, bLocalized, param);
