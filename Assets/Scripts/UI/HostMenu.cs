@@ -137,7 +137,7 @@ public class HostMenu : MenuBase
 		if (bNetMode)
 		{
 			SpesLogger.Warning("Game created in netMode");
-			GameBase.Server.HostGame(portInput.text.Length == 0 ? (ushort)2545 : ushort.Parse(portInput.text));
+			GameBase.Server.HostGame(portInput.text.Length == 0 ? (ushort)GameBase.Server.defaultPort : ushort.Parse(portInput.text));
 		}
 		else
 		{

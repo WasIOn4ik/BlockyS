@@ -10,7 +10,9 @@ public class BoardWall : NetworkBehaviour
 	[SerializeField] private MeshRenderer meshRenderer;
 	[SerializeField] private MeshFilter meshFilter;
 
-	public NetworkVariable<Turn> coords = new();
+	private NetworkVariable<Turn> turnInfoNetworkVariable = new();
+
+	public Turn TurnInfo { get { return turnInfoNetworkVariable.Value; } set { turnInfoNetworkVariable.Value = value; } }
 
 	public delegate void MovedDelegate();
 	public event MovedDelegate OnAnimated;
@@ -21,7 +23,7 @@ public class BoardWall : NetworkBehaviour
 
 	private void Awake()
 	{
-		coords.OnValueChanged += OnPlaced;
+		turnInfoNetworkVariable.OnValueChanged += OnPlaced;
 	}
 
 	#endregion
@@ -34,6 +36,11 @@ public class BoardWall : NetworkBehaviour
 		if (skin.TryGetWall(out var wallMesh))
 		{
 			meshFilter.mesh = wallMesh;
+		}
+
+		if (skin.TryGetMaterial(out var material))
+		{
+			meshRenderer.material = material;
 		}
 	}
 

@@ -11,6 +11,8 @@ public class ServerBase : MonoBehaviour
 {
 	#region Variables
 
+	public int defaultPort = 2545;
+
 	public ServerPrefs prefs;
 
 	public int localPlayers;

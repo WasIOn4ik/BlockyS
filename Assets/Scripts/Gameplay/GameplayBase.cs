@@ -6,24 +6,13 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.SmartFormat.PersistentVariables;
 
-[Serializable]
-public struct PlayerCosmetic : IEquatable<PlayerCosmetic>, INetworkSerializable
+public enum GameStage
 {
-	public int pawnSkinID;
-	public int boardSkinID;
-
-	public bool Equals(PlayerCosmetic other)
-	{
-		return pawnSkinID == other.pawnSkinID && boardSkinID == other.boardSkinID;
-	}
-
-	public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-	{
-		serializer.SerializeValue(ref pawnSkinID);
-		serializer.SerializeValue(ref boardSkinID);
-	}
+	WaitingForPlayersToConnect,
+	WaitingForPlayersToLoad,
+	GameActive,
+	GameFinished
 }
-
 public class GameplayBase : NetworkBehaviour
 {
 	#region Variables
@@ -32,10 +21,20 @@ public class GameplayBase : NetworkBehaviour
 
 	public InGameHUD hud;
 
-	public bool bGameActive = false;
+	public GameStage gameStage;
 
 	public SpesAnimator cameraAnimator = new();
+
 	public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
+
+	[Header("Properties")]
+
+	public LocalizedString winnerStr = new LocalizedString("Messages", "GameEnd");
+	[SerializeField] private string goldVariable = "gold";
+	[SerializeField] private string winnerNameVariable = "winnerName";
+
+	[SerializeField] private Vector3 zForwardRotation;
+	[SerializeField] private Vector3 xForwardRotation;
 
 	[Header("Components")]
 	[SerializeField] private SinglePlayerController singleControllerPrefab;
@@ -106,11 +105,8 @@ public class GameplayBase : NetworkBehaviour
 		{
 			gameboard.Initialize(GameBase.Server.prefs.boardHalfExtent);
 
-			for (int i = 0; i < GameBase.Server.localPlayers; i++)
-			{
-				ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
-				var player = S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
-			}
+			HandleLocalPlayers();
+
 			S_HandleWaitingMenu();
 			ActivePlayer.Value = 0;
 		}
@@ -119,6 +115,15 @@ public class GameplayBase : NetworkBehaviour
 			RequestInitializeServerRpc();
 		}
 		ActivePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
+	}
+
+	private void HandleLocalPlayers()
+	{
+		for (int i = 0; i < GameBase.Server.localPlayers; i++)
+		{
+			ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
+			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
+		}
 	}
 
 	private void ActivePlayer_OnValueChanged(int previousValue, int newValue)
@@ -219,9 +224,9 @@ public class GameplayBase : NetworkBehaviour
 				}
 				var wphX = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.Instance.transform);
+				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(xForwardRotation), GameplayBase.Instance.transform);
 				wallX.NetworkObject.Spawn();
-				wallX.coords.Value = turn;
+				wallX.TurnInfo = turn;
 				wallX.OnAnimated += cameraAnimator.AnimateCamera;
 
 				infoX.WallCount -= 1;
@@ -247,9 +252,9 @@ public class GameplayBase : NetworkBehaviour
 				}
 				var wphZ = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-				var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.Instance.transform);
+				var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(zForwardRotation), GameplayBase.Instance.transform);
 				wallZ.NetworkObject.Spawn();
-				wallZ.coords.Value = turn;
+				wallZ.TurnInfo = turn;
 				wallZ.OnAnimated += cameraAnimator.AnimateCamera;
 
 				infoZ.WallCount -= 1;
@@ -349,7 +354,7 @@ public class GameplayBase : NetworkBehaviour
 
 			if (!gameboard.HasPath(pawn.Block, turn.pos, turn.type))
 			{
-				SpesLogger.Deb("�� ������ ���� �� ������" + pl.GetPlayerInfo().playerOrder + " �� ������");
+				SpesLogger.Deb($"Player {pl.GetPlayerInfo().playerOrder} has no path to finish");
 				return false;
 			}
 		}
@@ -423,6 +428,10 @@ public class GameplayBase : NetworkBehaviour
 
 		var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
 		player.name = "Controller_" + playerOrder;
+		ActivePlayer.OnValueChanged += (oldVal, newVal) =>
+		{
+			player.UpdateTurn(newVal);
+		};
 		S_players.Add(player);
 
 		var point = PreselectedPoint(playersStartPositions[playerOrder]);
@@ -486,13 +495,11 @@ public class GameplayBase : NetworkBehaviour
 		{
 			if (S_players.Count == GameBase.Server.prefs.maxPlayers)
 			{
-				SpesLogger.Deb("S_HandleWaitingMenu");
 				ShowWaitingScreenClientRpc(false);
 				UpdateSkinsClientRpc(GetCosmetics());
 				S_players[0].StartTurn();
 				Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1);
-				bGameActive = true;
-				S_UpdatePlayersTurn();
+				gameStage = GameStage.GameActive;
 			}
 			else
 			{
@@ -521,11 +528,8 @@ public class GameplayBase : NetworkBehaviour
 
 	private void ShowWinMessage(string winner, int coinsValue)
 	{
-		LocalizedString winnerStr = new LocalizedString("Messages", "GameEnd")
-					{
-						{"winnerName", new StringVariable{Value = winner } },
-						{"gold", new IntVariable{Value =  coinsValue } }
-					};
+		winnerStr.Add(winnerNameVariable, new StringVariable { Value = winner });
+		winnerStr.Add(goldVariable, new IntVariable { Value = coinsValue });
 
 		GameBase.Instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
 	}
