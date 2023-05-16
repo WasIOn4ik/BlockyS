@@ -57,7 +57,7 @@ public class GameStorage : MonoBehaviour
 			string jsonString = PlayerPrefs.GetString(preferencesString);
 			prefs = JsonUtility.FromJson<Preferences>(jsonString);
 			SpesLogger.Detail("Settings loaded successfully");
-			GameBase.client.playerName = prefs.playerName;
+			GameBase.Client.playerName = prefs.playerName;
 			return true;
 		}
 		SavePrefs();
@@ -71,7 +71,7 @@ public class GameStorage : MonoBehaviour
 		PlayerPrefs.SetString(preferencesString, jsonString);
 		PlayerPrefs.Save();
 		SpesLogger.Detail("Saved successfully");
-		GameBase.client.playerName = prefs.playerName;
+		GameBase.Client.playerName = prefs.playerName;
 	}
 
 	public bool LoadProgress()
@@ -153,7 +153,7 @@ public class GameStorage : MonoBehaviour
 
 	public bool TryBuyOrEquipBoard(int id)
 	{
-		var skin = GameBase.instance.skins.GetUncheckedBoardSkin(id);
+		var skin = GameBase.Instance.skins.GetBoard(id);
 
 		if (CheckBoard(id) || skin.cost == 0)
 		{
@@ -181,7 +181,7 @@ public class GameStorage : MonoBehaviour
 
 	public bool TryBuyOrEquipPawn(int id)
 	{
-		var skin = GameBase.instance.skins.GetUncheckedPawnSkin(id);
+		var skin = GameBase.Instance.skins.GetPawn(id);
 
 		if (CheckPawn(id) || skin.cost == 0)
 		{

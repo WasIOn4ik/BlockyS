@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6bbd2f4e7573864e9483857c35e4768, type: 3}
+  m_Name: Default
+  m_EditorClassIdentifier: 
+  title: Default
+  cost: 0
+  materialAsset:
+    m_AssetGUID: bd1e93bc5860e9448bc22aeb06bdeb75
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  decorMesh1:
+    m_AssetGUID: 496c8d24b32455c458113c6ed32f1142
+    m_SubObjectName: Default_Decor_1
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  decorMesh2:
+    m_AssetGUID: d91514cfafefe444f9718836b0ebbc2f
+    m_SubObjectName: Default_Decor_2
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  decorMesh3:
+    m_AssetGUID: a512889e01a737544808317e30e1f8db
+    m_SubObjectName: Default_Decor_3
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  wallMesh:
+    m_AssetGUID: 041a2f46a1ea0d14daaff6c4d2aff6bd
+    m_SubObjectName: Default_Wall
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  blocks:
+  - m_AssetGUID: 375f24eec82ebb74292255a91dd39e9b
+    m_SubObjectName: Default_Block
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1

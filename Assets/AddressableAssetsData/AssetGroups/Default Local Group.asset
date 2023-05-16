@@ -25,10 +25,23 @@ MonoBehaviour:
   - m_GUID: 1f8e1a6502d724b4787c606a55f0edb8
     m_Address: Assets/Resources_moved/UI
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - UI
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 070eb6749cb84104d80b0755ee8237da
-    m_Address: Assets/Resources_moved
+  - m_GUID: bd1e93bc5860e9448bc22aeb06bdeb75
+    m_Address: Assets/Resources_moved/Materials/DefaultMat.mat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 421e0543f0c985d448c2cd27a4014c42
+    m_Address: Assets/Resources_moved/Materials/WallPredictMat.mat
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Preload
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94dc8851960c9264d98e1cf024a19ccb
+    m_Address: Assets/Resources_moved/Skins/Pawns/DefaultPawn.fbx
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

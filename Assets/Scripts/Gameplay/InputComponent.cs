@@ -99,7 +99,7 @@ public class InputComponent : MonoBehaviour
 			{
 				var delta = new Vector3(touch.position.x, touch.position.y) - mouseDragStartPos;
 				mouseDragStartPos = new Vector3(touch.position.x, touch.position.y);
-				int halfExtent = GameplayBase.instance.gameboard.halfExtention;
+				int halfExtent = GameplayBase.Instance.gameboard.halfExtention;
 				var temp = transform.position - (cameraForwardMovementDirection * delta.y + cameraRightMovementDirection * delta.x) / 100;
 
 				temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * cameraForwardMovementDirection.x, halfExtent - displace * cameraForwardMovementDirection.x);
@@ -139,7 +139,7 @@ public class InputComponent : MonoBehaviour
 			var delta = Input.mousePosition - mouseDragStartPos;
 			mouseDragStartPos = Input.mousePosition;
 
-			int halfExtent = GameplayBase.instance.gameboard.halfExtention;
+			int halfExtent = GameplayBase.Instance.gameboard.halfExtention;
 			var temp = transform.position - (cameraForwardMovementDirection * delta.y + cameraRightMovementDirection * delta.x) / 100;
 
 			temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * cameraForwardMovementDirection.x, halfExtent - displace * cameraForwardMovementDirection.x);
@@ -204,13 +204,13 @@ public class InputComponent : MonoBehaviour
 				currentTurnCache = new(currentPlaceType, wph.coords);
 
 				//Wall position check
-				if (!GameplayBase.instance.CheckPlace(currentTurnCache))
+				if (!GameplayBase.Instance.CheckPlace(currentTurnCache))
 				{
 					currentTurnCache.type = RotateWall(currentTurnCache.type);
 					currentPlaceType = currentTurnCache.type;
 
 					//Check if wall can be placed in only one rotation
-					if (!GameplayBase.instance.CheckPlace(currentTurnCache))
+					if (!GameplayBase.Instance.CheckPlace(currentTurnCache))
 					{
 						SpesLogger.Detail("Wall cannot be placed with selected rotation");
 						currentTurnCache = new();
@@ -242,7 +242,7 @@ public class InputComponent : MonoBehaviour
 				SpesLogger.Deb("Clicking on block: " + bb.name);
 
 				//Starting pawn move
-				if (controller.GetPlayerInfo().pawn.block.Value == bb.coords)
+				if (controller.GetPlayerInfo().pawn.Block == bb.coords)
 				{
 					if (bb.bSelected)
 						bb.UnHighlightAround();

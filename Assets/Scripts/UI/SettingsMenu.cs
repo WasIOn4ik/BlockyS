@@ -27,7 +27,7 @@ public class SettingsMenu : MenuBase
 
 		List<string> strings = new();
 
-		storage = GameBase.storage;
+		storage = GameBase.Storage;
 
 		int languageIndex = 0;
 		languageDD.ClearOptions();
@@ -43,7 +43,7 @@ public class SettingsMenu : MenuBase
 		languageDD.onValueChanged.AddListener((x) =>
 		{
 			string code = locales[languageDD.value];
-			GameBase.instance.ApplyLanguage(code);
+			GameBase.Instance.ApplyLanguage(code);
 		});
 
 		confirmButton.onClick.AddListener(() =>

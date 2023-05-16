@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: BoardDescriptors
+  m_EditorClassIdentifier: 
+  m_GroupName: BoardDescriptors
+  m_Data:
+    m_SerializedData: []
+  m_GUID: ec99dea489b21a2479f3e86174589c94
+  m_SerializeEntries:
+  - m_GUID: 7e1b400b84a48c04e8d9330b9a51e263
+    m_Address: Assets/Resources_moved/Skins/BoardSkinDescriptors/Christmass.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - BoardSkinDescriptor
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4a76c65eaec0fc34183fbde1a04e3a8c
+    m_Address: Assets/Resources_moved/Skins/BoardSkinDescriptors/Candy.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - BoardSkinDescriptor
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa333638bfc089b45aa4bc3b8cd8158a
+    m_Address: Assets/Resources_moved/Skins/BoardSkinDescriptors/Default.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - BoardSkinDescriptor
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 28261cfa3fef73548b4905003b0c4285
+    m_Address: Assets/Resources_moved/Skins/BoardSkinDescriptors/Egypt.asset
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - BoardSkinDescriptor
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: de23945a063e0bf47a4dca6eff5eb4f5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: fe0b2d836df4a5e4b9204d775a671c9f, type: 2}
+    - {fileID: 11400000, guid: 247f0db2a4005254ea2694d9b483c91b, type: 2}

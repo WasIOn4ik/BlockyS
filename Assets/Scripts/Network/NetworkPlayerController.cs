@@ -56,10 +56,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		{
 			cam = Camera.main;
 			AllignCamera();
-			GameplayBase.instance.cameraAnimator.AnimateCamera();
+			GameplayBase.Instance.cameraAnimator.AnimateCamera();
 
-			SpesLogger.Detail("Skins Selected: " + GameBase.storage.CurrentBoardSkin + " " + GameBase.storage.CurrentPawnSkin);
-			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
+			SpesLogger.Detail("Skins Selected: " + GameBase.Storage.CurrentBoardSkin + " " + GameBase.Storage.CurrentPawnSkin);
+			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
 			onNetworkCosmeticChanged?.Invoke(this, EventArgs.Empty);
 		}
 	}
@@ -137,7 +137,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 	public PlayerCosmetic GetCosmetic()
 	{
-		SpesLogger.Detail("Player: " + name + " B-Skin: " + GameBase.storage.CurrentBoardSkin + " _ P-Skin: " + GameBase.storage.CurrentPawnSkin);
+		SpesLogger.Detail("Player: " + name + " B-Skin: " + GameBase.Storage.CurrentBoardSkin + " _ P-Skin: " + GameBase.Storage.CurrentPawnSkin);
 		return cosmetic.Value;
 	}
 
@@ -162,7 +162,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		var cameraPosition = cam.transform.position;
 		var cameraRotation = cam.transform.rotation;
 		//Calculates new Camera position
-		Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
+		Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.Instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.Instance.gameRules.cameraHeight;
 		transform.SetPositionAndRotation(pos, cameraRotation);
 		return cameraPosition;
 	}
@@ -180,7 +180,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		info.state = EPlayerState.Operator;
 		SetPlayerInfo(info);
 
-		GameplayBase.instance.S_EndTurn(this, turn);
+		GameplayBase.Instance.S_EndTurn(this, turn);
 	}
 
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -193,7 +193,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 			inputComp.turnValid += hud.OnTurnValidationChanged;
 
 			cam.transform.position = AllignCamera();
-			GameplayBase.instance.cameraAnimator.AnimateCamera();
+			GameplayBase.Instance.cameraAnimator.AnimateCamera();
 		}
 
 		inputComp.UpdateTurnValid(false);

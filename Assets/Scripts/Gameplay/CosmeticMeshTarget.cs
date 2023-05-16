@@ -10,34 +10,23 @@ public class CosmeticMeshTarget : MonoBehaviour
 	[SerializeField] private MeshRenderer meshRenderer;
 	[SerializeField] private MeshFilter filter;
 
-    #endregion
+	#endregion
 
-    #region Functions
+	#region Functions
 
-    public void SetBoardSkin(int id, int num)
-    {
-        var boardSkin = GameBase.instance.skins.GetUncheckedBoardSkin(id);
-        Mesh m = null;
+	public void SetBoardSkin(int id, int num)
+	{
+		var boardSkin = GameBase.Instance.skins.GetBoard(id);
+		if (boardSkin.TryGetDecorMesh(num, out var decorMesh))
+		{
+			filter.mesh = decorMesh;
+		}
 
-        switch (num)
-        {
-            case 0:
-                m = boardSkin.variation1Mesh;
-                break;
-            case 1:
-                m = boardSkin.variation2Mesh;
-                break;
-            case 2:
-                m = boardSkin.variation3Mesh;
-                break;
-            case 3:
-                m = boardSkin.variation1Mesh;
-                break;
-        }
+		if (boardSkin.TryGetMaterial(out var material))
+		{
+			meshRenderer.material = material;
+		}
+	}
 
-        filter.mesh = m;
-        meshRenderer.material = boardSkin.mat;
-    }
-
-    #endregion
+	#endregion
 }

@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 65fbc926a8760f3408b369a27353c25f
   m_currentHash:
     serializedVersion: 2
-    Hash: a442d5a87d6484bc4783bb8f8ddef2db
+    Hash: d14baf76855a2e50e8d421b167d133c8
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_BundleLocalCatalog: 0
@@ -50,6 +50,10 @@ MonoBehaviour:
   - {fileID: 11400000, guid: cd4e5dd3c8effe34d969ef2404322020, type: 2}
   - {fileID: 11400000, guid: 4fbf8c4fc7845e442b6ae45a6f4adfbe, type: 2}
   - {fileID: 11400000, guid: 59c900ffc550a8941a1bbbe22f682fa2, type: 2}
+  - {fileID: 11400000, guid: 2e859d2822320e543aa30eed12199d24, type: 2}
+  - {fileID: 11400000, guid: 587db8686d4aa0942a5a0e0c5efaddde, type: 2}
+  - {fileID: 11400000, guid: 6b28b84a688e5fa41acbb766563d1a6e, type: 2}
+  - {fileID: 11400000, guid: 6f149017548569e4a88150f03a0d7107, type: 2}
   m_BuildSettings:
     m_CompileScriptsInVirtualMode: 0
     m_CleanupStreamingAssetsAfterBuilds: 1
@@ -91,10 +95,19 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - Pawn
+    - Board
+    - UI
+    - Preload
     - Locale
     - Locale-en-US
-    - Preload
     - Locale-ru-RU
+    - Candy
+    - Christmass
+    - Egypt
+    - BoardSkinDescriptor
+    - Default
+    - PawnSkinDescriptor
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 3d67bd6120d3cd149b85cabd5b92ac10, type: 2}

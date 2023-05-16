@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e6577aa62a9cc647b8054d2957e2151, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mesh: {fileID: 7658383334137830381}
-  filter: {fileID: 2598036584026872044}
+  meshRendererComponent: {fileID: 7658383334137830381}
+  meshFilterComponent: {fileID: 2598036584026872044}
   skinID: 0
   coords:
     x: 0
@@ -150,8 +150,16 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4404114733542921905}
   m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
   m_IsTrigger: 0
+  m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 2
+  serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: -0.5, z: 0}

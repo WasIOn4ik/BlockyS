@@ -6,7 +6,7 @@ public class SpesAnimator
 
     public void AnimateCamera()
     {
-        GameplayBase.instance.StartCoroutine(HandleAnimation(Camera.main));
+        GameplayBase.Instance.StartCoroutine(HandleAnimation(Camera.main));
     }
 
     protected IEnumerator HandleAnimation(Camera cam)
@@ -21,6 +21,6 @@ public class SpesAnimator
 
             yield return null;
         }
-        GameplayBase.instance.UpdateDefaultSkinColorForPawns();
+        GameplayBase.Instance.UpdateDefaultSkinColorForPawns();
     }
 }

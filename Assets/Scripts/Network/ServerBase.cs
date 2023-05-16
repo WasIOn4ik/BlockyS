@@ -144,7 +144,7 @@ public class ServerBase : MonoBehaviour
 		UnityTransport net = networkManager.GetComponent<UnityTransport>();
 		net.ConnectionData.Port = port;
 
-		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.client.playerName, password = "" };
+		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.Client.playerName, password = "" };
 		string jsonData = JsonUtility.ToJson(payload);
 		networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(jsonData);
 
@@ -163,7 +163,7 @@ public class ServerBase : MonoBehaviour
 			yield return null;
 		}
 		networkManager.NetworkConfig.ConnectionApproval = false;
-		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.client.playerName, password = "" };
+		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.Client.playerName, password = "" };
 		string jsonData = JsonUtility.ToJson(payload);
 		networkManager.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(jsonData);
 
@@ -171,7 +171,7 @@ public class ServerBase : MonoBehaviour
 
 		networkManager.StartHost();
 
-		Clients.Add(networkManager.LocalClientId, GameBase.client.playerName);
+		Clients.Add(networkManager.LocalClientId, GameBase.Client.playerName);
 
 		networkManager.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
 	}

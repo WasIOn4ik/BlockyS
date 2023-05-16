@@ -46,7 +46,7 @@ public class InGameHUD : MonoBehaviour
 	{
 		buildWallSprite = placeWallButtonImage.sprite;
 		animator = GetComponent<Animator>();
-		turnTime = GameBase.instance.gameRules.turnTime;
+		turnTime = GameBase.Instance.gameRules.turnTime;
 
 		confirmTurnButton.onClick.AddListener(() =>
 		{

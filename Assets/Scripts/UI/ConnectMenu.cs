@@ -24,7 +24,7 @@ public class ConnectMenu : MenuBase
 			{
 				if (ushort.TryParse(add[1], out ushort port))
 				{
-					GameBase.client.ConnectToGame(add[0], port);
+					GameBase.Client.ConnectToGame(add[0], port);
 				}
 				else
 				{
@@ -39,7 +39,7 @@ public class ConnectMenu : MenuBase
 
 		backButton.onClick.AddListener(() =>
 		{
-			GameBase.client.ClearAll();
+			GameBase.Client.ClearAll();
 			BackToPreviousMenu();
 		});
 	}

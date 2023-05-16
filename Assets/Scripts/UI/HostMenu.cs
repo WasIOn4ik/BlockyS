@@ -91,10 +91,10 @@ public class HostMenu : MenuBase
 
 	private void WriteServerData()
 	{
-		var serv = GameBase.server;
+		var serv = GameBase.Server;
 		serv.prefs.boardHalfExtent = int.Parse(cellsCountText.text);
 		serv.prefs.maxPlayers = (int)playersCountSlider.value;
-		serv.localPlayers = GameBase.instance.bNetMode ? (int)localPlayersSlider.value : serv.prefs.maxPlayers;
+		serv.localPlayers = GameBase.Instance.bNetMode ? (int)localPlayersSlider.value : serv.prefs.maxPlayers;
 	}
 
 	private void ShowSetupSubMenu()
@@ -102,7 +102,7 @@ public class HostMenu : MenuBase
 		portInput.gameObject.SetActive(bNetMode);
 		startSubmenu.SetActive(false);
 		setupSubmenu.SetActive(true);
-		GameBase.instance.bNetMode = bNetMode;
+		GameBase.Instance.bNetMode = bNetMode;
 	}
 
 	#endregion
@@ -137,11 +137,11 @@ public class HostMenu : MenuBase
 		if (bNetMode)
 		{
 			SpesLogger.Warning("Game created in netMode");
-			GameBase.server.HostGame(portInput.text.Length == 0 ? (ushort)2545 : ushort.Parse(portInput.text));
+			GameBase.Server.HostGame(portInput.text.Length == 0 ? (ushort)2545 : ushort.Parse(portInput.text));
 		}
 		else
 		{
-			GameBase.server.SetupSingleDevice();
+			GameBase.Server.SetupSingleDevice();
 		}
 	}
 

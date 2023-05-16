@@ -1,25 +1,27 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using System;
 
 public class Pawn : NetworkBehaviour
 {
 	#region Variables
 
 	[Header("Preferences")]
-	[SerializeField] protected MeshFilter filter;
-	[SerializeField] protected MeshRenderer mesh;
 	[SerializeField] protected float jumpHeight;
 	[SerializeField] public float animationTime;
 
 	[Header("InGame data")]
-	public NetworkVariable<int> playerOrder = new NetworkVariable<int>();
-	public NetworkVariable<Point> block = new NetworkVariable<Point>();
+	protected NetworkVariable<int> playerOrder = new NetworkVariable<int>();
+	protected NetworkVariable<Point> block = new NetworkVariable<Point>();
+
+	public Point Block { get { return block.Value; } set { block.Value = value; } }
+	public int PlayerOrder { get { return playerOrder.Value; } set { playerOrder.Value = value; } }
 
 	public delegate void MovedDelegate();
 	public event MovedDelegate OnAnimated;
 
-	protected PawnSkinDescription skin;
+	protected PawnSkinSO skin;
 
 	#endregion
 
@@ -40,7 +42,7 @@ public class Pawn : NetworkBehaviour
 		base.OnNetworkSpawn();
 
 		if (!IsOwner || IsServer)
-			OnAnimated += GameplayBase.instance.cameraAnimator.AnimateCamera;
+			OnAnimated += GameplayBase.Instance.cameraAnimator.AnimateCamera;
 	}
 
 	#endregion
@@ -54,7 +56,7 @@ public class Pawn : NetworkBehaviour
 
 	private void OnMoved(Point previousValue, Point newValue)
 	{
-		var arr = GameplayBase.instance.gameboard.blocks;
+		var arr = GameplayBase.Instance.gameboard.blocks;
 		if (previousValue != null)
 		{
 			var prevBlock = arr[previousValue.x, previousValue.y];
@@ -85,13 +87,13 @@ public class Pawn : NetworkBehaviour
 	}
 
 	public void UpdateColor()
-	{
+	{/*
 		//Standard pawns coloring. Local pawns - blue, remote - red
 		if (skin.name == "Default")
 		{
 			Color col = playerOrder.Value == GameplayBase.instance.ActivePlayer.Value ? Color.blue : Color.red;
 			mesh.material.color = col;
-		}
+		}*/
 	}
 
 	private IEnumerator Animate(BoardBlock point)
@@ -124,9 +126,9 @@ public class Pawn : NetworkBehaviour
 
 		if (IsServer)
 		{
-			if (block.Value.x == GameBase.server.prefs.boardHalfExtent && block.Value.y == GameBase.server.prefs.boardHalfExtent)
+			if (block.Value.x == GameBase.Server.prefs.boardHalfExtent && block.Value.y == GameBase.Server.prefs.boardHalfExtent)
 			{
-				if (GameBase.server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
+				if (GameBase.Server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
 				{
 					string winnerName = playerInfo;
 					//If it's local player, adding suffix with playerOrder
@@ -134,7 +136,7 @@ public class Pawn : NetworkBehaviour
 					{
 						winnerName = winnerName + "_" + playerOrder.Value;
 					}
-					GameplayBase.instance.GameFinishedClientRpc(winnerName);
+					GameplayBase.Instance.GameFinishedClientRpc(winnerName);
 				}
 			}
 		}
@@ -150,12 +152,11 @@ public class Pawn : NetworkBehaviour
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
 	public void SetSkinClientRpc(int ind)
 	{
-		skin = GameBase.instance.skins.GetUncheckedPawnSkin(ind);
+		skin = GameBase.Instance.skins.GetPawn(ind);
 
-		filter.mesh = skin.mesh;
-		mesh.material = skin.mat;
+		skin.InstantiateTo(transform, null);
 
-		UpdateColor();
+		//UpdateColor();
 	}
 
 	#endregion

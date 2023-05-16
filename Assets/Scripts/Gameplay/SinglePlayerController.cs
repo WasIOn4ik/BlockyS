@@ -41,7 +41,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         if (!hud)
             hud = Instantiate(hudPrefab);
 
-        cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.storage.CurrentBoardSkin, pawnSkinID = GameBase.storage.CurrentPawnSkin };
+        cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
     }
 
     #endregion
@@ -70,7 +70,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         cam.transform.SetParent(transform);
 
         //new camera position
-        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.instance.gameRules.cameraHeight;
+        Vector3 pos = GetPlayerInfo().pawn.transform.position + GetPlayerInfo().pawn.transform.forward * GameBase.Instance.gameRules.cameraBackwardOffset + Vector3.up * GameBase.Instance.gameRules.cameraHeight;
         transform.SetPositionAndRotation(pos, cameraRotation);
 
         hud.SetInputComponent(inputComp);
@@ -80,7 +80,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
         inputComp.UpdateTurnValid(false);
 
         //Initialize camera on start and remove "camera jitter effect" on turn transfer
-        if (GameplayBase.instance.bGameActive)
+        if (GameplayBase.Instance.bGameActive)
         {
             cam.transform.position = tp;
             cam.transform.rotation = tr;
@@ -112,7 +112,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
         cameraPosition = transform.position;
 
-        GameplayBase.instance.S_EndTurn(this, turn);
+        GameplayBase.Instance.S_EndTurn(this, turn);
 
         inputComp.turnValid -= hud.OnTurnValidationChanged;
     }

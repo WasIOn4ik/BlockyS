@@ -1214,11 +1214,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5510673788204441333}
-  - component: {fileID: 6186260681649879953}
-  - component: {fileID: 5984012914897423464}
-  - component: {fileID: 2164785298441295073}
   m_Layer: 5
-  m_Name: BoardSkinMesh
+  m_Name: PawnDisplayContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1244,77 +1241,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -80.52}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!33 &6186260681649879953
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2516563604286314610}
-  m_Mesh: {fileID: 7684625086359004581, guid: 94dc8851960c9264d98e1cf024a19ccb, type: 3}
---- !u!23 &5984012914897423464
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2516563604286314610}
-  m_Enabled: 1
-  m_CastShadows: 1
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &2164785298441295073
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2516563604286314610}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &2926399524081107842
 GameObject:
   m_ObjectHideFlags: 0
@@ -1448,13 +1374,14 @@ MonoBehaviour:
   boardRightButton: {fileID: 57472855430111908}
   boardSelectText: {fileID: 8670625184604307704}
   boardFrame: {fileID: 5539108539750332793}
-  boardMesh: {fileID: 2492814845055532729}
+  boardMeshFilter: {fileID: 2492814845055532729}
+  boardMeshRenderer: {fileID: 6126305993708577182}
   pawnSelectButton: {fileID: 9104457529959106796}
   pawnLeftButton: {fileID: 1058969852726009318}
   pawnRightButton: {fileID: 6317962427087071416}
   pawnSelectText: {fileID: 8516924125134045082}
   pawnFrame: {fileID: 2684876275952509118}
-  pawnMesh: {fileID: 6186260681649879953}
+  pawnContainerTransform: {fileID: 5510673788204441333}
   references:
     version: 2
     RefIds: []

@@ -5,114 +5,116 @@ using System;
 
 public class BoardWall : NetworkBehaviour
 {
-    #region Variables
+	#region Variables
 
-    [SerializeField] private MeshRenderer meshRenderer;
-    [SerializeField] private MeshFilter meshFilter;
+	[SerializeField] private MeshRenderer meshRenderer;
+	[SerializeField] private MeshFilter meshFilter;
 
-    public NetworkVariable<Turn> coords = new();
+	public NetworkVariable<Turn> coords = new();
 
-    public delegate void MovedDelegate();
-    public event MovedDelegate OnAnimated;
+	public delegate void MovedDelegate();
+	public event MovedDelegate OnAnimated;
 
 	#endregion
 
 	#region UnityCallbacks
 
 	private void Awake()
-    {
-        coords.OnValueChanged += OnPlaced;
-    }
+	{
+		coords.OnValueChanged += OnPlaced;
+	}
 
-    #endregion
+	#endregion
 
-    #region Callbacks
+	#region Callbacks
 
-    private void OnSkinChanged(int newValue)
-    {
-        var skin = GameBase.instance.skins.GetUncheckedBoardSkin(newValue);
-        meshRenderer.material = skin.mat;
-        meshFilter.mesh = skin.wallMesh;
-    }
+	private void OnSkinChanged(int newValue)
+	{
+		var skin = GameBase.Instance.skins.GetBoard(newValue);
+		if (skin.TryGetWall(out var wallMesh))
+		{
+			meshFilter.mesh = wallMesh;
+		}
+	}
 
-    private void OnPlaced(Turn previousValue, Turn newValue)
-    {
-        SpesLogger.Detail(newValue.type.ToString() + " " + newValue.pos.x + " x " + newValue.pos.y);
-        var blocks = GameplayBase.instance.gameboard.blocks;
+	private void OnPlaced(Turn previousValue, Turn newValue)
+	{
+		SpesLogger.Detail(newValue.type.ToString() + " " + newValue.pos.x + " x " + newValue.pos.y);
+		var blocks = GameplayBase.Instance.gameboard.blocks;
 
-        if (newValue.type == ETurnType.PlaceXForward)
-        {
-            try
-            {
-                blocks[newValue.pos.x, newValue.pos.y].zDir = null;
-                blocks[newValue.pos.x + 1, newValue.pos.y].zDir = null;
-                blocks[newValue.pos.x, newValue.pos.y + 1].mzDir = null;
-                blocks[newValue.pos.x + 1, newValue.pos.y + 1].mzDir = null;
-            }
-            catch (Exception ex)
-            {
-                SpesLogger.Exception(ex, "Can't break connections while X placing");
-            }
-        }
-        else if (newValue.type == ETurnType.PlaceZForward)
-        {
-            try
-            {
-                blocks[newValue.pos.x, newValue.pos.y].xDir = null;
-                blocks[newValue.pos.x + 1, newValue.pos.y].mxDir = null;
-                blocks[newValue.pos.x, newValue.pos.y + 1].xDir = null;
-                blocks[newValue.pos.x + 1, newValue.pos.y + 1].mxDir = null;
-            }
-            catch (Exception ex)
-            {
-                SpesLogger.Exception(ex, "Can't break connections while Z placing");
-            }
-        }
-        GameplayBase.instance.gameboard.wallsPlaces[newValue.pos.x, newValue.pos.y].bEmpty = false;
+		if (newValue.type == ETurnType.PlaceXForward)
+		{
+			try
+			{
+				blocks[newValue.pos.x, newValue.pos.y].zDir = null;
+				blocks[newValue.pos.x + 1, newValue.pos.y].zDir = null;
+				blocks[newValue.pos.x, newValue.pos.y + 1].mzDir = null;
+				blocks[newValue.pos.x + 1, newValue.pos.y + 1].mzDir = null;
+			}
+			catch (Exception ex)
+			{
+				SpesLogger.Exception(ex, "Can't break connections while X placing");
+			}
+		}
+		else if (newValue.type == ETurnType.PlaceZForward)
+		{
+			try
+			{
+				blocks[newValue.pos.x, newValue.pos.y].xDir = null;
+				blocks[newValue.pos.x + 1, newValue.pos.y].mxDir = null;
+				blocks[newValue.pos.x, newValue.pos.y + 1].xDir = null;
+				blocks[newValue.pos.x + 1, newValue.pos.y + 1].mxDir = null;
+			}
+			catch (Exception ex)
+			{
+				SpesLogger.Exception(ex, "Can't break connections while Z placing");
+			}
+		}
+		GameplayBase.Instance.gameboard.wallsPlaces[newValue.pos.x, newValue.pos.y].bEmpty = false;
 
-        OnSkinChanged(blocks[newValue.pos.x, newValue.pos.y].skinID);
-        Animate();
-    }
+		OnSkinChanged(blocks[newValue.pos.x, newValue.pos.y].skinID);
+		Animate();
+	}
 
-    #endregion
+	#endregion
 
-    #region Functions
+	#region Functions
 
-    private void Animate()
-    {
-        StartCoroutine(HandleAnimation());
-    }
+	private void Animate()
+	{
+		StartCoroutine(HandleAnimation());
+	}
 
-    private IEnumerator HandleAnimation()
-    {
-        float time = Time.deltaTime;
-        float animationTime = 2f;
+	private IEnumerator HandleAnimation()
+	{
+		float time = Time.deltaTime;
+		float animationTime = 2f;
 
-        Vector3 targetPos = transform.position;
+		Vector3 targetPos = transform.position;
 
-        transform.position = targetPos - Vector3.up;
+		transform.position = targetPos - Vector3.up;
 
-        float multiplier;
+		float multiplier;
 
-        while ((transform.position - targetPos).magnitude > 0.01f)
-        {
-            time += Time.deltaTime;
-            multiplier = time / animationTime;
+		while ((transform.position - targetPos).magnitude > 0.01f)
+		{
+			time += Time.deltaTime;
+			multiplier = time / animationTime;
 
-            transform.position = Vector3.Lerp(transform.position, targetPos, multiplier);
+			transform.position = Vector3.Lerp(transform.position, targetPos, multiplier);
 
-            yield return null;
-        }
+			yield return null;
+		}
 
-        if (OnAnimated != null)
-        {
-            OnAnimated();
-            foreach (MovedDelegate d in OnAnimated.GetInvocationList())
-            {
-                OnAnimated -= d;
-            }
-        }
-    }
+		if (OnAnimated != null)
+		{
+			OnAnimated();
+			foreach (MovedDelegate d in OnAnimated.GetInvocationList())
+			{
+				OnAnimated -= d;
+			}
+		}
+	}
 
-    #endregion
+	#endregion
 }

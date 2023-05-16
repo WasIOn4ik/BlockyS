@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6bbd2f4e7573864e9483857c35e4768, type: 3}
+  m_Name: Christmass
+  m_EditorClassIdentifier: 
+  title: Christmass
+  cost: 1500
+  materialAsset:
+    m_AssetGUID: c8ca2ee0b52450747ab63e961e695737
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_EditorAssetChanged: 0
+  decorMesh1:
+    m_AssetGUID: 279e80fe175ed074c93ecc02731ed438
+    m_SubObjectName: Christmass_Decor_1
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  decorMesh2:
+    m_AssetGUID: 4b2cb8957a1e36145bd166ebc1efeea3
+    m_SubObjectName: Christmass_Decor_2
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  decorMesh3:
+    m_AssetGUID: eb336eaa6f6583146bcbc30142b2ab8f
+    m_SubObjectName: Christmass_Decor_3
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  wallMesh:
+    m_AssetGUID: 150a7a112982fe942a9ee84176c97dd9
+    m_SubObjectName: Christmass_Wall
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1
+  blocks:
+  - m_AssetGUID: 45c1890d395d01245bbbab23776700e0
+    m_SubObjectName: Christmass_Block
+    m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+    m_EditorAssetChanged: 1

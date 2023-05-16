@@ -12,62 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 350215284e12a7b4d985d27161974002, type: 3}
   m_Name: Skins
   m_EditorClassIdentifier: 
+  labelToLoadBoardSkins: BoardSkinDescriptor
+  labelToLoadPawnSkins: PawnSkinDescriptor
   boardSkins:
-  - name: Default
-    variation1Mesh: {fileID: 6524187088631857476, guid: e4940456f7e508f4295e915ac29fb593, type: 3}
-    variation2Mesh: {fileID: -8635357409311961868, guid: e4940456f7e508f4295e915ac29fb593, type: 3}
-    variation3Mesh: {fileID: 7859014918826635802, guid: e4940456f7e508f4295e915ac29fb593, type: 3}
-    wallMesh: {fileID: 6608260078867357181, guid: e4940456f7e508f4295e915ac29fb593, type: 3}
-    mat: {fileID: 2100000, guid: bd1e93bc5860e9448bc22aeb06bdeb75, type: 2}
-    blocks:
-    - {fileID: -6030778872489999502, guid: e4940456f7e508f4295e915ac29fb593, type: 3}
-    cost: 0
-  - name: Christmass
-    variation1Mesh: {fileID: -740332093005086691, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
-    variation2Mesh: {fileID: -6960685279664925344, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
-    variation3Mesh: {fileID: -9082015746314487153, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
-    wallMesh: {fileID: 8733429697405204941, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
-    mat: {fileID: 2100000, guid: c8ca2ee0b52450747ab63e961e695737, type: 2}
-    blocks:
-    - {fileID: -8216554607291511347, guid: fdefce19f0c0b2349b240610b499c447, type: 3}
-    cost: 1200
-  - name: Egypt
-    variation1Mesh: {fileID: 5076571933457084490, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
-    variation2Mesh: {fileID: -1041077679906024731, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
-    variation3Mesh: {fileID: -3086543521387635186, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
-    wallMesh: {fileID: 751190262506561221, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
-    mat: {fileID: 2100000, guid: 0199546d3ea085b4eb1c15ea7249f2dd, type: 2}
-    blocks:
-    - {fileID: 7749224217459776121, guid: 2b2d45a07d186624482ddd8835170f95, type: 3}
-    cost: 1000
-  - name: Candy
-    variation1Mesh: {fileID: -4298647939423263092, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
-    variation2Mesh: {fileID: -5144967991853940985, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
-    variation3Mesh: {fileID: 111510855114462325, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
-    wallMesh: {fileID: 2975863596176591492, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
-    mat: {fileID: 2100000, guid: 3c8006882a4e74446bc88f6671a7a2dc, type: 2}
-    blocks:
-    - {fileID: -5359977850346365181, guid: f31a3d52d13ecdb4b9266c1277987a31, type: 3}
-    cost: 1200
-  pawnSkins:
-  - name: Default
-    mesh: {fileID: 7684625086359004581, guid: 94dc8851960c9264d98e1cf024a19ccb, type: 3}
-    mat: {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
-    rotation: {x: -15, y: 30, z: -8.5}
-    position: {x: 0, y: -70, z: 0}
-    scale: 90
-    cost: 0
-  - name: Fruit
-    mesh: {fileID: -6140781619218914380, guid: c85e982ae4ec030458df3238ef1f9566, type: 3}
-    mat: {fileID: 2100000, guid: 06f9c614d1f1c644ab6152f88491fffc, type: 2}
-    rotation: {x: 20, y: 210, z: 12}
-    position: {x: 0, y: -70, z: 0}
-    scale: 120
-    cost: 600
-  - name: Tower
-    mesh: {fileID: 6458350417994284289, guid: f7a440f96b22fb048a252192edcfe5ce, type: 3}
-    mat: {fileID: 2100000, guid: c47e738fa36693b42966954842642072, type: 2}
-    rotation: {x: 7.1, y: 115, z: -15}
-    position: {x: 0, y: -100, z: -50}
-    scale: 120
-    cost: 200
+  - {fileID: 11400000, guid: 4a76c65eaec0fc34183fbde1a04e3a8c, type: 2}
+  - {fileID: 11400000, guid: aa333638bfc089b45aa4bc3b8cd8158a, type: 2}
+  - {fileID: 11400000, guid: 28261cfa3fef73548b4905003b0c4285, type: 2}
+  - {fileID: 11400000, guid: 7e1b400b84a48c04e8d9330b9a51e263, type: 2}
+  pawnSkins: []

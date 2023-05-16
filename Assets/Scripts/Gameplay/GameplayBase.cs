@@ -63,7 +63,7 @@ public class GameplayBase : NetworkBehaviour
 
 	#region StaticVariables
 
-	public static GameplayBase instance;
+	public static GameplayBase Instance { get; private set; }
 
 	#endregion
 
@@ -71,22 +71,23 @@ public class GameplayBase : NetworkBehaviour
 
 	public void Awake()
 	{
-		if (instance)
+		if (Instance)
 			Destroy(this);
 
-		instance = this;
+		Instance = this;
 		C_pawns = new NetworkList<NetworkBehaviourReference>();
 		NetworkManager.OnClientConnectedCallback += OnClientConnected;
 	}
 
 	public override void OnDestroy()
 	{
-		if (instance == this)
+		if (Instance == this)
 		{
-			instance = null;
+			Instance = null;
 		}
 
-		NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+		if (NetworkManager)
+			NetworkManager.OnClientConnectedCallback -= OnClientConnected;
 
 		base.OnDestroy();
 	}
@@ -103,9 +104,9 @@ public class GameplayBase : NetworkBehaviour
 
 		if (IsServer)
 		{
-			gameboard.Initialize(GameBase.server.prefs.boardHalfExtent);
+			gameboard.Initialize(GameBase.Server.prefs.boardHalfExtent);
 
-			for (int i = 0; i < GameBase.server.localPlayers; i++)
+			for (int i = 0; i < GameBase.Server.localPlayers; i++)
 			{
 				ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
 				var player = S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
@@ -191,9 +192,9 @@ public class GameplayBase : NetworkBehaviour
 
 				var block = gameboard.blocks[turn.pos.x, turn.pos.y];
 
-				pawn.block.Value = block.coords;
+				pawn.Block = block.coords;
 
-				if (pawn.block.Value.x == GameBase.server.prefs.boardHalfExtent && pawn.block.Value.y == GameBase.server.prefs.boardHalfExtent)
+				if (pawn.Block.x == GameBase.Server.prefs.boardHalfExtent && pawn.Block.y == GameBase.Server.prefs.boardHalfExtent)
 				{
 					SpesLogger.Detail("Game ended, final block reached");
 					CancelInvoke("OnTimeout");
@@ -218,7 +219,7 @@ public class GameplayBase : NetworkBehaviour
 				}
 				var wphX = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.instance.transform);
+				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(0, 0, 0), GameplayBase.Instance.transform);
 				wallX.NetworkObject.Spawn();
 				wallX.coords.Value = turn;
 				wallX.OnAnimated += cameraAnimator.AnimateCamera;
@@ -246,7 +247,7 @@ public class GameplayBase : NetworkBehaviour
 				}
 				var wphZ = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-				var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.instance.transform);
+				var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(0, 90, 0), GameplayBase.Instance.transform);
 				wallZ.NetworkObject.Spawn();
 				wallZ.coords.Value = turn;
 				wallZ.OnAnimated += cameraAnimator.AnimateCamera;
@@ -265,7 +266,7 @@ public class GameplayBase : NetworkBehaviour
 
 		//If not returned yet,transfer turn to the next player in the next frame
 		ActivePlayer.Value++;
-		if (ActivePlayer.Value >= GameBase.server.prefs.maxPlayers)
+		if (ActivePlayer.Value >= GameBase.Server.prefs.maxPlayers)
 		{
 			ActivePlayer.Value = 0;
 		}
@@ -310,8 +311,8 @@ public class GameplayBase : NetworkBehaviour
 		int x = turn.pos.x;
 		int y = turn.pos.y;
 
-		int curX = pawn.block.Value.x;
-		int curY = pawn.block.Value.y;
+		int curX = pawn.Block.x;
+		int curY = pawn.Block.y;
 
 		var block = gameboard.blocks[curX, curY];
 
@@ -346,7 +347,7 @@ public class GameplayBase : NetworkBehaviour
 		{
 			var pawn = pl.GetPlayerInfo().pawn;
 
-			if (!gameboard.HasPath(pawn.block.Value, turn.pos, turn.type))
+			if (!gameboard.HasPath(pawn.Block, turn.pos, turn.type))
 			{
 				SpesLogger.Deb("�� ������ ���� �� ������" + pl.GetPlayerInfo().playerOrder + " �� ������");
 				return false;
@@ -366,7 +367,7 @@ public class GameplayBase : NetworkBehaviour
 		S_players[ActivePlayer.Value].StartTurn();
 		S_UpdatePlayersTurn();
 		SpesLogger.Detail("Turn transfered to player: " + ActivePlayer.Value);
-		Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
+		Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1);
 	}
 
 	private void OnTimeout()
@@ -375,7 +376,7 @@ public class GameplayBase : NetworkBehaviour
 		info.state = EPlayerState.Operator;
 		S_players[ActivePlayer.Value].SetPlayerInfo(info);
 		ActivePlayer.Value++;
-		if (ActivePlayer.Value >= GameBase.server.prefs.maxPlayers)
+		if (ActivePlayer.Value >= GameBase.Server.prefs.maxPlayers)
 		{
 			ActivePlayer.Value = 0;
 		}
@@ -387,8 +388,8 @@ public class GameplayBase : NetworkBehaviour
 	{
 		yield return new WaitForEndOfFrame();
 		yield return null;
-		var p = S_players[ActivePlayer.Value].GetPlayerInfo().pawn.block.Value;
-		S_players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.instance.gameboard.blocks[p.x, p.y]);
+		var p = S_players[ActivePlayer.Value].GetPlayerInfo().pawn.Block;
+		S_players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.Instance.gameboard.blocks[p.x, p.y]);
 	}
 
 	/// <summary>
@@ -399,8 +400,8 @@ public class GameplayBase : NetworkBehaviour
 	private Point PreselectedPoint(Vector3 vec)
 	{
 		Point p = new Point();
-		p.x = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.x);
-		p.y = GameBase.server.prefs.boardHalfExtent * (1 + (int)vec.z);
+		p.x = GameBase.Server.prefs.boardHalfExtent * (1 + (int)vec.x);
+		p.y = GameBase.Server.prefs.boardHalfExtent * (1 + (int)vec.z);
 
 		return p;
 	}
@@ -417,7 +418,7 @@ public class GameplayBase : NetworkBehaviour
 
 		Vector3 playerStartPosition = playersStartPositions[playerOrder];
 		float y = playerStartPosition.y;
-		playerStartPosition *= GameBase.server.prefs.boardHalfExtent;
+		playerStartPosition *= GameBase.Server.prefs.boardHalfExtent;
 		playerStartPosition.y = y;
 
 		var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
@@ -431,18 +432,18 @@ public class GameplayBase : NetworkBehaviour
 		info.pawn = S_SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
 		//info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
 		int wallsCount = 5;
-		switch (GameBase.server.prefs.boardHalfExtent)
+		switch (GameBase.Server.prefs.boardHalfExtent)
 		{
 			case 5:
-				wallsCount = GameBase.instance.gameRules.x5Count;
+				wallsCount = GameBase.Instance.gameRules.x5Count;
 				break;
 
 			case 7:
-				wallsCount = GameBase.instance.gameRules.x7Count;
+				wallsCount = GameBase.Instance.gameRules.x7Count;
 				break;
 
 			case 9:
-				wallsCount = GameBase.instance.gameRules.x7Count;
+				wallsCount = GameBase.Instance.gameRules.x7Count;
 				break;
 		}
 		info.WallCount = wallsCount;
@@ -470,8 +471,8 @@ public class GameplayBase : NetworkBehaviour
 		info.pawn = newPawn;
 		S_players[playerOrder].SetPlayerInfo(info);
 
-		newPawn.block.Value = block.coords;
-		newPawn.playerOrder.Value = playerOrder;
+		newPawn.Block = block.coords;
+		newPawn.PlayerOrder = playerOrder;
 		C_pawns.Add(newPawn);
 		return newPawn;
 	}
@@ -483,13 +484,13 @@ public class GameplayBase : NetworkBehaviour
 	{
 		if (IsServer)
 		{
-			if (S_players.Count == GameBase.server.prefs.maxPlayers)
+			if (S_players.Count == GameBase.Server.prefs.maxPlayers)
 			{
 				SpesLogger.Deb("S_HandleWaitingMenu");
 				ShowWaitingScreenClientRpc(false);
 				UpdateSkinsClientRpc(GetCosmetics());
 				S_players[0].StartTurn();
-				Invoke("OnTimeout", GameBase.instance.gameRules.turnTime + 1);
+				Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1);
 				bGameActive = true;
 				S_UpdatePlayersTurn();
 			}
@@ -526,7 +527,7 @@ public class GameplayBase : NetworkBehaviour
 						{"gold", new IntVariable{Value =  coinsValue } }
 					};
 
-		GameBase.instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
+		GameBase.Instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
 	}
 
 	#endregion
@@ -541,16 +542,16 @@ public class GameplayBase : NetworkBehaviour
 
 		string pureName = winner.Split("_")[0];
 
-		int coinsValue = pureName == GameBase.client.playerName ? 100 : 25;
+		int coinsValue = pureName == GameBase.Client.playerName ? 100 : 25;
 
-		GameBase.storage.progress.coins += coinsValue;
+		GameBase.Storage.progress.coins += coinsValue;
 
 		ShowWinMessage(winner, coinsValue);
 
 		if (IsServer)
-			GameBase.server.Invoke("ClearAll", 5);
+			GameBase.Server.Invoke("ClearAll", 5);
 		else
-			GameBase.client.ClearAll();
+			GameBase.Client.ClearAll();
 	}
 
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
@@ -559,12 +560,11 @@ public class GameplayBase : NetworkBehaviour
 		string title = "";
 		foreach (var s in skins)
 		{
-			title += GameBase.instance.skins.GetUncheckedBoardSkin(s.boardSkinID).name + " ";
+			title += GameBase.Instance.skins.GetBoard(s.boardSkinID).name + " ";
 		}
 		SpesLogger.Deb("USClientRpc update: " + title);
 
-		//Map update
-		gameboard.UpdateSkins(skins);
+		GameBase.Instance.skins.PreloadBoardSkins(skins, () => { gameboard.UpdateSkins(skins); });
 
 		//Pawn skins update
 		if (IsServer)
@@ -582,7 +582,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		ClientRpcParams cParams = new();
 		cParams.Send.TargetClientIds = new ulong[] { param.Receive.SenderClientId };
-		InitializeClientRpc(GameBase.server.prefs.boardHalfExtent, cParams);
+		InitializeClientRpc(GameBase.Server.prefs.boardHalfExtent, cParams);
 	}
 
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
