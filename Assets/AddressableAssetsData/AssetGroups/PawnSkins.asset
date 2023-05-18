@@ -41,6 +41,16 @@ MonoBehaviour:
     m_SerializedLabels:
     - Preload
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ce68c5d82a02e4247a76029a54840262
+    m_Address: Assets/Resources_moved/Prefabs/Pawns/PawnsAnimations/ChessJump.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c564a57eba755394fa1eab8e09efffe6
+    m_Address: Assets/Resources_moved/Prefabs/Pawns/PawnsAnimations/PawnJump.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: de23945a063e0bf47a4dca6eff5eb4f5, type: 2}
   m_SchemaSet:

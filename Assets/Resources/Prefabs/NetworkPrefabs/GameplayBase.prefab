@@ -40,8 +40,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4116664224151541048}
-  - component: {fileID: 4116664224151541050}
   - component: {fileID: 1973590735922144948}
+  - component: {fileID: -1329052238787502465}
   m_Layer: 0
   m_Name: GameplayBase
   m_TagString: Untagged
@@ -65,7 +65,23 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4116664224151541050
+--- !u!114 &1973590735922144948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4116664224151541053}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 951099334
+  AlwaysReplicateAsRoot: 0
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+--- !u!114 &-1329052238787502465
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -85,7 +101,17 @@ MonoBehaviour:
     blocksHolder: {fileID: 4508195497921332306}
     AnglesTowersSize: 2
   hud: {fileID: 0}
-  bGameActive: 0
+  winnerStr:
+    m_TableReference:
+      m_TableCollectionName: Messages
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: GameEnd
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  goldVariable: gold
+  winnerNameVariable: winnerName
   zForwardRotation: {x: 0, y: 0, z: 0}
   xForwardRotation: {x: 0, y: 90, z: 0}
   singleControllerPrefab: {fileID: 7643573439366329024, guid: 1cb598ca0314b2a438abfb9fb4055eb3, type: 3}
@@ -93,28 +119,15 @@ MonoBehaviour:
   wallPrefab: {fileID: -605503641063384765, guid: 0f869a31e66743b4ea2318bcfa2a5fbb, type: 3}
   pawnPrefab: {fileID: 3377158847296592826, guid: a5b165c75b5a53441916be05b1d9ce24, type: 3}
   playersStartPositions:
-  - {x: 0, y: 3, z: 1}
-  - {x: 0, y: 3, z: -1}
-  - {x: 1, y: 3, z: 0}
-  - {x: -1, y: 3, z: 0}
+  - {x: 0, y: 0, z: -1}
+  - {x: -1, y: 0, z: 0}
+  - {x: 0, y: 0, z: 1}
+  - {x: 1, y: 0, z: 0}
   playersStartRotation:
-  - {x: 45, y: 180, z: 0}
-  - {x: 45, y: 0, z: 0}
-  - {x: 45, y: -90, z: 0}
-  - {x: 45, y: 90, z: 0}
---- !u!114 &1973590735922144948
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4116664224151541053}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 951099334
-  AlwaysReplicateAsRoot: 0
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
+  - {x: 50, y: 0, z: 0}
+  - {x: 50, y: 90, z: 0}
+  - {x: 50, y: 180.05, z: 0}
+  - {x: 50, y: 270, z: 0}
+  references:
+    version: 2
+    RefIds: []

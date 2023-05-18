@@ -13,6 +13,7 @@ public abstract class MenuBase : MonoBehaviour
 	public const string CUSTOMIZATION_MENU = "CustomizationMenu";
 	public const string SETTINGS_MENU = "SettingsMenu";
 	public const string STARTUP_MENU = "StartupMenu";
+	public const string WAITING_FOR_PLAYERS_MENU = "WaitingMenu";
 
 	#endregion
 
@@ -48,7 +49,7 @@ public abstract class MenuBase : MonoBehaviour
 
 	#region StaticFunctions
 
-	protected static bool FindInLoadedMenus(string title)
+	protected static bool IsMenuInstantiated(string title)
 	{
 		foreach (var m in loadedMenus)
 		{
@@ -60,7 +61,7 @@ public abstract class MenuBase : MonoBehaviour
 		return false;
 	}
 
-	protected static MenuBase GetFromLoaded(string title)
+	protected static MenuBase GetFromInstantiated(string title)
 	{
 		MenuBase m = null;
 		for (int i = 0; i < loadedMenus.Count; i++)
@@ -79,28 +80,28 @@ public abstract class MenuBase : MonoBehaviour
 		return null;
 	}
 
-	protected static void AddToLoadedMenus(MenuBase menu)
+	protected static void AddToInstantiatedMenus(MenuBase menu)
 	{
 		loadedMenus.Add(menu);
 	}
 
-	protected static bool TryRemoveFromLoaded(MenuBase menu)
+	protected static bool TryRemoveFromInstantiatedMenus(MenuBase menu)
 	{
 		if (menu == null)
 		{
 			return false;
 		}
 
-		if (FindInLoadedMenus(menu.title))
+		if (IsMenuInstantiated(menu.title))
 		{
-			RemoveFromLoaded(menu);
+			RemoveFromInstantiatedMenus(menu);
 			return true;
 		}
 
 		return false;
 	}
 
-	protected static void RemoveFromLoaded(MenuBase menu)
+	protected static void RemoveFromInstantiatedMenus(MenuBase menu)
 	{
 		loadedMenus.Remove(menu);
 	}
@@ -115,10 +116,10 @@ public abstract class MenuBase : MonoBehaviour
 		if (lastOpenedMenu)
 			lastOpenedMenu.HideMenu();
 
-		MenuBase m = GetFromLoaded(title);
+		MenuBase m = GetFromInstantiated(title);
 		if (!m)
 		{
-			menus.LoadMenuPrefab(title, x => { onLoaded(x, out m); onOpened?.Invoke(m); });
+			menus.LoadMenuPrefab(title, x => { InstantiateOnLoad(x, out m); onOpened?.Invoke(m); });
 			return;
 		}
 
@@ -129,6 +130,11 @@ public abstract class MenuBase : MonoBehaviour
 		onOpened?.Invoke(m);
 	}
 
+	public static void PreloadMenu(string title)
+	{
+		menus.LoadMenuPrefab(title, null);
+	}
+
 	/// <summary>
 	/// Returns true if was closed
 	/// </summary>
@@ -136,7 +142,7 @@ public abstract class MenuBase : MonoBehaviour
 	/// <returns></returns>
 	public static bool CloseMenu(string title)
 	{
-		var m = GetFromLoaded(title);
+		var m = GetFromInstantiated(title);
 		if (!m)
 			return false;
 
@@ -153,7 +159,7 @@ public abstract class MenuBase : MonoBehaviour
 		menus = lib;
 	}
 
-	private static void onLoaded(MenuBase m, out MenuBase resM)
+	private static void InstantiateOnLoad(MenuBase m, out MenuBase resM)
 	{
 		resM = Instantiate(m);
 
@@ -223,8 +229,8 @@ public abstract class MenuBase : MonoBehaviour
 
 	protected virtual void Awake()
 	{
-		if (!FindInLoadedMenus(title))
-			AddToLoadedMenus(this);
+		if (!IsMenuInstantiated(title))
+			AddToInstantiatedMenus(this);
 
 		/*foreach (var m in loadedMenus)
 		{
@@ -237,7 +243,7 @@ public abstract class MenuBase : MonoBehaviour
 
 	private void OnDestroy()
 	{
-		TryRemoveFromLoaded(this);
+		TryRemoveFromInstantiatedMenus(this);
 		OnClose();
 	}
 

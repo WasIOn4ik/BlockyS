@@ -1,5 +1,11 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using Unity.Netcode;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SinglePlayerController : MonoBehaviour, IPlayerController
 {
@@ -41,12 +47,19 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		if (!hud)
 			hud = Instantiate(hudPrefab);
 
+		inputComp.turnValid += hud.OnTurnValidationChanged;
+
 		cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
 	}
 
 	#endregion
 
 	#region IPlayerController
+
+	public void TurnTimeout()
+	{
+		GetPlayerInfo().pawn.JumpOnSpot();
+	}
 
 	public void StartTurn()
 	{
@@ -57,7 +70,9 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 			var linfo = previousLocalController.GetPlayerInfo();
 			linfo.state = EPlayerState.Operator;
 			previousLocalController.SetPlayerInfo(linfo);
+			BoardBlock.ClearCurrentSelection();
 		}
+		previousLocalController = this;
 
 		var info = GetPlayerInfo();
 		info.state = EPlayerState.ActivePlayer;
@@ -76,11 +91,12 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		hud.SetInputComponent(inputComp);
 		hud.ToDefault();
 		hud.SetWallsCount(GetPlayerInfo().WallCount);
-		inputComp.turnValid += hud.OnTurnValidationChanged;
 		inputComp.UpdateTurnValid(false);
 
+		Debug.Log("State:" + GameplayBase.Instance.Stage.ToString());
+
 		//Initialize camera on start and remove "camera jitter effect" on turn transfer
-		if (GameplayBase.Instance.gameStage == GameStage.GameActive)
+		if (GameplayBase.Instance.Stage == GameStage.GameActive)
 		{
 			cam.transform.position = tp;
 			cam.transform.rotation = tr;
@@ -113,8 +129,6 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		cameraPosition = transform.position;
 
 		GameplayBase.Instance.S_EndTurn(this, turn);
-
-		inputComp.turnValid -= hud.OnTurnValidationChanged;
 	}
 
 	public MonoBehaviour GetMono()
@@ -139,24 +153,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
 	public void UpdateTurn(int active)
 	{
-		if (bTurnDisplayUpToDate)
-			return;
-
-		bTurnDisplayUpToDate = true;
-		StartCoroutine(UpdateDisplayTurn(active));
-	}
-
-	#endregion
-
-	#region Functions
-
-	private IEnumerator UpdateDisplayTurn(int active)
-	{
-		yield return null;
-
 		hud.SetPlayerTurn(active);
-
-		bTurnDisplayUpToDate = false;
 	}
 
 	#endregion

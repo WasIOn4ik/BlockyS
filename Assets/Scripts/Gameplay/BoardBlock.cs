@@ -17,8 +17,6 @@ public class BoardBlock : MonoBehaviour
 
 	public bool bEmpty = true;
 
-	public bool bSelected = false;
-
 	public bool bHighlighted = false;
 
 	private Color color = new();
@@ -27,7 +25,17 @@ public class BoardBlock : MonoBehaviour
 
 	#region StaticVariables
 
-	public static BoardBlock selectedBlock = null;
+	private static BoardBlock selectedBlock = null;
+
+	#endregion
+
+	#region StaticFunctions
+
+	public static void ClearCurrentSelection()
+	{
+		if (selectedBlock)
+			selectedBlock.UnHighlightAround();
+	}
 
 	#endregion
 
@@ -42,13 +50,16 @@ public class BoardBlock : MonoBehaviour
 
 	#region Functions
 
+	public bool IsSelectedBlock()
+	{
+		return this == selectedBlock;
+	}
+
 	public void HighlightAround()
 	{
-		if (selectedBlock)
-			selectedBlock.UnHighlightAround();
+		ClearCurrentSelection();
 
 		selectedBlock = this;
-		bSelected = true;
 
 		if (xDir)
 			xDir.HighlightSelf();
@@ -81,8 +92,6 @@ public class BoardBlock : MonoBehaviour
 	{
 		if (selectedBlock == this)
 			selectedBlock = null;
-
-		bSelected = false;
 
 		if (xDir)
 			xDir.UnHighlightSelf();

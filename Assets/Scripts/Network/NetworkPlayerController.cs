@@ -56,7 +56,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		{
 			cam = Camera.main;
 			AllignCamera();
-			GameplayBase.Instance.cameraAnimator.AnimateCamera();
+			CameraAnimator.AnimateCamera();
 
 			SpesLogger.Detail("Skins Selected: " + GameBase.Storage.CurrentBoardSkin + " " + GameBase.Storage.CurrentPawnSkin);
 			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
@@ -88,6 +88,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 	#region IPlayerController
 
+	public void TurnTimeout()
+	{
+		throw new NotImplementedException();
+	}
 	/// <summary>
 	/// In NetworkController'e It calls from client and handles in ServerRPC
 	/// </summary>
@@ -193,7 +197,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 			inputComp.turnValid += hud.OnTurnValidationChanged;
 
 			cam.transform.position = AllignCamera();
-			GameplayBase.Instance.cameraAnimator.AnimateCamera();
+			CameraAnimator.AnimateCamera();
 		}
 
 		inputComp.UpdateTurnValid(false);

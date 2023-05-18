@@ -30,6 +30,14 @@ MonoBehaviour:
     m_Metadata:
       m_Items:
       - rid: 2194714487162929173
+  - m_Id: 46702985624899584
+    m_Localized: Loading
+    m_Metadata:
+      m_Items: []
+  - m_Id: 46703073738838016
+    m_Localized: Waiting for other players
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

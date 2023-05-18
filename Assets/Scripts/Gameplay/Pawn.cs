@@ -2,9 +2,16 @@ using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using System.Collections.Generic;
 
 public class Pawn : NetworkBehaviour
 {
+	#region Constants
+
+	private const string JUMP_ANIMATION = "PawnJump";
+
+	#endregion
+
 	#region Variables
 
 	[Header("Preferences")]
@@ -12,16 +19,18 @@ public class Pawn : NetworkBehaviour
 	[SerializeField] public float animationTime;
 
 	[Header("InGame data")]
+	public NetworkVariable<int> skinID = new NetworkVariable<int>();
 	protected NetworkVariable<int> playerOrder = new NetworkVariable<int>();
 	protected NetworkVariable<Point> block = new NetworkVariable<Point>();
+
+	[Header("Components")]
+	[SerializeField] private Transform skinSpawnParent;
+	[SerializeField] private Animator animator;
 
 	public Point Block { get { return block.Value; } set { block.Value = value; } }
 	public int PlayerOrder { get { return playerOrder.Value; } set { playerOrder.Value = value; } }
 
-	public delegate void MovedDelegate();
-	public event MovedDelegate OnAnimated;
-
-	protected PawnSkinSO skin;
+	private PawnSkin pawnSkin;
 
 	#endregion
 
@@ -29,8 +38,8 @@ public class Pawn : NetworkBehaviour
 
 	private void Awake()
 	{
-		block.OnValueChanged += OnMoved;
-		playerOrder.OnValueChanged += OnPlayerOrderAssigned;
+		block.OnValueChanged += Block_OnValueChanged;
+		playerOrder.OnValueChanged += PlayerOrder_OnValueChanged;
 	}
 
 	#endregion
@@ -41,20 +50,26 @@ public class Pawn : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
-		if (!IsOwner || IsServer)
-			OnAnimated += GameplayBase.Instance.cameraAnimator.AnimateCamera;
+		GameBase.Instance.skins.GetPawn(skinID.Value).InstantiateTo(skinSpawnParent, x =>
+		{
+			pawnSkin = x.GetComponent<PawnSkin>();
+
+			ApplyAnimationFromSkin();
+
+			UpdateAnimationDuration();
+		});
 	}
 
 	#endregion
 
 	#region Callbacks
 
-	private void OnPlayerOrderAssigned(int previousValue, int newValue)
+	private void PlayerOrder_OnValueChanged(int previousValue, int newValue)
 	{
 		UpdateColor();
 	}
 
-	private void OnMoved(Point previousValue, Point newValue)
+	private void Block_OnValueChanged(Point previousValue, Point newValue)
 	{
 		var arr = GameplayBase.Instance.gameboard.blocks;
 		if (previousValue != null)
@@ -83,6 +98,7 @@ public class Pawn : NetworkBehaviour
 
 	public void HandleAnimation(BoardBlock newBlock)
 	{
+		animator.Play(JUMP_ANIMATION);
 		StartCoroutine(Animate(newBlock));
 	}
 
@@ -96,15 +112,28 @@ public class Pawn : NetworkBehaviour
 		}*/
 	}
 
+	private void ApplyAnimationFromSkin()
+	{
+		AnimatorOverrideController aoc = new AnimatorOverrideController(animator.runtimeAnimatorController);
+		var list = new List<KeyValuePair<AnimationClip, AnimationClip>>();
+		aoc.GetOverrides(list);
+		int index = list.FindIndex(x => { return x.Key.name == JUMP_ANIMATION; });
+		KeyValuePair<AnimationClip, AnimationClip> current = new KeyValuePair<AnimationClip, AnimationClip>(list[index].Key, pawnSkin.clip);
+		list[index] = current;
+		aoc.ApplyOverrides(list);
+		animator.runtimeAnimatorController = aoc;
+	}
+
+	private void UpdateAnimationDuration()
+	{
+		animationTime = pawnSkin.clip.length;
+	}
+
 	private IEnumerator Animate(BoardBlock point)
 	{
 		float time = Time.deltaTime;
 
 		Vector3 targetPos = point.transform.position;
-
-		float distance = (transform.position - targetPos).magnitude;
-
-		float sinus = 0.0f;
 
 		float multiplier;
 
@@ -116,47 +145,34 @@ public class Pawn : NetworkBehaviour
 			Vector3 zeroedYCurrent = transform.position;
 			zeroedYCurrent.y = targetPos.y;
 
-			sinus = Mathf.Lerp(sinus, 1, multiplier * distance);
-
-			transform.position = Vector3.Lerp(zeroedYCurrent, targetPos, multiplier)
-				+ (Vector3.up * (jumpHeight * Mathf.Sin(Mathf.PI * sinus)));
+			transform.position = Vector3.Lerp(zeroedYCurrent, targetPos, multiplier);
 
 			yield return null;
 		}
+		var gamePrefs = GameBase.Server.GetGamePrefs();
 
-		if (IsServer)
+		if (block.Value.x == gamePrefs.boardHalfExtent && block.Value.y == gamePrefs.boardHalfExtent)
 		{
-			if (block.Value.x == GameBase.Server.prefs.boardHalfExtent && block.Value.y == GameBase.Server.prefs.boardHalfExtent)
-			{
-				if (GameBase.Server.Clients.TryGetValue(OwnerClientId, out var playerInfo))
-				{
-					string winnerName = playerInfo;
-					//If it's local player, adding suffix with playerOrder
-					if (IsOwner)
-					{
-						winnerName = winnerName + "_" + playerOrder.Value;
-					}
-					GameplayBase.Instance.GameFinishedClientRpc(winnerName);
-				}
-			}
+			GameplayBase.Instance.GameFinishedClientRpc(GameBase.Server.GetPlayerByOrder(playerOrder.Value).playerName, OwnerClientId);
 		}
+	}
 
-		if (OnAnimated != null)
-			OnAnimated();
+	/// <summary>
+	/// Called from end of animation clip
+	/// </summary>
+	private void OnAnimated()
+	{
+		Debug.Log("OnAnimated_____________________________________________________");
+		CameraAnimator.AnimateCamera();
 	}
 
 	#endregion
 
 	#region RPCs
 
-	[ClientRpc(Delivery = RpcDelivery.Reliable)]
-	public void SetSkinClientRpc(int ind)
+	public void JumpOnSpot()
 	{
-		skin = GameBase.Instance.skins.GetPawn(ind);
-
-		skin.InstantiateTo(transform, null);
-
-		//UpdateColor();
+		animator.Play(JUMP_ANIMATION);
 	}
 
 	#endregion

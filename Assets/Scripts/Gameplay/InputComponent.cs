@@ -173,10 +173,7 @@ public class InputComponent : MonoBehaviour
 
 		ghostWallVisual.gameObject.SetActive(false);
 
-		if (BoardBlock.selectedBlock)
-		{
-			BoardBlock.selectedBlock.UnHighlightAround();
-		}
+		BoardBlock.ClearCurrentSelection();
 	}
 
 	public bool GetMoveMode()
@@ -244,7 +241,7 @@ public class InputComponent : MonoBehaviour
 				//Starting pawn move
 				if (controller.GetPlayerInfo().pawn.Block == bb.coords)
 				{
-					if (bb.bSelected)
+					if (bb.IsSelectedBlock())
 						bb.UnHighlightAround();
 					else
 						bb.HighlightAround();

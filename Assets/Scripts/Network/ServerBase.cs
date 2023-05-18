@@ -9,201 +9,288 @@ using UnityEngine.SceneManagement;
 
 public class ServerBase : MonoBehaviour
 {
+	#region HelperClasses
+
+	public class PlayerDescriptorEventArgs : EventArgs
+	{
+		public PlayerDescriptor playerDescriptor;
+	}
+
+	#endregion
+
 	#region Variables
 
-	public int defaultPort = 2545;
+	public event EventHandler<PlayerDescriptorEventArgs> onPlayerConnected;
 
-	public ServerPrefs prefs;
+	public event EventHandler<PlayerDescriptorEventArgs> onPlayerDisconnected;
 
-	public int localPlayers;
+	public event EventHandler onAllPlayersConnected;
 
-	public NetworkManager networkManager;
+	public const int defaultPort = 2545;
 
-	public Dictionary<ulong, string> Clients { get; protected set; } = new Dictionary<ulong, string>();
+	[SerializeField] private ServerPrefs serverPrefs = new ServerPrefs() { maxConnectPayloadSize = 200, reconnectionTime = 60 };
+
+	private GamePrefs gamePrefs;
+
+	private NetworkManager networkManager;
+
+	public List<PlayerDescriptor> players = new List<PlayerDescriptor>();
+
+	public bool bNetMode;
 
 	#endregion
 
 	#region Callbacks
 
-	private void OnAllClientsLoaded(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-	{
-		StringBuilder sb = new StringBuilder();
-		sb.Append("All clients exclude");
-		foreach (var c in clientsTimedOut)
-		{
-			sb.Append(c).Append(" ");
-		}
-
-		sb.Append(" loaded map");
-		SpesLogger.Detail(sb.ToString());
-	}
-
-	private void OnInstanceLoadComplete(ulong clientId, string sceneName, LoadSceneMode loadSceneMode)
-	{
-		SpesLogger.Deb($"Client {clientId} loaded scene {sceneName}");
-	}
-
-	private void OnLoadStarted(ulong clientId, string sceneName, LoadSceneMode loadSceneMode, AsyncOperation asyncOperation)
-	{
-		SpesLogger.Deb($"Client {clientId} started loading of scene {sceneName}");
-	}
-
-	private void OnServerStarted()
-	{
-		SpesLogger.Detail("Server started");
-	}
-
 	private void OnTransportFailure()
 	{
-		SpesLogger.Error("TransportFailure");
 		networkManager.Shutdown();
 		SceneManager.LoadScene("StartupScene");
 	}
 
-	private void OnDisconnected(ulong clientID)
-	{
-		SpesLogger.Detail($"Client {clientID} disconnected {(networkManager.IsServer ? "{Server}" : "{Client}")}");
-	}
-
-	private void OnConnected(ulong clientID)
-	{
-		SpesLogger.Detail($"Client {clientID} connected {(networkManager.IsServer ? "{Server}" : "{Client}")}");
-	}
-
 	private void ApproveClient(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
 	{
-		var payloadBytes = request.Payload;
-		string payload = System.Text.Encoding.UTF8.GetString(payloadBytes);
-		if (Clients.Count < prefs.maxPlayers)
+		//Host
+		if (request.ClientNetworkId == NetworkManager.ServerClientId)
 		{
-			var cinfo = JsonUtility.FromJson<ConnectionPayload>(payload);
-			if (cinfo.password == prefs.password || String.IsNullOrEmpty(prefs.password))
+			response.Approved = true;
+			return;
+		}
+
+		//Payload DOS protection
+		if (request.Payload.Length > serverPrefs.maxConnectPayloadSize)
+		{
+			response.Approved = false;
+			return;
+		}
+
+		ConnectionPayload payload = GetPayload(request);
+
+		if (players.Count >= serverPrefs.maxPlayers)
+		{
+			//Reconnection
+			if (CheckReconnection(payload))
 			{
+				int reconnectedPlayer = FindPlayerByToken(payload.playerToken);
+
+				NetworkManager.Singleton.DisconnectClient(players[reconnectedPlayer].clientID, "Logged in from other device");
+
+				players[reconnectedPlayer] = CreatePlayer(payload, request.ClientNetworkId);
+
 				response.Approved = true;
-				response.CreatePlayerObject = false;
-				Clients.Add(request.ClientNetworkId, cinfo.playerName);
-				SpesLogger.Detail("Client " + request.ClientNetworkId + " approved");
 				return;
 			}
-			else
-			{
-				SpesLogger.Detail("Client " + request.ClientNetworkId + " used wrong password");
-			}
+
+			response.Reason = "Server is full";
+			response.Approved = false;
+			return;
 		}
-		else
-		{
-			SpesLogger.Detail("Client " + request.ClientNetworkId + " can't enter to full room");
-		}
+
+		//Simple client or host
+		PlayerDescriptor player = CreatePlayer(payload, request.ClientNetworkId);
+		players.Add(player);
+
+		response.Approved = true;
 	}
 
 	#endregion
 
 	#region Functions
 
-	public void HostGame(ushort port = 2545)
+	public PlayerDescriptor GetPlayerByOrder(int order)
 	{
+		return players.Find(x =>
+		{
+			return x.playerOrder == order;
+		});
+	}
+
+	public PlayerDescriptor GetRemotePlayerByClientID(ulong clientID)
+	{
+		return players.Find(x =>
+		{
+			return x.clientID == clientID;
+		});
+	}
+
+	public PlayerDescriptor GetPlayerByToken(string playerToken)
+	{
+		return players.Find(x =>
+		{
+			return x.playerToken == playerToken;
+		});
+	}
+
+	public GamePrefs GetGamePrefs()
+	{
+		return gamePrefs;
+	}
+
+	public void SetGamePrefs(GamePrefs prefs)
+	{
+		gamePrefs = prefs;
+	}
+
+	public int GetPlayersCount()
+	{
+		return players.Count;
+	}
+
+	public void SetMaxPlayersCount(int count)
+	{
+		serverPrefs.maxPlayers = count;
+	}
+	public void SetLocalPlayersCount(int count)
+	{
+		gamePrefs.localPlayers = count;
+	}
+
+	public int GetMaxPlayersCount()
+	{
+		return serverPrefs.maxPlayers;
+	}
+
+	public void HostGame(ushort? port = null)
+	{
+		bNetMode = true;
+
 		ClearAll();
-		StartCoroutine(HostGameCoroutine(port));
+		EnsureShutdown();
+		UpdateConnectionPayload();
+		CreateLocalPlayers();
+
+		if (port != null)
+		{
+			var tr = NetworkManager.Singleton.NetworkConfig.NetworkTransport as UnityTransport;
+			tr.ConnectionData.Port = port.Value;
+		}
+
+		networkManager.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+
+		NetworkManager.Singleton.StartHost();
+		SceneLoader.LoadNetwork(Scenes.GameScene);
+	}
+
+	private void NetworkManager_OnClientConnectedCallback(ulong obj)
+	{
+		if (networkManager.ConnectedClientsIds.Count == serverPrefs.maxPlayers)
+		{
+			onAllPlayersConnected?.Invoke(this, EventArgs.Empty);
+		}
 	}
 
 	public void SetupSingleDevice()
 	{
 		ClearAll();
-		StartCoroutine(SetupSingleDeviceCoroutine());
+		EnsureShutdown();
+		UpdateConnectionPayload();
+		CreateLocalPlayers();
+
+		serverPrefs.maxPlayers = 1;
+		bNetMode = false;
+
+		NetworkManager.Singleton.StartHost();
+		SceneLoader.LoadNetwork(Scenes.GameScene);
 	}
 
-	public void ClearAll()
+	private void CreateLocalPlayers()
 	{
-		Clients.Clear();
-		UnbindAll();
+		for (int i = 0; i < gamePrefs.localPlayers; i++)
+		{
+			ConnectionPayload payload = JsonUtility.FromJson<ConnectionPayload>(Encoding.ASCII.GetString(
+				NetworkManager.Singleton.NetworkConfig.ConnectionData));
+
+			players.Add(CreatePlayer(payload, NetworkManager.ServerClientId));
+		}
+	}
+
+	private void UpdateConnectionPayload()
+	{
+		ConnectionPayload payload = new ConnectionPayload();
+		payload.pawnSkinID = GameBase.Storage.CurrentPawnSkin;
+		payload.boardSkin = GameBase.Storage.CurrentBoardSkin;
+		payload.playerName = GameBase.Client.playerName;
+		payload.playerToken = UnityEngine.Random.Range(0, 10000).ToString();
+
+		NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
+	}
+
+	private PlayerDescriptor CreatePlayer(ConnectionPayload payload, ulong clientID)
+	{
+		PlayerDescriptor player = new PlayerDescriptor();
+		player.clientID = clientID;
+		player.playerOrder = players.Count;
+
+		player.pawnSkinID = payload.pawnSkinID;
+		player.boardSkinID = payload.boardSkin;
+		player.playerName = payload.playerName;
+		player.playerToken = payload.playerToken;
+
+		return player;
+	}
+
+	private bool CheckReconnection(ConnectionPayload payload)
+	{
+		foreach (var player in players)
+		{
+			if (player.playerToken == payload.playerToken)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private ConnectionPayload GetPayload(NetworkManager.ConnectionApprovalRequest request)
+	{
+		string payloadString = Encoding.ASCII.GetString(request.Payload);
+		return JsonUtility.FromJson<ConnectionPayload>(payloadString);
+	}
+
+	private int FindPlayerByToken(string token)
+	{
+		for (int i = 0; i < players.Count; i++)
+		{
+			if (players[i].playerToken == token)
+				return i;
+		}
+		return -1;
+	}
+
+	private void EnsureShutdown()
+	{
+		while (NetworkManager.Singleton.ShutdownInProgress)
+		{
+			float shutdownCheckDelay = 0.1f;
+			new WaitForSeconds(shutdownCheckDelay);
+		}
+	}
+
+	private void ClearAll()
+	{
+		players.Clear();
 		networkManager.Shutdown();
 	}
 
 	private void UnbindAll()
 	{
-		if (networkManager)
+		if(networkManager)
 		{
-			networkManager.OnClientConnectedCallback -= OnConnected;
-			networkManager.OnClientDisconnectCallback -= OnDisconnected;
 			networkManager.OnTransportFailure -= OnTransportFailure;
-			networkManager.OnServerStarted -= OnServerStarted;
 			networkManager.ConnectionApprovalCallback -= ApproveClient;
-			if (networkManager.SceneManager != null)
-			{
-				networkManager.SceneManager.OnLoad -= OnLoadStarted;
-				networkManager.SceneManager.OnLoadComplete -= OnInstanceLoadComplete;
-				networkManager.SceneManager.OnLoadEventCompleted -= OnAllClientsLoaded;
-			}
-		}
-	}
-
-	private IEnumerator HostGameCoroutine(ushort port)
-	{
-		while (networkManager.ShutdownInProgress)
-		{
-			yield return null;
-		}
-		UnityTransport net = networkManager.GetComponent<UnityTransport>();
-		net.ConnectionData.Port = port;
-
-		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.Client.playerName, password = "" };
-		string jsonData = JsonUtility.ToJson(payload);
-		networkManager.NetworkConfig.ConnectionData = System.Text.Encoding.UTF8.GetBytes(jsonData);
-
-		SetupManagerCallbacks();
-		SetupSceneCallbacks();
-
-		networkManager.StartHost();
-
-		networkManager.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
-	}
-
-	private IEnumerator SetupSingleDeviceCoroutine()
-	{
-		while (networkManager.ShutdownInProgress)
-		{
-			yield return null;
-		}
-		networkManager.NetworkConfig.ConnectionApproval = false;
-		ConnectionPayload payload = new ConnectionPayload() { playerName = GameBase.Client.playerName, password = "" };
-		string jsonData = JsonUtility.ToJson(payload);
-		networkManager.NetworkConfig.ConnectionData = Encoding.UTF8.GetBytes(jsonData);
-
-		SetupSceneCallbacks();
-
-		networkManager.StartHost();
-
-		Clients.Add(networkManager.LocalClientId, GameBase.Client.playerName);
-
-		networkManager.SceneManager.LoadScene("GameScene", LoadSceneMode.Single);
-	}
-
-	private void SetupManagerCallbacks()
-	{
-		networkManager.OnClientConnectedCallback += OnConnected;
-		networkManager.OnClientDisconnectCallback += OnDisconnected;
-		networkManager.OnTransportFailure += OnTransportFailure;
-		networkManager.OnServerStarted += OnServerStarted;
-		networkManager.ConnectionApprovalCallback += ApproveClient;
-	}
-
-	private void SetupSceneCallbacks()
-	{
-		if (networkManager.SceneManager != null)
-		{
-			networkManager.SceneManager.OnLoad += OnLoadStarted;
-			networkManager.SceneManager.OnLoadComplete += OnInstanceLoadComplete;
-			networkManager.SceneManager.OnLoadEventCompleted += OnAllClientsLoaded;
-		}
-		else
-		{
-			SpesLogger.Warning("Trying to bind to not existing SceneManager");
 		}
 	}
 
 	#endregion
 
 	#region UnityCallbacks
+
+	private void Start()
+	{
+		networkManager = NetworkManager.Singleton;
+		networkManager.ConnectionApprovalCallback += ApproveClient;
+		networkManager.OnTransportFailure += OnTransportFailure;
+	}
 
 	private void OnDestroy()
 	{

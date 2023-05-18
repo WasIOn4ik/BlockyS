@@ -83,13 +83,13 @@ public class SkinsLibrarySO : ScriptableObject
 		SpesLogger.Detail("Skins data loaded successfully");
 	}
 
-	public void PreloadBoardSkins(PlayerCosmetic[] skins, Action onLoaded)
+	public void PreloadBoardSkins(IEnumerable<int> skins, Action onLoaded)
 	{
 		List<Task> tasks = new List<Task>();
 
 		foreach (var sk in skins)
 		{
-			tasks.Add(boardSkins[sk.boardSkinID].LoadAll());
+			tasks.Add(boardSkins[sk].LoadAll());
 		}
 
 		Task t = Task.Run(async () =>
@@ -99,7 +99,7 @@ public class SkinsLibrarySO : ScriptableObject
 
 		t.GetAwaiter().OnCompleted(() =>
 		{
-			if(t.IsCompleted)
+			if (t.IsCompleted)
 			{
 				onLoaded?.Invoke();
 			}

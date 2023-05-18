@@ -94,12 +94,25 @@ public class Gameboard
 	/// Updates game field with selected skins.
 	/// </summary>
 	/// <param name="skins">2-4</param>
-	public void UpdateSkins(PlayerCosmetic[] skins)
+	public void UpdateSkins(List<int> skins)
 	{
-		int count = skins.Length;
+		int count = skins.Count;
 
 		switch (count)
 		{
+			case 1:
+				foreach (var bl in blocks)
+				{
+					if (!bl)
+						continue;
+
+					bl.SetSkin(skins[0]);
+				}
+				decors[0].SetBoardSkin(skins[0], 0);
+				decors[1].SetBoardSkin(skins[0], 1);
+				decors[2].SetBoardSkin(skins[0], 2);
+				decors[3].SetBoardSkin(skins[0], 0);
+				break;
 			case 2:
 				foreach (var bl in blocks)
 				{
@@ -108,17 +121,17 @@ public class Gameboard
 
 					if (bl.coords.y >= halfExtention)
 					{
-						bl.SetSkin(skins[0].boardSkinID);
+						bl.SetSkin(skins[0]);
 					}
 					else
 					{
-						bl.SetSkin(skins[1].boardSkinID);
+						bl.SetSkin(skins[1]);
 					}
 				}
-				decors[0].SetBoardSkin(skins[0].boardSkinID, 0);
-				decors[1].SetBoardSkin(skins[0].boardSkinID, 1);
-				decors[2].SetBoardSkin(skins[1].boardSkinID, 0);
-				decors[3].SetBoardSkin(skins[1].boardSkinID, 1);
+				decors[0].SetBoardSkin(skins[0], 0);
+				decors[1].SetBoardSkin(skins[0], 1);
+				decors[2].SetBoardSkin(skins[1], 0);
+				decors[3].SetBoardSkin(skins[1], 1);
 				break;
 			case 3:
 				foreach (var bl in blocks)
@@ -128,21 +141,21 @@ public class Gameboard
 
 					if (bl.coords.x < bl.coords.y && bl.coords.y >= halfExtention) // Zero player
 					{
-						bl.SetSkin(skins[0].boardSkinID);
+						bl.SetSkin(skins[0]);
 					}
 					else if (bl.coords.x < (blocks.GetLength(1) - bl.coords.y - 1) && bl.coords.y < halfExtention) // The first player
 					{
-						bl.SetSkin(skins[1].boardSkinID);
+						bl.SetSkin(skins[1]);
 					}
 					else // The second player
 					{
-						bl.SetSkin(skins[2].boardSkinID);
+						bl.SetSkin(skins[2]);
 					}
 				}
-				decors[0].SetBoardSkin(skins[0].boardSkinID, 0);
-				decors[1].SetBoardSkin(skins[0].boardSkinID, 1);
-				decors[2].SetBoardSkin(skins[1].boardSkinID, 0);
-				decors[3].SetBoardSkin(skins[2].boardSkinID, 0);
+				decors[0].SetBoardSkin(skins[0], 0);
+				decors[1].SetBoardSkin(skins[0], 1);
+				decors[2].SetBoardSkin(skins[1], 0);
+				decors[3].SetBoardSkin(skins[2], 0);
 				break;
 			case 4:
 				foreach (var bl in blocks)
@@ -152,29 +165,29 @@ public class Gameboard
 
 					if (bl.coords.x < bl.coords.y && bl.coords.x > (blocks.GetLength(1) - bl.coords.y - 1)) // Zero player
 					{
-						bl.SetSkin(skins[0].boardSkinID);
+						bl.SetSkin(skins[0]);
 					}
 					else if (bl.coords.x > bl.coords.y && bl.coords.x < (blocks.GetLength(1) - bl.coords.y - 1)) // The first player
 					{
-						bl.SetSkin(skins[1].boardSkinID);
+						bl.SetSkin(skins[1]);
 					}
 					else if (bl.coords.x >= bl.coords.y && bl.coords.x >= (blocks.GetLength(1) - bl.coords.y - 1)) // The second player
 					{
-						bl.SetSkin(skins[2].boardSkinID);
+						bl.SetSkin(skins[2]);
 					}
 					else // The third player
 					{
-						bl.SetSkin(skins[3].boardSkinID);
+						bl.SetSkin(skins[3]);
 					}
 				}
-				decors[0].SetBoardSkin(skins[0].boardSkinID, 0);
-				decors[1].SetBoardSkin(skins[1].boardSkinID, 0);
-				decors[2].SetBoardSkin(skins[2].boardSkinID, 0);
-				decors[3].SetBoardSkin(skins[3].boardSkinID, 0);
+				decors[0].SetBoardSkin(skins[0], 0);
+				decors[1].SetBoardSkin(skins[1], 0);
+				decors[2].SetBoardSkin(skins[2], 0);
+				decors[3].SetBoardSkin(skins[3], 0);
 				break;
 
 			default:
-				SpesLogger.Warning("Default Value while updating skins: length " + skins.Length);
+				SpesLogger.Warning("Default Value while updating skins: length " + skins.Count);
 				break;
 		}
 	}

@@ -92,9 +92,12 @@ public class HostMenu : MenuBase
 	private void WriteServerData()
 	{
 		var serv = GameBase.Server;
-		serv.prefs.boardHalfExtent = int.Parse(cellsCountText.text);
-		serv.prefs.maxPlayers = (int)playersCountSlider.value;
-		serv.localPlayers = GameBase.Instance.bNetMode ? (int)localPlayersSlider.value : serv.prefs.maxPlayers;
+
+		GamePrefs prefs = new GamePrefs();
+		prefs.boardHalfExtent = int.Parse(cellsCountText.text);
+
+		serv.SetMaxPlayersCount((int)playersCountSlider.value);
+		serv.SetGamePrefs(prefs);
 	}
 
 	private void ShowSetupSubMenu()
@@ -102,7 +105,6 @@ public class HostMenu : MenuBase
 		portInput.gameObject.SetActive(bNetMode);
 		startSubmenu.SetActive(false);
 		setupSubmenu.SetActive(true);
-		GameBase.Instance.bNetMode = bNetMode;
 	}
 
 	#endregion
@@ -134,14 +136,19 @@ public class HostMenu : MenuBase
 	private void OnConfirmHostClicked()
 	{
 		WriteServerData();
+		var server = GameBase.Server;
+
 		if (bNetMode)
 		{
 			SpesLogger.Warning("Game created in netMode");
-			GameBase.Server.HostGame(portInput.text.Length == 0 ? (ushort)GameBase.Server.defaultPort : ushort.Parse(portInput.text));
+			server.SetLocalPlayersCount((int)localPlayersSlider.value);
+			server.SetMaxPlayersCount((int)playersCountSlider.value);
+			server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
 		}
 		else
 		{
-			GameBase.Server.SetupSingleDevice();
+			server.SetLocalPlayersCount((int)playersCountSlider.value);
+			server.SetupSingleDevice();
 		}
 	}
 

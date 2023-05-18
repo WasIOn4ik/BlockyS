@@ -15,17 +15,29 @@ public enum GameStage
 }
 public class GameplayBase : NetworkBehaviour
 {
-	#region Variables
+	#region ClientVariables
 
 	public Gameboard gameboard = new Gameboard();
 
 	public InGameHUD hud;
 
-	public GameStage gameStage;
+	#endregion
 
-	public SpesAnimator cameraAnimator = new();
+	#region NetworkVariables
 
-	public NetworkVariable<int> ActivePlayer { get; protected set; } = new NetworkVariable<int>();
+	private NetworkList<int> boardSkins;
+
+	private NetworkVariable<GameStage> gameStage = new NetworkVariable<GameStage>();
+
+	private NetworkVariable<int> activePlayer = new NetworkVariable<int>();
+
+	private NetworkVariable<int> halfExtent = new NetworkVariable<int>();
+
+	public GameStage Stage { get { return gameStage.Value; } private set { gameStage.Value = value; } }
+
+	#endregion
+
+	#region GeneralVariables
 
 	[Header("Properties")]
 
@@ -50,13 +62,9 @@ public class GameplayBase : NetworkBehaviour
 
 	[SerializeField] private List<Vector3> playersStartRotation = new();
 
-	private NetworkList<NetworkBehaviourReference> C_pawns;
+	private WaitingForAllMenu waitingMenu;
 
-	private List<IPlayerController> S_players = new();
-
-	private Dictionary<int, ulong> ordersToNetIDs = new();
-
-	private MenuBase waitingMenu;
+	private List<ulong> readyPlayersClientIDs = new List<ulong>();
 
 	#endregion
 
@@ -73,8 +81,15 @@ public class GameplayBase : NetworkBehaviour
 		if (Instance)
 			Destroy(this);
 
+		boardSkins = new NetworkList<int>();
+
 		Instance = this;
-		C_pawns = new NetworkList<NetworkBehaviourReference>();
+
+		MenuBase.OpenMenu(MenuBase.WAITING_FOR_PLAYERS_MENU, x =>
+		{
+			waitingMenu = x as WaitingForAllMenu;
+			waitingMenu.SetState(WaitingState.Loading);
+		});
 		NetworkManager.OnClientConnectedCallback += OnClientConnected;
 	}
 
@@ -99,76 +114,79 @@ public class GameplayBase : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
+
 		SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Server}" : "{Client}"));
 
 		if (IsServer)
 		{
-			gameboard.Initialize(GameBase.Server.prefs.boardHalfExtent);
+			activePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
+
+			halfExtent.Value = GameBase.Server.GetGamePrefs().boardHalfExtent;
+			boardSkins.Clear();
+
+			List<int> skinsToPreload = new List<int>();
+
+			foreach (var p in GameBase.Server.players)
+			{
+				skinsToPreload.Add(p.boardSkinID);
+				boardSkins.Add(p.boardSkinID);
+			}
+
+			GameBase.Instance.skins.PreloadBoardSkins(skinsToPreload, () =>
+			{
+				gameboard.UpdateSkins(skinsToPreload);
+				waitingMenu.SetState(WaitingState.WaitingOtherPlayers);
+				if (!GameBase.Server.bNetMode)
+				{
+					waitingMenu.HideMenu();
+					gameStage.Value = GameStage.GameActive;
+				}
+				else
+				{
+					ReadyServerRpc();
+				}
+			});
+
+			gameboard.Initialize(halfExtent.Value);
 
 			HandleLocalPlayers();
 
-			S_HandleWaitingMenu();
-			ActivePlayer.Value = 0;
+			activePlayer.Value = 0;
 		}
 		else if (IsClient)
 		{
-			RequestInitializeServerRpc();
-		}
-		ActivePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
-	}
+			gameboard.Initialize(halfExtent.Value);
 
-	private void HandleLocalPlayers()
-	{
-		for (int i = 0; i < GameBase.Server.localPlayers; i++)
-		{
-			ordersToNetIDs.Add(i, NetworkManager.Singleton.LocalClientId);
-			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab);
+			var skins = GetBoardSkinsList();
+			GameBase.Instance.skins.PreloadBoardSkins(skins, () =>
+			{
+				gameboard.UpdateSkins(skins);
+				ReadyServerRpc();
+			});
 		}
+
+		StartPlayerTurn(activePlayer.Value);
 	}
 
 	private void ActivePlayer_OnValueChanged(int previousValue, int newValue)
 	{
-		foreach (var p in C_pawns)
-		{
-			if (p.TryGet(out Pawn pawn))
-			{
-				pawn.UpdateColor();
-			}
-		}
+		StartPlayerTurn(newValue);
 	}
 
 	private void OnClientConnected(ulong clientID)
 	{
 		SpesLogger.Detail("GmplB: Client " + clientID + " connected");
-		if (IsServer && clientID != OwnerClientId)
+		if (IsServer && clientID != NetworkManager.ServerClientId)
 		{
-			ordersToNetIDs.Add(S_players.Count, clientID);
-			var player = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab);
+			var playerDescriptor = GameBase.Server.GetRemotePlayerByClientID(clientID);
+			var player = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab, playerDescriptor.playerOrder);
 			player.NetworkObject.SpawnAsPlayerObject(clientID);
-			player.onNetworkCosmeticChanged += Cosmetic_OnValueChanged;
 		}
-		S_HandleWaitingMenu();
-	}
-
-	private void Cosmetic_OnValueChanged(object sender, EventArgs e)
-	{
-		UpdateSkinsClientRpc(GetCosmetics());
 	}
 
 	#endregion
 
 	#region Functions
-
-	public void UpdateDefaultSkinColorForPawns()
-	{
-		foreach (var el in S_players)
-		{
-			if (el != null)
-			{
-				el.GetPlayerInfo().pawn.UpdateColor();
-			}
-		}
-	}
 
 	/// <summary>
 	/// SERVER-FUNCTION: Call it from server to invoke local EndTurn
@@ -177,7 +195,7 @@ public class GameplayBase : NetworkBehaviour
 	/// <param name="turn"></param>
 	public void S_EndTurn(IPlayerController controller, Turn turn)
 	{
-		if (ActivePlayer.Value != controller.GetPlayerInfo().playerOrder)
+		if (activePlayer.Value != controller.GetPlayerInfo().playerOrder)
 		{
 			SpesLogger.Warning("Received EndTurn from player" + controller.GetPlayerInfo().playerOrder + " but it's not active now");
 			return;
@@ -186,7 +204,7 @@ public class GameplayBase : NetworkBehaviour
 		switch (turn.type)
 		{
 			case ETurnType.Move:
-				var pawn = S_players[ActivePlayer.Value].GetPlayerInfo().pawn;
+				var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
 
 				if (!CheckMove(pawn, turn))
 				{
@@ -199,10 +217,11 @@ public class GameplayBase : NetworkBehaviour
 
 				pawn.Block = block.coords;
 
-				if (pawn.Block.x == GameBase.Server.prefs.boardHalfExtent && pawn.Block.y == GameBase.Server.prefs.boardHalfExtent)
+				if (pawn.Block.x == GameBase.Server.GetGamePrefs().boardHalfExtent && pawn.Block.y == GameBase.Server.GetGamePrefs().boardHalfExtent)
 				{
 					SpesLogger.Detail("Game ended, final block reached");
 					CancelInvoke("OnTimeout");
+					gameStage.Value = GameStage.GameFinished;
 					return;
 				}
 				break;
@@ -224,16 +243,13 @@ public class GameplayBase : NetworkBehaviour
 				}
 				var wphX = gameboard.wallsPlaces[turn.pos.x, turn.pos.y];
 
-				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(xForwardRotation), GameplayBase.Instance.transform);
+				var wallX = Instantiate(wallPrefab, wphX.transform.position, Quaternion.Euler(xForwardRotation), transform);
 				wallX.NetworkObject.Spawn();
 				wallX.TurnInfo = turn;
-				wallX.OnAnimated += cameraAnimator.AnimateCamera;
+				wallX.OnAnimated += CameraAnimator.AnimateCamera;
 
 				infoX.WallCount -= 1;
 				controller.SetPlayerInfo(infoX);
-
-				CancelInvoke("OnTimeout");
-
 				break;
 			case ETurnType.PlaceZForward:
 				if (!CheckPlace(turn))
@@ -255,13 +271,10 @@ public class GameplayBase : NetworkBehaviour
 				var wallZ = Instantiate(wallPrefab, wphZ.transform.position, Quaternion.Euler(zForwardRotation), GameplayBase.Instance.transform);
 				wallZ.NetworkObject.Spawn();
 				wallZ.TurnInfo = turn;
-				wallZ.OnAnimated += cameraAnimator.AnimateCamera;
+				wallZ.OnAnimated += CameraAnimator.AnimateCamera;
 
 				infoZ.WallCount -= 1;
 				controller.SetPlayerInfo(infoZ);
-
-				CancelInvoke("OnTimeout");
-
 				break;
 			case ETurnType.DestroyXWall:
 				break;
@@ -270,15 +283,8 @@ public class GameplayBase : NetworkBehaviour
 		}
 
 		//If not returned yet,transfer turn to the next player in the next frame
-		ActivePlayer.Value++;
-		if (ActivePlayer.Value >= GameBase.Server.prefs.maxPlayers)
-		{
-			ActivePlayer.Value = 0;
-		}
 
-		CancelInvoke("OnTimeout");
-
-		StartCoroutine(nextTurn());
+		NextPlayerOrder();
 	}
 
 	public bool CheckPlace(Turn turn)
@@ -303,6 +309,33 @@ public class GameplayBase : NetworkBehaviour
 		}
 		return false;
 
+	}
+
+	private void NextPlayerOrder()
+	{
+		int value = activePlayer.Value + 1;
+
+		activePlayer.Value = value >= GameBase.Server.GetPlayersCount() ? 0 : value;
+	}
+
+	private void StartPlayerTurn(int playerOrder)
+	{
+		CancelInvoke("OnTimeout");
+		var playerDescriptor = GameBase.Server.GetPlayerByOrder(activePlayer.Value);
+		playerDescriptor.playerController.StartTurn();
+		foreach (var pl in GameBase.Server.players)
+		{
+			pl.playerController.UpdateTurn(activePlayer.Value);
+		}
+		Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1f);
+	}
+
+	private void HandleLocalPlayers()
+	{
+		for (int i = 0; i < GameBase.Server.GetGamePrefs().localPlayers; i++)
+		{
+			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab, i);
+		}
 	}
 
 	/// <summary>
@@ -348,53 +381,31 @@ public class GameplayBase : NetworkBehaviour
 
 	private bool CheckDestination(Turn turn)
 	{
-		foreach (var pl in S_players)
+		foreach (var pl in GameBase.Server.players)
 		{
-			var pawn = pl.GetPlayerInfo().pawn;
+			var pawn = pl.playerPawn;
 
 			if (!gameboard.HasPath(pawn.Block, turn.pos, turn.type))
 			{
-				SpesLogger.Deb($"Player {pl.GetPlayerInfo().playerOrder} has no path to finish");
+				SpesLogger.Deb($"Player {pl.playerOrder} has no path to finish");
 				return false;
 			}
 		}
 		return true;
 	}
 
-	/// <summary>
-	/// Transfer turn to the next player
-	/// </summary>
-	/// <returns></returns>
-	private IEnumerator nextTurn()
-	{
-		yield return new WaitForEndOfFrame();
-		yield return null;
-		S_players[ActivePlayer.Value].StartTurn();
-		S_UpdatePlayersTurn();
-		SpesLogger.Detail("Turn transfered to player: " + ActivePlayer.Value);
-		Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1);
-	}
-
 	private void OnTimeout()
 	{
-		var info = S_players[ActivePlayer.Value].GetPlayerInfo();
-		info.state = EPlayerState.Operator;
-		S_players[ActivePlayer.Value].SetPlayerInfo(info);
-		ActivePlayer.Value++;
-		if (ActivePlayer.Value >= GameBase.Server.prefs.maxPlayers)
-		{
-			ActivePlayer.Value = 0;
-		}
-		StartCoroutine(nextTurn());
-		StartCoroutine(check());
-	}
+		var controller = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController;
 
-	private IEnumerator check()
-	{
-		yield return new WaitForEndOfFrame();
-		yield return null;
-		var p = S_players[ActivePlayer.Value].GetPlayerInfo().pawn.Block;
-		S_players[ActivePlayer.Value].GetPlayerInfo().pawn.HandleAnimation(GameplayBase.Instance.gameboard.blocks[p.x, p.y]);
+		var info = controller.GetPlayerInfo();
+		info.state = EPlayerState.Operator;
+		controller.SetPlayerInfo(info);
+
+		var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
+
+		controller.TurnTimeout();
+		NextPlayerOrder();
 	}
 
 	/// <summary>
@@ -405,8 +416,8 @@ public class GameplayBase : NetworkBehaviour
 	private Point PreselectedPoint(Vector3 vec)
 	{
 		Point p = new Point();
-		p.x = GameBase.Server.prefs.boardHalfExtent * (1 + (int)vec.x);
-		p.y = GameBase.Server.prefs.boardHalfExtent * (1 + (int)vec.z);
+		p.x = GameBase.Server.GetGamePrefs().boardHalfExtent * (1 + (int)vec.x);
+		p.y = GameBase.Server.GetGamePrefs().boardHalfExtent * (1 + (int)vec.z);
 
 		return p;
 	}
@@ -417,31 +428,22 @@ public class GameplayBase : NetworkBehaviour
 	/// <typeparam name="T"></typeparam>
 	/// <param name="prefab"></param>
 	/// <returns></returns>
-	private T S_SpawnAbstractPlayer<T>(IPlayerController prefab) where T : MonoBehaviour, IPlayerController
+	private T S_SpawnAbstractPlayer<T>(IPlayerController prefab, int playerOrder) where T : MonoBehaviour, IPlayerController
 	{
-		int playerOrder = S_players.Count;
+		int spawnID = GetSpawnID(playerOrder);
 
-		Vector3 playerStartPosition = playersStartPositions[playerOrder];
-		float y = playerStartPosition.y;
-		playerStartPosition *= GameBase.Server.prefs.boardHalfExtent;
-		playerStartPosition.y = y;
-
-		var player = Instantiate(prefab.GetMono(), playerStartPosition, Quaternion.Euler(playersStartRotation[playerOrder])) as T;
+		var player = InstantiateController(prefab, spawnID) as T;
+		GameBase.Server.GetPlayerByOrder(playerOrder).playerController = player;
 		player.name = "Controller_" + playerOrder;
-		ActivePlayer.OnValueChanged += (oldVal, newVal) =>
-		{
-			player.UpdateTurn(newVal);
-		};
-		S_players.Add(player);
 
-		var point = PreselectedPoint(playersStartPositions[playerOrder]);
+		var point = PreselectedPoint(playersStartPositions[spawnID]);
 
 		var info = player.GetPlayerInfo();
 		info.playerOrder = playerOrder;
-		info.pawn = S_SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y]);
+		info.pawn = S_SpawnPawn(playerOrder, gameboard.blocks[point.x, point.y], spawnID);
 		//info.pawn.OnAnimated += cameraAnimator.AnimateCamera;
 		int wallsCount = 5;
-		switch (GameBase.Server.prefs.boardHalfExtent)
+		switch (GameBase.Server.GetGamePrefs().boardHalfExtent)
 		{
 			case 5:
 				wallsCount = GameBase.Instance.gameRules.x5Count;
@@ -463,67 +465,65 @@ public class GameplayBase : NetworkBehaviour
 		return player as T;
 	}
 
+	private MonoBehaviour InstantiateController(IPlayerController prefab, int spawnID)
+	{
+		return Instantiate(prefab.GetMono(), Vector3.zero, Quaternion.Euler(playersStartRotation[spawnID]));
+	}
+
+	/// <summary>
+	/// Returns start position and rotation array index, based on max players count
+	/// </summary>
+	/// <param name="playerOrder"></param>
+	/// <returns></returns>
+	private int GetSpawnID(int playerOrder)
+	{
+
+		int max = Mathf.Max(GameBase.Server.GetMaxPlayersCount(), GameBase.Server.GetGamePrefs().localPlayers);
+
+		int id = playerOrder;
+
+		if (max == 2)
+			id = playerOrder * 2;
+
+		return id;
+	}
+
 	/// <summary>
 	/// SERVER-FUNCTION: Creates player pawn, spawns it in world and registers it
 	/// </summary>
 	/// <param name="playerOrder"></param>
 	/// <param name="block"></param>
 	/// <returns></returns>
-	private Pawn S_SpawnPawn(int playerOrder, BoardBlock block)
+	private Pawn S_SpawnPawn(int playerOrder, BoardBlock block, int spawnID)
 	{
-		Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.Euler(0, playersStartRotation[playerOrder].y, 0));
+		var descriptor = GameBase.Server.GetPlayerByOrder(playerOrder);
+		Pawn newPawn = Instantiate(pawnPrefab, block.transform.position, Quaternion.Euler(0, playersStartRotation[spawnID].y, 0));
 		newPawn.name = "Pawn_" + playerOrder;
 
-		newPawn.NetworkObject.SpawnWithOwnership(ordersToNetIDs[playerOrder]);
+		newPawn.skinID.Value = descriptor.pawnSkinID;
+		newPawn.NetworkObject.SpawnWithOwnership(descriptor.clientID);
 
-		var info = S_players[playerOrder].GetPlayerInfo();
-		info.pawn = newPawn;
-		S_players[playerOrder].SetPlayerInfo(info);
+		var playerDescriptor = GameBase.Server.GetPlayerByOrder(playerOrder);
+		playerDescriptor.playerPawn = newPawn;
+
+		var playerInfo = playerDescriptor.playerController.GetPlayerInfo();
+		playerInfo.pawn = newPawn;
+		playerDescriptor.playerController.SetPlayerInfo(playerInfo);
 
 		newPawn.Block = block.coords;
 		newPawn.PlayerOrder = playerOrder;
-		C_pawns.Add(newPawn);
 		return newPawn;
 	}
 
-	/// <summary>
-	/// Hides waiting screen, when all players connected transfers turn to zero player and updates bGameActive to true, messages players about current turn
-	/// </summary>
-	private void S_HandleWaitingMenu()
+	private List<int> GetBoardSkinsList()
 	{
-		if (IsServer)
+		List<int> list = new();
+		foreach (var pl in GameBase.Server.players)
 		{
-			if (S_players.Count == GameBase.Server.prefs.maxPlayers)
-			{
-				ShowWaitingScreenClientRpc(false);
-				UpdateSkinsClientRpc(GetCosmetics());
-				S_players[0].StartTurn();
-				Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1);
-				gameStage = GameStage.GameActive;
-			}
-			else
-			{
-				ShowWaitingScreenClientRpc(true);
-			}
+			list.Add(pl.boardSkinID);
 		}
-	}
 
-	private PlayerCosmetic[] GetCosmetics()
-	{
-		List<PlayerCosmetic> list = new();
-		foreach (var pl in S_players)
-		{
-			list.Add(pl.GetCosmetic());
-		}
-		return list.ToArray();
-	}
-
-	private void S_UpdatePlayersTurn()
-	{
-		foreach (var pl in S_players)
-		{
-			pl.UpdateTurn(ActivePlayer.Value);
-		}
+		return list;
 	}
 
 	private void ShowWinMessage(string winner, int coinsValue)
@@ -538,15 +538,12 @@ public class GameplayBase : NetworkBehaviour
 
 	#region RPCs
 
-
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
-	public void GameFinishedClientRpc(string winner)
+	public void GameFinishedClientRpc(string winner, ulong clientID)
 	{
-		SpesLogger.Detail($"Player {winner} wins");
-
 		string pureName = winner.Split("_")[0];
 
-		int coinsValue = pureName == GameBase.Client.playerName ? 100 : 25;
+		int coinsValue = OwnerClientId == clientID ? 100 : 25;
 
 		GameBase.Storage.progress.coins += coinsValue;
 
@@ -558,54 +555,15 @@ public class GameplayBase : NetworkBehaviour
 			GameBase.Client.ClearAll();
 	}
 
-	[ClientRpc(Delivery = RpcDelivery.Reliable)]
-	private void UpdateSkinsClientRpc(PlayerCosmetic[] skins)
+	[ServerRpc(RequireOwnership = false)]
+	private void ReadyServerRpc(ServerRpcParams param = default)
 	{
-		string title = "";
-		foreach (var s in skins)
+		readyPlayersClientIDs.Add(param.Receive.SenderClientId);
+
+		if (readyPlayersClientIDs.Count == GameBase.Server.GetMaxPlayersCount())
 		{
-			title += GameBase.Instance.skins.GetBoard(s.boardSkinID).name + " ";
-		}
-		SpesLogger.Deb("USClientRpc update: " + title);
-
-		GameBase.Instance.skins.PreloadBoardSkins(skins, () => { gameboard.UpdateSkins(skins); });
-
-		//Pawn skins update
-		if (IsServer)
-		{
-			for (int i = 0; i < skins.Length; i++)
-			{
-				S_players[i].GetPlayerInfo().pawn.SetSkinClientRpc(skins[i].pawnSkinID);
-			}
-		}
-
-	}
-
-	[ServerRpc(Delivery = RpcDelivery.Reliable, RequireOwnership = false)]
-	private void RequestInitializeServerRpc(ServerRpcParams param = default)
-	{
-		ClientRpcParams cParams = new();
-		cParams.Send.TargetClientIds = new ulong[] { param.Receive.SenderClientId };
-		InitializeClientRpc(GameBase.Server.prefs.boardHalfExtent, cParams);
-	}
-
-	[ClientRpc(Delivery = RpcDelivery.Reliable)]
-	private void InitializeClientRpc(int halfExtent, ClientRpcParams param = default)
-	{
-		gameboard.Initialize(halfExtent);
-	}
-
-	[ClientRpc(Delivery = RpcDelivery.Reliable)]
-	private void ShowWaitingScreenClientRpc(bool bShow)
-	{
-		if (bShow)
-		{
-			MenuBase.OpenMenu("WaitingMenu", x => { waitingMenu = x; });
-		}
-		else
-		{
-			if (waitingMenu)
-				Destroy(waitingMenu.gameObject);
+			gameStage.Value = GameStage.GameActive;
+			GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController.StartTurn();
 		}
 	}
 

@@ -23,10 +23,23 @@ public class MenusLibrary : ScriptableObject
 		if (m.assetReference == null)
 			SpesLogger.Error($"Menu {title} was not found in MenusLibrary");
 
+		//Asset already loaded
+		if (m.assetReference.IsValid())
+		{
+			var go = m.assetReference.Asset as GameObject;
+			if (!go)
+			{
+				SpesLogger.Critical($"Menu with name {title} loaded, but can't convert it to GameObject");
+			}
+			onLoaded(go.GetComponent<MenuBase>());
+			return;
+		}
+
+		//Asset loading
 		Addressables.LoadAssetAsync<GameObject>(m.assetReference).Completed += x =>
 		{
 			if (x.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
-				onLoaded(x.Result.GetComponent<MenuBase>());
+				onLoaded?.Invoke(x.Result.GetComponent<MenuBase>());
 
 			else if (x.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Failed)
 				onError?.Invoke();

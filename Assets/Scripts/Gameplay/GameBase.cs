@@ -13,8 +13,6 @@ public class GameBase : MonoBehaviour
 	public GameRules gameRules;
 	public AssetReference messageMenuAsset;
 
-	public bool bNetMode;
-
 	private MessageScript currentMessage;
 
 	#endregion
@@ -41,15 +39,11 @@ public class GameBase : MonoBehaviour
 		Instance = this;
 		DontDestroyOnLoad(this);
 		MenuBase.SetLibrary(menusLibrary);
+		CameraAnimator.animationTime = gameRules.cameraAnimationTime;
 
 		Server = GetComponent<ServerBase>();
 		Client = GetComponent<ClientBase>();
 		Storage = GetComponent<GameStorage>();
-
-		var net = GetComponent<NetworkManager>();
-
-		Server.networkManager = net;
-		Client.networkManager = net;
 
 		Application.targetFrameRate = 60;
 		Application.quitting += Application_OnQuit;
