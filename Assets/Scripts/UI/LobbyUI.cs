@@ -27,7 +27,7 @@ public class LobbyUI : MonoBehaviour
 			startGameButton.gameObject.SetActive(false);
 		}
 
-		LobbySystem.Instance.onPlayersListChanged += LobbySystem_onPlayersListChanged;
+		LobbyGameSystem.Instance.onPlayersListChanged += LobbySystem_onPlayersListChanged;
 
 		playerCardPrefab.LoadAssetAsync<GameObject>().Completed += go =>
 		{
@@ -40,13 +40,13 @@ public class LobbyUI : MonoBehaviour
 					newCard.gameObject.SetActive(false);
 					players.Add(newCard);
 				}
-				UpdateInternal(LobbySystem.Instance.GetPlayers());
+				UpdateInternal(LobbyGameSystem.Instance.GetPlayers());
 			}
 		};
 
 		startGameButton.onClick.AddListener(() =>
 		{
-			GameBase.Server.SetMaxRemotePlayersCount(LobbySystem.Instance.GetPlayers().Count - 1);
+			GameBase.Server.SetMaxRemotePlayersCount(LobbyGameSystem.Instance.GetPlayers().Count - 1);
 			SceneLoader.LoadNetwork(Scenes.GameScene);
 		});
 
@@ -61,7 +61,7 @@ public class LobbyUI : MonoBehaviour
 		});
 	}
 
-	private void LobbySystem_onPlayersListChanged(object sender, LobbySystem.ConnectedPlayersEventArgs e)
+	private void LobbySystem_onPlayersListChanged(object sender, LobbyGameSystem.ConnectedPlayersEventArgs e)
 	{
 		for (int i = 0; i < players.Count; i++)
 		{
