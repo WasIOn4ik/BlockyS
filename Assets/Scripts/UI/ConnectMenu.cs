@@ -24,7 +24,7 @@ public class ConnectMenu : MenuBase
 			{
 				if (ushort.TryParse(add[1], out ushort port))
 				{
-					GameBase.Client.ConnectToGame(add[0], port);
+					GameBase.Client.ConnectToHost(add[0], port);
 				}
 				else
 				{

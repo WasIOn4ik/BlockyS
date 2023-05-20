@@ -259,9 +259,10 @@ public class ServerBase : MonoBehaviour
 
 	private void EnsureShutdown()
 	{
+		float shutdownCheckDelay = 0.1f;
+
 		while (NetworkManager.Singleton.ShutdownInProgress)
 		{
-			float shutdownCheckDelay = 0.1f;
 			new WaitForSeconds(shutdownCheckDelay);
 		}
 	}
