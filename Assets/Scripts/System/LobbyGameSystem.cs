@@ -20,7 +20,7 @@ public struct LobbyPlayerDescriptor : IEquatable<LobbyPlayerDescriptor>, INetwor
 	}
 }
 
-public class LobbySystem : NetworkBehaviour
+public class LobbyGameSystem : NetworkBehaviour
 {
 	#region HelperClasses
 
@@ -39,7 +39,7 @@ public class LobbySystem : NetworkBehaviour
 
 	#region StaticVariables
 
-	public static LobbySystem Instance { get; private set; }
+	public static LobbyGameSystem Instance { get; private set; }
 
 	#endregion
 
