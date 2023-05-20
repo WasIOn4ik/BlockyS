@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerDescriptor
 {
+	public bool bLocal;
 	public string playerToken;
 	public string playerName;
 	public ulong clientID;

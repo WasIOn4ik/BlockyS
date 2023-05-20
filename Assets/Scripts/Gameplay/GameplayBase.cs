@@ -44,6 +44,8 @@ public class GameplayBase : NetworkBehaviour
 	public LocalizedString winnerStr = new LocalizedString("Messages", "GameEnd");
 	[SerializeField] private string goldVariable = "gold";
 	[SerializeField] private string winnerNameVariable = "winnerName";
+	[SerializeField] private int winGoldAmount = 100;
+	[SerializeField] private int loseGoldAmount = 25;
 
 	[SerializeField] private Vector3 zForwardRotation;
 	[SerializeField] private Vector3 xForwardRotation;
@@ -168,8 +170,7 @@ public class GameplayBase : NetworkBehaviour
 
 	private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
 	{
-		S_HandleLocalPlayers();
-		S_HandleConnectedPlayers();
+		S_SpawnControllers();
 	}
 
 	private void GameStage_OnValueChanged(GameStage previousValue, GameStage newValue)
@@ -348,28 +349,21 @@ public class GameplayBase : NetworkBehaviour
 		Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1f);
 	}
 
-	private void S_HandleLocalPlayers()
+	private void S_SpawnControllers()
 	{
 		if (!IsServer)
 			return;
 
-		for (int i = 0; i < GameBase.Server.GetGamePrefs().localPlayers; i++)
+		foreach (var pl in GameBase.Server.players)
 		{
-			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab, i);
-		}
-	}
-
-	private void S_HandleConnectedPlayers()
-	{
-		if (!IsServer)
-			return;
-
-		foreach (var pc in GameBase.Server.players)
-		{
-			if (pc.playerController == null)
+			if (pl.bLocal)
 			{
-				var controller = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab, pc.playerOrder);
-				controller.NetworkObject.SpawnWithOwnership(pc.clientID);
+				S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab, pl.playerOrder);
+			}
+			else
+			{
+				var controller = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab, pl.playerOrder);
+				controller.NetworkObject.SpawnWithOwnership(pl.clientID);
 			}
 		}
 	}
@@ -466,7 +460,7 @@ public class GameplayBase : NetworkBehaviour
 	/// <returns></returns>
 	private T S_SpawnAbstractPlayer<T>(IPlayerController prefab, int playerOrder) where T : MonoBehaviour, IPlayerController
 	{
-		int spawnID = GetSpawnID(playerOrder);
+		int spawnID = GetSpawnPositionID(playerOrder);
 
 		var player = InstantiateController(prefab, spawnID) as T;
 		GameBase.Server.GetPlayerByOrder(playerOrder).playerController = player;
@@ -511,10 +505,10 @@ public class GameplayBase : NetworkBehaviour
 	/// </summary>
 	/// <param name="playerOrder"></param>
 	/// <returns></returns>
-	private int GetSpawnID(int playerOrder)
+	private int GetSpawnPositionID(int playerOrder)
 	{
 
-		int max = Mathf.Max(GameBase.Server.GetMaxPlayersCount(), GameBase.Server.GetGamePrefs().localPlayers);
+		int max = GameBase.Server.GetMaxPlayersCount();
 
 		int id = playerOrder;
 
@@ -567,7 +561,7 @@ public class GameplayBase : NetworkBehaviour
 		winnerStr.Add(winnerNameVariable, new StringVariable { Value = winner });
 		winnerStr.Add(goldVariable, new IntVariable { Value = coinsValue });
 
-		GameBase.Instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, "StartupScene");
+		GameBase.Instance.ShowMessage(winnerStr.GetLocalizedString(), MessageAction.LoadScene, false, Scenes.StartupScene.ToString());
 	}
 
 	#endregion
@@ -579,7 +573,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		string pureName = winner.Split("_")[0];
 
-		int coinsValue = OwnerClientId == clientID ? 100 : 25;
+		int coinsValue = NetworkManager.Singleton.LocalClientId == clientID ? winGoldAmount : loseGoldAmount;
 
 		GameBase.Storage.progress.coins += coinsValue;
 
@@ -597,9 +591,9 @@ public class GameplayBase : NetworkBehaviour
 
 		readyPlayersClientIDs.Add(param.Receive.SenderClientId);
 
-		SpesLogger.Detail($"Ready players: {readyPlayersClientIDs.Count} / {GameBase.Server.GetMaxPlayersCount()}");
+		SpesLogger.Detail($"Ready players: {readyPlayersClientIDs.Count} / {GameBase.Server.GetMaxRemotePlayersCount() + 1}");
 
-		if (readyPlayersClientIDs.Count == GameBase.Server.GetMaxPlayersCount())
+		if (readyPlayersClientIDs.Count == GameBase.Server.GetMaxRemotePlayersCount() + 1)
 		{
 			gameStage.Value = GameStage.GameActive;
 

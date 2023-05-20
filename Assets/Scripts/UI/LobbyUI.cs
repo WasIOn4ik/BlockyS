@@ -11,6 +11,7 @@ public class LobbyUI : MonoBehaviour
 
 	[SerializeField] private AssetReference playerCardPrefab;
 	[SerializeField] private Button startGameButton;
+	[SerializeField] private Button backButton;
 	[SerializeField] private Transform cardsHolder;
 
 	private List<PlayerCardUI> players = new List<PlayerCardUI>();
@@ -45,7 +46,18 @@ public class LobbyUI : MonoBehaviour
 
 		startGameButton.onClick.AddListener(() =>
 		{
+			GameBase.Server.SetMaxRemotePlayersCount(LobbySystem.Instance.GetPlayers().Count - 1);
 			SceneLoader.LoadNetwork(Scenes.GameScene);
+		});
+
+		backButton.onClick.AddListener(() =>
+		{
+			if (NetworkManager.Singleton.IsServer)
+				GameBase.Server.ClearAll();
+			else
+				GameBase.Client.ClearAll();
+
+			SceneLoader.LoadScene(Scenes.StartupScene);
 		});
 	}
 

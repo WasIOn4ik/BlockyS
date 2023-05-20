@@ -4,6 +4,6 @@ using System;
 public struct ServerPrefs
 {
 	public float reconnectionTime;
-	public int maxPlayers;
+	public int maxRemotePlayers;
 	public int maxConnectPayloadSize;
 }

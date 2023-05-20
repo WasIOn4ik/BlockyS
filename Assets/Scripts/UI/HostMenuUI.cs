@@ -6,6 +6,13 @@ using UnityEngine.UI;
 
 public class HostMenuUI : MenuBase
 {
+	#region Constants
+
+	private const int MIN_REMOTE_PLAYERS_FOR_MULTIPLAYER = 2;
+	private const int MAX_REMOTE_PLAYERS_FOR_MULTIPLAYER = 4;
+
+	#endregion
+
 	#region Variables
 
 	[Header("StartSubmenu")]
@@ -95,8 +102,6 @@ public class HostMenuUI : MenuBase
 
 		GamePrefs prefs = new GamePrefs();
 		prefs.boardHalfExtent = int.Parse(cellsCountText.text);
-
-		serv.SetMaxPlayersCount((int)playersCountSlider.value);
 		serv.SetGamePrefs(prefs);
 	}
 
@@ -142,7 +147,7 @@ public class HostMenuUI : MenuBase
 		{
 			SpesLogger.Warning("Game created in netMode");
 			server.SetLocalPlayersCount((int)localPlayersSlider.value);
-			server.SetMaxPlayersCount((int)playersCountSlider.value);
+			server.SetMaxRemotePlayersCount((int)(playersCountSlider.value - localPlayersSlider.value));
 			server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
 		}
 		else

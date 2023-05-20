@@ -17,6 +17,8 @@ public class PlayerCardUI : MonoBehaviour
 
 	private NetworkManager networkManager;
 
+	private ulong clientID;
+
 	#endregion
 
 	#region UnityCallbacks
@@ -26,6 +28,12 @@ public class PlayerCardUI : MonoBehaviour
 		networkManager = NetworkManager.Singleton;
 
 		hostOnlyContainer.gameObject.SetActive(networkManager.IsServer);
+
+		kickButton.gameObject.SetActive(networkManager.LocalClientId != clientID);
+		kickButton.onClick.AddListener(() =>
+		{
+			GameBase.Server.KickPlayer(clientID);
+		});
 	}
 
 	#endregion
@@ -34,6 +42,8 @@ public class PlayerCardUI : MonoBehaviour
 
 	public void UpdateDisplay(LobbyPlayerDescriptor descriptor)
 	{
+		clientID = descriptor.clientID;
+
 		var skins = GameBase.Instance.skins;
 		var board = skins.GetBoard(descriptor.boardSkin);
 		var pawn = skins.GetPawn(descriptor.pawnSkin);

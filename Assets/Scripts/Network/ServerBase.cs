@@ -20,10 +20,6 @@ public class ServerBase : MonoBehaviour
 
 	#region Variables
 
-	public event EventHandler<PlayerDescriptorEventArgs> onPlayerConnected;
-
-	public event EventHandler<PlayerDescriptorEventArgs> onPlayerDisconnected;
-
 	public event EventHandler onAllPlayersConnected;
 
 	public const int defaultPort = 2545;
@@ -66,7 +62,7 @@ public class ServerBase : MonoBehaviour
 
 		ConnectionPayload payload = GetPayload(request);
 
-		if (players.Count >= serverPrefs.maxPlayers)
+		if (players.Count >= GameBase.Server.GetMaxPlayersCount())
 		{
 			//Reconnection
 			if (CheckReconnection(payload))
@@ -75,7 +71,7 @@ public class ServerBase : MonoBehaviour
 
 				NetworkManager.Singleton.DisconnectClient(players[reconnectedPlayer].clientID, "Logged in from other device");
 
-				players[reconnectedPlayer] = CreatePlayer(payload, request.ClientNetworkId);
+				players[reconnectedPlayer] = CreatePlayer(payload, request.ClientNetworkId, false);
 
 				response.Approved = true;
 				return;
@@ -86,11 +82,29 @@ public class ServerBase : MonoBehaviour
 			return;
 		}
 
-		//Simple client or host
-		PlayerDescriptor player = CreatePlayer(payload, request.ClientNetworkId);
+		//Simple client
+		PlayerDescriptor player = CreatePlayer(payload, request.ClientNetworkId, false);
 		players.Add(player);
 
 		response.Approved = true;
+	}
+
+	private void NetworkManager_OnClientConnectedCallback(ulong obj)
+	{
+		if (networkManager.ConnectedClientsIds.Count == serverPrefs.maxRemotePlayers)
+		{
+			onAllPlayersConnected?.Invoke(this, EventArgs.Empty);
+		}
+	}
+
+
+	private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
+	{
+		if (SceneManager.GetActiveScene().name == Scenes.LobbyScene.ToString())
+		{
+			var playerToRemove = GetRemotePlayerByClientID(clientID);
+			players.Remove(playerToRemove);
+		}
 	}
 
 	#endregion
@@ -136,10 +150,11 @@ public class ServerBase : MonoBehaviour
 		return players.Count;
 	}
 
-	public void SetMaxPlayersCount(int count)
+	public void SetMaxRemotePlayersCount(int count)
 	{
-		serverPrefs.maxPlayers = count;
+		serverPrefs.maxRemotePlayers = count;
 	}
+
 	public void SetLocalPlayersCount(int count)
 	{
 		gamePrefs.localPlayers = count;
@@ -147,7 +162,12 @@ public class ServerBase : MonoBehaviour
 
 	public int GetMaxPlayersCount()
 	{
-		return serverPrefs.maxPlayers;
+		return gamePrefs.localPlayers + serverPrefs.maxRemotePlayers;
+	}
+
+	public int GetMaxRemotePlayersCount()
+	{
+		return serverPrefs.maxRemotePlayers;
 	}
 
 	public void HostGame(ushort? port = null)
@@ -157,7 +177,7 @@ public class ServerBase : MonoBehaviour
 		ClearAll();
 		EnsureShutdown();
 
-		networkManager.OnTransportFailure += OnTransportFailure;
+		SetupBindings();
 
 		UpdateConnectionPayload();
 		CreateLocalPlayers();
@@ -168,18 +188,16 @@ public class ServerBase : MonoBehaviour
 			tr.ConnectionData.Port = port.Value;
 		}
 
-		networkManager.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
-
 		NetworkManager.Singleton.StartHost();
 		SceneLoader.LoadNetwork(Scenes.LobbyScene);
 	}
 
-	private void NetworkManager_OnClientConnectedCallback(ulong obj)
+	private void SetupBindings()
 	{
-		if (networkManager.ConnectedClientsIds.Count == serverPrefs.maxPlayers)
-		{
-			onAllPlayersConnected?.Invoke(this, EventArgs.Empty);
-		}
+		networkManager.OnTransportFailure += OnTransportFailure;
+		networkManager.ConnectionApprovalCallback += ApproveClient;
+		networkManager.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+		networkManager.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
 	}
 
 	public void SetupSingleDevice()
@@ -189,11 +207,30 @@ public class ServerBase : MonoBehaviour
 		UpdateConnectionPayload();
 		CreateLocalPlayers();
 
-		serverPrefs.maxPlayers = 1;
+		SetupBindings();
+
+		serverPrefs.maxRemotePlayers = 0;
 		bNetMode = false;
 
 		NetworkManager.Singleton.StartHost();
 		SceneLoader.LoadNetwork(Scenes.GameScene);
+	}
+
+	public void KickPlayer(ulong clientID)
+	{
+		if (networkManager.LocalClientId == clientID)
+			return;
+
+		var player = GetRemotePlayerByClientID(clientID);
+
+		networkManager.DisconnectClient(player.clientID, "Kicked by server");
+	}
+
+	public void ClearAll()
+	{
+		UnbindAll();
+		players.Clear();
+		networkManager.Shutdown();
 	}
 
 	private void CreateLocalPlayers()
@@ -203,7 +240,7 @@ public class ServerBase : MonoBehaviour
 			ConnectionPayload payload = JsonUtility.FromJson<ConnectionPayload>(Encoding.ASCII.GetString(
 				NetworkManager.Singleton.NetworkConfig.ConnectionData));
 
-			players.Add(CreatePlayer(payload, NetworkManager.ServerClientId));
+			players.Add(CreatePlayer(payload, NetworkManager.ServerClientId, true));
 		}
 	}
 
@@ -218,9 +255,10 @@ public class ServerBase : MonoBehaviour
 		NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
 	}
 
-	private PlayerDescriptor CreatePlayer(ConnectionPayload payload, ulong clientID)
+	private PlayerDescriptor CreatePlayer(ConnectionPayload payload, ulong clientID, bool bLocal)
 	{
 		PlayerDescriptor player = new PlayerDescriptor();
+		player.bLocal = bLocal;
 		player.clientID = clientID;
 		player.playerOrder = players.Count;
 
@@ -270,17 +308,12 @@ public class ServerBase : MonoBehaviour
 		}
 	}
 
-	private void ClearAll()
-	{
-		players.Clear();
-		networkManager.Shutdown();
-	}
-
 	private void UnbindAll()
 	{
 		if (networkManager)
 		{
 			networkManager.OnTransportFailure -= OnTransportFailure;
+			networkManager.OnClientConnectedCallback -= NetworkManager_OnClientConnectedCallback;
 			networkManager.ConnectionApprovalCallback -= ApproveClient;
 		}
 	}
@@ -292,7 +325,6 @@ public class ServerBase : MonoBehaviour
 	private void Start()
 	{
 		networkManager = NetworkManager.Singleton;
-		networkManager.ConnectionApprovalCallback += ApproveClient;
 	}
 
 	private void OnDestroy()
