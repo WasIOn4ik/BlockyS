@@ -48,6 +48,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 			hud = Instantiate(hudPrefab);
 
 		inputComp.turnValid += hud.OnTurnValidationChanged;
+		inputComp.SetVectors(transform.forward, transform.right);
 
 		cosmetic = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
 	}

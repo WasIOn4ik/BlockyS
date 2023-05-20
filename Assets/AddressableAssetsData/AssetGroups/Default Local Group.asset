@@ -45,6 +45,81 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 624db0588989b75438ae408d80269d50
+    m_Address: Assets/Resources_moved/Images/Icons/Icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 40c1aac64a7242d4b9d7b595cb254ae0
+    m_Address: Assets/Resources_moved/Images/Icons/MoveIcon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5eb194c6cc57ac5439f6acc99a78fbe3
+    m_Address: Assets/Resources_moved/Images/Icons/net.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 236a8e5f4d42be4438a1207c4e8cadd2
+    m_Address: Assets/Resources_moved/Images/Icons/WallIcon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e22a245b2f7cb26459d48cd8cb283afe
+    m_Address: Assets/Resources_moved/Images/Icons/local.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 31c45d57cfa1dd843975adbaa8a1f382
+    m_Address: Assets/Resources_moved/Images/Icons/coinsIcon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b280bb2996b87b4f963693ded13729d
+    m_Address: Assets/Resources_moved/Images/Icons/ConfirmIcon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9af42a95c2e18574ba26a69538bc57fe
+    m_Address: Assets/Resources_moved/Images/Icons/BrushIcon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f0b84f51abf6e114ab22af28b29da298
+    m_Address: Assets/Resources_moved/Animations/UI/HUD/WallsCountWarning.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 04c548835e1eb354fbf8d30ab0248e80
+    m_Address: Assets/Resources_moved/Animations/UI/HUD/HideConfirmTurn.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b5a3c24e97a6fab4db7db2a02019d01e
+    m_Address: Assets/Resources_moved/Animations/UI/HUD/ShowConfirmTurn.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b809525f99a72b44a87d333be217dbcc
+    m_Address: Assets/Resources_moved/Animations/UI/HUD/HUD_Base.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e0804c8e6cb59a4c9679bfa99791785
+    m_Address: Assets/Resources_moved/Animations/UI/HUD/HUD_AnimController.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6b64d199860ee546a02aedd3117dd3f
+    m_Address: Assets/Resources_moved/Animations/UI/StartupMenu/ButtonLoop.anim
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: add8b60df75c987479a7230e8c97067f
+    m_Address: Assets/Resources_moved/Animations/UI/StartupMenu/StartupMenu_AnimController.controller
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: de23945a063e0bf47a4dca6eff5eb4f5, type: 2}
   m_SchemaSet:

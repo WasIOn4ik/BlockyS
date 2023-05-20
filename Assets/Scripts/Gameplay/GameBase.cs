@@ -36,6 +36,7 @@ public class GameBase : MonoBehaviour
 			return;
 		}
 
+		SpesLogger.currentLevel = SpesLogLevel.Debug;
 		Instance = this;
 		DontDestroyOnLoad(this);
 		MenuBase.SetLibrary(menusLibrary);

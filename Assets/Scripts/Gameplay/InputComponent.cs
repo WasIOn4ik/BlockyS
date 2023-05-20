@@ -50,14 +50,6 @@ public class InputComponent : MonoBehaviour
 
 		ghostWallVisual = Instantiate(ghostWallVIsualPrefab);
 		ghostWallVisual.gameObject.SetActive(false);
-
-		cameraForwardMovementDirection = transform.forward;
-		cameraForwardMovementDirection.y = 0;
-		cameraForwardMovementDirection.Normalize();
-
-		cameraRightMovementDirection = transform.right;
-		cameraRightMovementDirection.y = 0;
-		cameraRightMovementDirection.Normalize();
 	}
 
 	private void Update()
@@ -142,6 +134,8 @@ public class InputComponent : MonoBehaviour
 			int halfExtent = GameplayBase.Instance.gameboard.halfExtention;
 			var temp = transform.position - (cameraForwardMovementDirection * delta.y + cameraRightMovementDirection * delta.x) / 100;
 
+			Debug.Log(cameraForwardMovementDirection + " " + cameraRightMovementDirection);
+
 			temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * cameraForwardMovementDirection.x, halfExtent - displace * cameraForwardMovementDirection.x);
 			temp.z = Mathf.Clamp(temp.z, -halfExtent - displace * cameraForwardMovementDirection.z, halfExtent - displace * cameraForwardMovementDirection.z);
 
@@ -153,6 +147,17 @@ public class InputComponent : MonoBehaviour
 	#endregion
 
 	#region Functions 
+
+	public void SetVectors(Vector3 forward, Vector3 right)
+	{
+		cameraForwardMovementDirection = forward;
+		cameraForwardMovementDirection.y = 0;
+		cameraForwardMovementDirection.Normalize();
+
+		cameraRightMovementDirection = right;
+		cameraRightMovementDirection.y = 0;
+		cameraRightMovementDirection.Normalize();
+	}
 
 	public void ConfirmTurn()
 	{

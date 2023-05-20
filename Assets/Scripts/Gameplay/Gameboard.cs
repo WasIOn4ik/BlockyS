@@ -38,6 +38,8 @@ public class Gameboard
 	/// <param name="halfExtent"> Board size from center to player spawn </param>
 	public void Initialize(int halfExtent)
 	{
+		SpesLogger.Deb($"Gameboard initialization: {halfExtent}");
+
 		halfExtention = halfExtent;
 		int size = halfExtent * 2 + 1;
 		blocks = new BoardBlock[size, size];

@@ -74,6 +74,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -1754371314849767477, guid: 43b8578abe23e704c9e39a1f49a3c7d4, type: 3}
+      propertyPath: clip
+      value: 
+      objectReference: {fileID: 7400000, guid: 1c82965ccb65e3a40af2c8dc8a33781b, type: 2}
     - target: {fileID: 6134700677023193036, guid: 43b8578abe23e704c9e39a1f49a3c7d4, type: 3}
       propertyPath: m_Name
       value: FruitPawnVisual_Variant

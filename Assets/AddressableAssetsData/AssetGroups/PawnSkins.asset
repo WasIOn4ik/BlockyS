@@ -51,6 +51,26 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a953a2db61d5be24bbf13f56238bff46
+    m_Address: Assets/Resources_moved/Images/Textures/CandyBoardTex.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 043342dbdd41f1f47bcf62fa80ed8677
+    m_Address: Assets/Resources_moved/Images/Textures/Christmass_Board_Tex2.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 314c30dee66e29d4bbd29f6e5f2d453c
+    m_Address: Assets/Resources_moved/Images/Textures/EgyptBoardTex.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 911bf793f3d8ce74c912e4bcb49c0c75
+    m_Address: Assets/Resources_moved/Images/Textures/FruitPawnTex.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: de23945a063e0bf47a4dca6eff5eb4f5, type: 2}
   m_SchemaSet:

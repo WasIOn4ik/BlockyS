@@ -117,12 +117,15 @@ public class GameplayBase : NetworkBehaviour
 
 		SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Server}" : "{Client}"));
 
+		gameStage.OnValueChanged += GameStage_OnValueChanged;
+
 		if (IsServer)
 		{
 			activePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
 
 			halfExtent.Value = GameBase.Server.GetGamePrefs().boardHalfExtent;
 			boardSkins.Clear();
+			gameStage.Value = GameStage.WaitingForPlayersToLoad;
 
 			List<int> skinsToPreload = new List<int>();
 
@@ -136,20 +139,12 @@ public class GameplayBase : NetworkBehaviour
 			{
 				gameboard.UpdateSkins(skinsToPreload);
 				waitingMenu.SetState(WaitingState.WaitingOtherPlayers);
-				if (!GameBase.Server.bNetMode)
-				{
-					waitingMenu.HideMenu();
-					gameStage.Value = GameStage.GameActive;
-				}
-				else
-				{
-					ReadyServerRpc();
-				}
+				ReadyServerRpc();
 			});
 
 			gameboard.Initialize(halfExtent.Value);
 
-			HandleLocalPlayers();
+			S_HandleLocalPlayers();
 
 			activePlayer.Value = 0;
 		}
@@ -160,17 +155,24 @@ public class GameplayBase : NetworkBehaviour
 			var skins = GetBoardSkinsList();
 			GameBase.Instance.skins.PreloadBoardSkins(skins, () =>
 			{
+				waitingMenu.SetState(WaitingState.WaitingOtherPlayers);
 				gameboard.UpdateSkins(skins);
 				ReadyServerRpc();
 			});
 		}
+	}
 
-		StartPlayerTurn(activePlayer.Value);
+	private void GameStage_OnValueChanged(GameStage previousValue, GameStage newValue)
+	{
+		if (newValue == GameStage.GameActive)
+		{
+			waitingMenu.HideMenu();
+		}
 	}
 
 	private void ActivePlayer_OnValueChanged(int previousValue, int newValue)
 	{
-		StartPlayerTurn(newValue);
+		S_StartPlayerTurn(newValue);
 	}
 
 	private void OnClientConnected(ulong clientID)
@@ -284,7 +286,7 @@ public class GameplayBase : NetworkBehaviour
 
 		//If not returned yet,transfer turn to the next player in the next frame
 
-		NextPlayerOrder();
+		S_NextPlayerOrder();
 	}
 
 	public bool CheckPlace(Turn turn)
@@ -311,15 +313,21 @@ public class GameplayBase : NetworkBehaviour
 
 	}
 
-	private void NextPlayerOrder()
+	private void S_NextPlayerOrder()
 	{
+		if (!IsServer)
+			return;
+
 		int value = activePlayer.Value + 1;
 
 		activePlayer.Value = value >= GameBase.Server.GetPlayersCount() ? 0 : value;
 	}
 
-	private void StartPlayerTurn(int playerOrder)
+	private void S_StartPlayerTurn(int playerOrder)
 	{
+		if (!IsServer)
+			return;
+
 		CancelInvoke("OnTimeout");
 		var playerDescriptor = GameBase.Server.GetPlayerByOrder(activePlayer.Value);
 		playerDescriptor.playerController.StartTurn();
@@ -330,8 +338,11 @@ public class GameplayBase : NetworkBehaviour
 		Invoke("OnTimeout", GameBase.Instance.gameRules.turnTime + 1f);
 	}
 
-	private void HandleLocalPlayers()
+	private void S_HandleLocalPlayers()
 	{
+		if (!IsServer)
+			return;
+
 		for (int i = 0; i < GameBase.Server.GetGamePrefs().localPlayers; i++)
 		{
 			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab, i);
@@ -405,7 +416,7 @@ public class GameplayBase : NetworkBehaviour
 		var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
 
 		controller.TurnTimeout();
-		NextPlayerOrder();
+		S_NextPlayerOrder();
 	}
 
 	/// <summary>
@@ -518,9 +529,9 @@ public class GameplayBase : NetworkBehaviour
 	private List<int> GetBoardSkinsList()
 	{
 		List<int> list = new();
-		foreach (var pl in GameBase.Server.players)
+		foreach (var pl in boardSkins)
 		{
-			list.Add(pl.boardSkinID);
+			list.Add(pl);
 		}
 
 		return list;
@@ -558,12 +569,16 @@ public class GameplayBase : NetworkBehaviour
 	[ServerRpc(RequireOwnership = false)]
 	private void ReadyServerRpc(ServerRpcParams param = default)
 	{
+
 		readyPlayersClientIDs.Add(param.Receive.SenderClientId);
+
+		SpesLogger.Detail($"Ready players: {readyPlayersClientIDs.Count} / {GameBase.Server.GetMaxPlayersCount()}");
 
 		if (readyPlayersClientIDs.Count == GameBase.Server.GetMaxPlayersCount())
 		{
 			gameStage.Value = GameStage.GameActive;
-			GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController.StartTurn();
+
+			S_StartPlayerTurn(activePlayer.Value);
 		}
 	}
 

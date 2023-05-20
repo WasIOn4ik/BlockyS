@@ -28,7 +28,17 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	private void Awake()
 	{
 		inputComp = GetComponent<InputComponent>();
-	}
+	}/*
+
+	public override void OnDestroy()
+	{
+		if (cam && cam.transform.parent == transform)
+		{
+			cam.transform.SetParent(null);
+		}
+
+		base.OnDestroy();
+	}*/
 
 	#endregion
 
@@ -61,18 +71,10 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 			SpesLogger.Detail("Skins Selected: " + GameBase.Storage.CurrentBoardSkin + " " + GameBase.Storage.CurrentPawnSkin);
 			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
 			onNetworkCosmeticChanged?.Invoke(this, EventArgs.Empty);
+			inputComp.SetVectors(transform.forward, transform.right);
 		}
 	}
 
-	public override void OnDestroy()
-	{
-		if (cam && cam.transform.parent == transform)
-		{
-			cam.transform.SetParent(null);
-		}
-
-		base.OnDestroy();
-	}
 
 	#endregion
 
@@ -90,7 +92,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 	public void TurnTimeout()
 	{
-		throw new NotImplementedException();
+		GetPlayerInfo().pawn.JumpOnSpot();
 	}
 	/// <summary>
 	/// In NetworkController'e It calls from client and handles in ServerRPC
@@ -126,6 +128,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	public void StartTurn()
 	{
 		SpesLogger.Deb("Start of remote player turn: " + GetPlayerInfo().playerOrder);
+		CameraAnimator.AnimateCamera();
 
 		var info = GetPlayerInfo();
 		info.state = EPlayerState.ActivePlayer;
