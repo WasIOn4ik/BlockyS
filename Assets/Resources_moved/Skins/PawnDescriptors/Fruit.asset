@@ -12,7 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18c86fc2097afa746ad6db86a178b619, type: 3}
   m_Name: Fruit
   m_EditorClassIdentifier: 
+  id: 2
   title: Fruit
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:4436af34f9313254e80a108d9e839295
+    m_TableEntryReference:
+      m_KeyId: 47296788475891712
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   prefabAsset:
     m_AssetGUID: 461d74370f5857d408d4fcab4957d38e
     m_SubObjectName: 
@@ -21,4 +31,7 @@ MonoBehaviour:
   rotation: {x: 3, y: -45, z: -3}
   position: {x: 0, y: 0, z: 0}
   scale: 1.4
-  cost: 0
+  cost: 1200
+  references:
+    version: 2
+    RefIds: []

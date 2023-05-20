@@ -3066,7 +3066,7 @@ GameObject:
   - component: {fileID: 2492814845055532729}
   - component: {fileID: 6126305993708577182}
   - component: {fileID: 6678627763545817738}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: BoardSkinMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -38,6 +38,34 @@ MonoBehaviour:
     m_Localized: Waiting for other players
     m_Metadata:
       m_Items: []
+  - m_Id: 47296788475891712
+    m_Localized: Fruits
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47296764429946880
+    m_Localized: Default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47296732272218112
+    m_Localized: Chess
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47297085155790848
+    m_Localized: Egypt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47297061265035264
+    m_Localized: Default
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47297021658222592
+    m_Localized: Christmass
+    m_Metadata:
+      m_Items: []
+  - m_Id: 47296944562720768
+    m_Localized: Candy
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

@@ -134,8 +134,6 @@ public class InputComponent : MonoBehaviour
 			int halfExtent = GameplayBase.Instance.gameboard.halfExtention;
 			var temp = transform.position - (cameraForwardMovementDirection * delta.y + cameraRightMovementDirection * delta.x) / 100;
 
-			Debug.Log(cameraForwardMovementDirection + " " + cameraRightMovementDirection);
-
 			temp.x = Mathf.Clamp(temp.x, -halfExtent - displace * cameraForwardMovementDirection.x, halfExtent - displace * cameraForwardMovementDirection.x);
 			temp.z = Mathf.Clamp(temp.z, -halfExtent - displace * cameraForwardMovementDirection.z, halfExtent - displace * cameraForwardMovementDirection.z);
 

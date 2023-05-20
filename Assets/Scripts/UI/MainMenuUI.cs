@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MainMenuScript : MenuBase
+public class MainMenuUI : MenuBase
 {
     #region Variables
 

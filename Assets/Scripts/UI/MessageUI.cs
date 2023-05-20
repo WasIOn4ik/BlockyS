@@ -13,7 +13,7 @@ public enum MessageAction
 	OpenMenu
 }
 
-public class MessageScript : MonoBehaviour
+public class MessageUI : MonoBehaviour
 {
 	#region Variables
 

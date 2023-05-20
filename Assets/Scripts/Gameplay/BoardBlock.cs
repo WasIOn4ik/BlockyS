@@ -80,6 +80,10 @@ public class BoardBlock : MonoBehaviour
 		{
 			meshFilterComponent.mesh = blockMesh;
 		}
+		else
+		{
+			Debug.Log("can't load block mesh");
+		}
 
 		if (skin.TryGetMaterial(out var material))
 		{

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StartupMenu : MenuBase
+public class StartupMenuUI : MenuBase
 {
 	[SerializeField] private Button hostButton;
 	[SerializeField] private Button connectButton;

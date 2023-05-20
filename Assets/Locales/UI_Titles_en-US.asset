@@ -117,6 +117,10 @@ MonoBehaviour:
     m_Localized: Time
     m_Metadata:
       m_Items: []
+  - m_Id: 97965802193375232
+    m_Localized: Start game
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

@@ -88,7 +88,6 @@ public class ClientBase : MonoBehaviour
 
 		SetupManagerCallbacks();
 
-		SpesLogger.Detail("Connection to host: " + net.ConnectionData.Address + ":" + net.ConnectionData.Port);
 		networkManager.StartClient();
 	}
 
@@ -102,8 +101,8 @@ public class ClientBase : MonoBehaviour
 	private void UpdateConnectionPayload()
 	{
 		ConnectionPayload payload = new ConnectionPayload();
-		payload.pawnSkinID = GameBase.Storage.CurrentPawnSkin;
-		payload.boardSkin = GameBase.Storage.CurrentBoardSkin;
+		payload.pawnSkinID = GameBase.Storage.CurrentPawnSkinID;
+		payload.boardSkin = GameBase.Storage.CurrentBoardSkinID;
 		payload.playerName = GameBase.Client.playerName;
 		payload.playerToken = UnityEngine.Random.Range(0, 10000).ToString();
 

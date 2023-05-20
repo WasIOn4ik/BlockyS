@@ -62,7 +62,7 @@ public class GameplayBase : NetworkBehaviour
 
 	[SerializeField] private List<Vector3> playersStartRotation = new();
 
-	private WaitingForAllMenu waitingMenu;
+	private WaitingMenuUI waitingMenu;
 
 	private List<ulong> readyPlayersClientIDs = new List<ulong>();
 
@@ -87,7 +87,7 @@ public class GameplayBase : NetworkBehaviour
 
 		MenuBase.OpenMenu(MenuBase.WAITING_FOR_PLAYERS_MENU, x =>
 		{
-			waitingMenu = x as WaitingForAllMenu;
+			waitingMenu = x as WaitingMenuUI;
 			waitingMenu.SetState(WaitingState.Loading);
 		});
 		NetworkManager.OnClientConnectedCallback += OnClientConnected;
@@ -114,13 +114,13 @@ public class GameplayBase : NetworkBehaviour
 	{
 		base.OnNetworkSpawn();
 
-
 		SpesLogger.Detail("GmplB: networkSpawn " + (IsServer ? "{Server}" : "{Client}"));
 
 		gameStage.OnValueChanged += GameStage_OnValueChanged;
 
 		if (IsServer)
 		{
+			NetworkManager.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
 			activePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
 
 			halfExtent.Value = GameBase.Server.GetGamePrefs().boardHalfExtent;
@@ -135,16 +135,20 @@ public class GameplayBase : NetworkBehaviour
 				boardSkins.Add(p.boardSkinID);
 			}
 
-			GameBase.Instance.skins.PreloadBoardSkins(skinsToPreload, () =>
-			{
-				gameboard.UpdateSkins(skinsToPreload);
-				waitingMenu.SetState(WaitingState.WaitingOtherPlayers);
-				ReadyServerRpc();
-			});
-
 			gameboard.Initialize(halfExtent.Value);
 
-			S_HandleLocalPlayers();
+			GameBase.Instance.skins.PreloadBoardSkins(skinsToPreload, () =>
+			{
+				foreach (var s in skinsToPreload)
+				{
+					if (!GameBase.Instance.skins.GetBoard(s).TryGetBlock(out var block))
+						Debug.Log("Can't get block for skin " + s);
+				}
+				gameboard.UpdateSkins(skinsToPreload);
+				waitingMenu.SetState(WaitingState.WaitingOtherPlayers);
+
+				ReadyServerRpc();
+			});
 
 			activePlayer.Value = 0;
 		}
@@ -160,6 +164,12 @@ public class GameplayBase : NetworkBehaviour
 				ReadyServerRpc();
 			});
 		}
+	}
+
+	private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+	{
+		S_HandleLocalPlayers();
+		S_HandleConnectedPlayers();
 	}
 
 	private void GameStage_OnValueChanged(GameStage previousValue, GameStage newValue)
@@ -346,6 +356,21 @@ public class GameplayBase : NetworkBehaviour
 		for (int i = 0; i < GameBase.Server.GetGamePrefs().localPlayers; i++)
 		{
 			S_SpawnAbstractPlayer<SinglePlayerController>(singleControllerPrefab, i);
+		}
+	}
+
+	private void S_HandleConnectedPlayers()
+	{
+		if (!IsServer)
+			return;
+
+		foreach (var pc in GameBase.Server.players)
+		{
+			if (pc.playerController == null)
+			{
+				var controller = S_SpawnAbstractPlayer<NetworkPlayerController>(networkControllerPrefab, pc.playerOrder);
+				controller.NetworkObject.SpawnWithOwnership(pc.clientID);
+			}
 		}
 	}
 

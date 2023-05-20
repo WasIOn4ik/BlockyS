@@ -9,7 +9,7 @@ public enum WaitingState
 	WaitingOtherPlayers
 }
 
-public class WaitingForAllMenu : MenuBase
+public class WaitingMenuUI : MenuBase
 {
 	#region Variables
 

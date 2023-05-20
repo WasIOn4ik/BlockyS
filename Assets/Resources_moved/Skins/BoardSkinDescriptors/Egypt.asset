@@ -12,7 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6bbd2f4e7573864e9483857c35e4768, type: 3}
   m_Name: Egypt
   m_EditorClassIdentifier: 
+  id: 3
   title: Egypt
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:4436af34f9313254e80a108d9e839295
+    m_TableEntryReference:
+      m_KeyId: 47297085155790848
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cost: 1800
   materialAsset:
     m_AssetGUID: 0199546d3ea085b4eb1c15ea7249f2dd
@@ -49,3 +59,6 @@ MonoBehaviour:
     m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     m_EditorAssetChanged: 1
+  references:
+    version: 2
+    RefIds: []

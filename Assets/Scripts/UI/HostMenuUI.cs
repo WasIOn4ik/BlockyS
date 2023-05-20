@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HostMenu : MenuBase
+public class HostMenuUI : MenuBase
 {
 	#region Variables
 

@@ -13,7 +13,7 @@ public class GameBase : MonoBehaviour
 	public GameRules gameRules;
 	public AssetReference messageMenuAsset;
 
-	private MessageScript currentMessage;
+	private MessageUI currentMessageUI;
 
 	#endregion
 
@@ -52,14 +52,14 @@ public class GameBase : MonoBehaviour
 		Storage.LoadPrefs();
 		Storage.LoadProgress();
 
-		if (Storage.CurrentBoardSkin != 0 && !Storage.CheckBoard(Storage.CurrentBoardSkin))
+		if (Storage.CurrentBoardSkinID != 0 && !Storage.CheckBoard(Storage.CurrentBoardSkinID))
 		{
-			Storage.CurrentBoardSkin = 0;
+			Storage.CurrentBoardSkinID = 0;
 		}
 
-		if (Storage.CurrentPawnSkin != 0 && !Storage.CheckPawn(Storage.CurrentPawnSkin))
+		if (Storage.CurrentPawnSkinID != 0 && !Storage.CheckPawn(Storage.CurrentPawnSkinID))
 		{
-			Storage.CurrentPawnSkin = 0;
+			Storage.CurrentPawnSkinID = 0;
 		}
 
 		skins.Initialize();
@@ -89,21 +89,21 @@ public class GameBase : MonoBehaviour
 
 	public void ShowMessage(string entry, MessageAction action, bool bLocalized, string param = "")
 	{
-		if (!currentMessage)
+		if (!currentMessageUI)
 		{
 			Addressables.InstantiateAsync(messageMenuAsset).Completed += (x) =>
 			{
 				if (x.Status != UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
 					SpesLogger.Critical("Error while loading MessageAssetReference");
 
-				currentMessage = x.Result.GetComponent<MessageScript>();
+				currentMessageUI = x.Result.GetComponent<MessageUI>();
 
-				currentMessage.ShowMessage(entry, action, bLocalized, param);
+				currentMessageUI.ShowMessage(entry, action, bLocalized, param);
 			};
 			return;
 		}
 
-		currentMessage.ShowMessage(entry, action, bLocalized, param);
+		currentMessageUI.ShowMessage(entry, action, bLocalized, param);
 	}
 
 	#endregion

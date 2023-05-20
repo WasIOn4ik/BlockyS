@@ -13,6 +13,15 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   title: Default
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:4436af34f9313254e80a108d9e839295
+    m_TableEntryReference:
+      m_KeyId: 47296764429946880
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   prefabAsset:
     m_AssetGUID: 257a738ccd8baea4e8aeca7897a47406
     m_SubObjectName: 
@@ -22,3 +31,6 @@ MonoBehaviour:
   position: {x: 0, y: 0, z: 0}
   scale: 1
   cost: 0
+  references:
+    version: 2
+    RefIds: []

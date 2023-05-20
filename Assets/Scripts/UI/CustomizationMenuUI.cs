@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.Localization;
 using System.Threading;
 
-public class CustomizationMenu : MenuBase
+public class CustomizationMenuUI : MenuBase
 {
 	#region Variables
 
@@ -40,8 +40,11 @@ public class CustomizationMenu : MenuBase
 
 	private SkinsLibrarySO skins;
 
-	private int selectedBoard;
-	private int selectedPawn;
+	private int selectedBoardIndex;
+	private int selectedPawnIndex;
+
+	private BoardSkinSO boardSkin;
+	private PawnSkinSO pawnSkin;
 
 	private GameStorage storage;
 
@@ -55,7 +58,9 @@ public class CustomizationMenu : MenuBase
 	{
 		base.Awake();
 
+
 		storage = GameBase.Storage;
+		Debug.LogWarning("Awake " + storage.CurrentPawnSkinID);
 		skins = GameBase.Instance.skins;
 
 		canvas = GetComponent<Canvas>();
@@ -68,60 +73,60 @@ public class CustomizationMenu : MenuBase
 
 		boardLeftButton.onClick.AddListener(() =>
 		{
-			skins.GetBoard(selectedBoard).UnloadAll();
-			selectedBoard--;
+			skins.GetBoard(selectedBoardIndex).UnloadAll();
+			selectedBoardIndex--;
 
-			if (selectedBoard < 0)
-				selectedBoard = skins.GetBoardSkinsCount() - 1;
+			if (selectedBoardIndex < 0)
+				selectedBoardIndex = skins.GetBoardSkinsCount() - 1;
 
-			SelectBoardSkin(selectedBoard);
+			SelectBoardSkin(selectedBoardIndex);
 		});
 
 		boardRightButton.onClick.AddListener(() =>
 		{
-			skins.GetBoard(selectedBoard).UnloadAll();
-			selectedBoard++;
+			skins.GetBoard(selectedBoardIndex).UnloadAll();
+			selectedBoardIndex++;
 
-			if (selectedBoard >= skins.GetBoardSkinsCount())
-				selectedBoard = 0;
+			if (selectedBoardIndex >= skins.GetBoardSkinsCount())
+				selectedBoardIndex = 0;
 
-			SelectBoardSkin(selectedBoard);
+			SelectBoardSkin(selectedBoardIndex);
 		});
 
 		boardSelectButton.onClick.AddListener(() =>
 		{
-			if (storage.TryBuyOrEquipBoard(selectedBoard))
+			if (storage.TryBuyOrEquipBoard(boardSkin))
 			{
-				storage.CurrentBoardSkin = selectedBoard;
+				storage.CurrentBoardSkinID = boardSkin.id;
 				UpdateStats();
 			}
 		});
 
 		pawnLeftButton.onClick.AddListener(() =>
 		{
-			selectedPawn--;
+			selectedPawnIndex--;
 
-			if (selectedPawn < 0)
-				selectedPawn = skins.GetPawnSkinsCount() - 1;
+			if (selectedPawnIndex < 0)
+				selectedPawnIndex = skins.GetPawnSkinsCount() - 1;
 
-			SelectPawnSkin(selectedPawn);
+			SelectPawnSkin(selectedPawnIndex);
 		});
 
 		pawnRightButton.onClick.AddListener(() =>
 		{
-			selectedPawn++;
+			selectedPawnIndex++;
 
-			if (selectedPawn >= skins.GetPawnSkinsCount())
-				selectedPawn = 0;
+			if (selectedPawnIndex >= skins.GetPawnSkinsCount())
+				selectedPawnIndex = 0;
 
-			SelectPawnSkin(selectedPawn);
+			SelectPawnSkin(selectedPawnIndex);
 		});
 
 		pawnSelectButton.onClick.AddListener(() =>
 		{
-			if (storage.TryBuyOrEquipPawn(selectedPawn))
+			if (storage.TryBuyOrEquipPawn(pawnSkin))
 			{
-				storage.CurrentPawnSkin = selectedPawn;
+				storage.CurrentPawnSkinID = pawnSkin.id;
 				UpdateStats();
 			}
 		});
@@ -132,9 +137,12 @@ public class CustomizationMenu : MenuBase
 		bPreviousOrtho = canvas.worldCamera.orthographic;
 		canvas.worldCamera.orthographic = true;
 
-		selectedPawn = storage.CurrentPawnSkin;
-		selectedBoard = storage.CurrentBoardSkin;
+		selectedBoardIndex = GameBase.Instance.skins.GetBoardIndexInList(storage.CurrentBoardSkinID);
+		selectedPawnIndex = GameBase.Instance.skins.GetPawnIndexInList(storage.CurrentPawnSkinID);
+		pawnSkin = GameBase.Instance.skins.GetPawn(storage.CurrentPawnSkinID);
+		boardSkin = GameBase.Instance.skins.GetBoard(storage.CurrentBoardSkinID);
 
+		Debug.LogWarning(storage.CurrentPawnSkinID);
 		UpdateStats();
 	}
 
@@ -142,7 +150,7 @@ public class CustomizationMenu : MenuBase
 	{
 		if (canvas && canvas.worldCamera)
 			canvas.worldCamera.orthographic = bPreviousOrtho;
-		SpesLogger.Detail("Skins selected: " + storage.CurrentBoardSkin + " " + storage.CurrentPawnSkin);
+		SpesLogger.Detail("Skins selected: " + storage.CurrentBoardSkinID + " " + storage.CurrentPawnSkinID);
 	}
 
 	#endregion
@@ -151,8 +159,10 @@ public class CustomizationMenu : MenuBase
 
 	private void SelectBoardSkin(int skinNumber)
 	{
-		skins.GetBoard(skinNumber).LoadCustomizationDisplay(x =>
+		skins.GetBoardByListIndex(skinNumber).LoadCustomizationDisplay(x =>
 		{
+			boardSkin = x;
+
 			if (x.TryGetDecorMesh(0, out var decorMesh))
 			{
 				boardMeshFilter.mesh = decorMesh;
@@ -163,10 +173,10 @@ public class CustomizationMenu : MenuBase
 				boardMeshFilter.GetComponent<MeshRenderer>().material = material;
 			}
 
-			if (x.cost == 0 || storage.CheckBoard(skinNumber))
+			if (x.cost == 0 || storage.CheckBoard(x.id))
 			{
 				boardSelectText.text = selectString.GetLocalizedStringAsync().Result;
-				boardSelectButton.interactable = storage.CurrentBoardSkin != skinNumber;
+				boardSelectButton.interactable = storage.CurrentBoardSkinID != x.id;
 			}
 			else
 			{
@@ -178,37 +188,38 @@ public class CustomizationMenu : MenuBase
 
 	private void SelectPawnSkin(int skinNumber)
 	{
-		var skin = skins.GetPawn(skinNumber);
+		pawnSkin = skins.GetPawnByListIndex(skinNumber);
+		Debug.Log($"Selecting index {skinNumber}, selected id {pawnSkin.id} {pawnSkin.title}, stored id {storage.CurrentPawnSkinID}");
 
 		foreach (Transform ch in pawnContainerTransform)
 		{
 			Destroy(ch.gameObject);
 		}
 
-		skin.InstantiateTo(pawnContainerTransform, x =>
+		pawnSkin.InstantiateTo(pawnContainerTransform, x =>
 		{
 			Transform tr = x.transform;
-			tr.localScale = Vector3.one * skin.scale;
-			tr.localRotation = Quaternion.Euler(skin.rotation);
-			tr.localPosition = skin.position;
+			tr.localScale = Vector3.one * pawnSkin.scale;
+			tr.localRotation = Quaternion.Euler(pawnSkin.rotation);
+			tr.localPosition = pawnSkin.position;
 
-			if (skin.cost == 0 || storage.CheckPawn(skinNumber))
+			if (pawnSkin.cost == 0 || storage.CheckPawn(pawnSkin.id))
 			{
 				pawnSelectText.text = selectString.GetLocalizedStringAsync().Result;
-				pawnSelectButton.interactable = storage.CurrentPawnSkin != skinNumber;
+				pawnSelectButton.interactable = storage.CurrentPawnSkinID != pawnSkin.id;
 			}
 			else
 			{
-				pawnSelectText.text = "<color=#FFD700>" + skin.cost;
-				pawnSelectButton.interactable = storage.GetCoins() >= skin.cost || skin.cost == 0;
+				pawnSelectText.text = "<color=#FFD700>" + pawnSkin.cost;
+				pawnSelectButton.interactable = storage.GetCoins() >= pawnSkin.cost || pawnSkin.cost == 0;
 			}
 		});
 	}
 
 	private void UpdateStats()
 	{
-		SelectBoardSkin(selectedBoard);
-		SelectPawnSkin(selectedPawn);
+		SelectBoardSkin(selectedBoardIndex);
+		SelectPawnSkin(selectedPawnIndex);
 
 		coinsCountText.text = storage.GetCoins().ToString();
 	}

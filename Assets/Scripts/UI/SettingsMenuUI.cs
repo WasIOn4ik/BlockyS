@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
-public class SettingsMenu : MenuBase
+public class SettingsMenuUI : MenuBase
 {
 	#region Variables
 
@@ -48,7 +48,7 @@ public class SettingsMenu : MenuBase
 
 		confirmButton.onClick.AddListener(() =>
 		{
-			storage.prefs.playerName = playerNameInput.text;
+			storage.PlayerName = playerNameInput.text;
 			storage.SavePrefs();
 		});
 
@@ -57,7 +57,7 @@ public class SettingsMenu : MenuBase
 			BackToPreviousMenu();
 		});
 
-		playerNameInput.text = storage.prefs.playerName;
+		playerNameInput.text = storage.PlayerName;
 
 		for (int i = 0; i < locales.Count; i++)
 		{

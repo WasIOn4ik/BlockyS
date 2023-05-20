@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Localization;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 [CreateAssetMenu(menuName = "BlockyS/BoardSkin")]
@@ -12,8 +13,11 @@ public class BoardSkinSO : ScriptableObject
 {
 	#region Variables
 
-	public const string BOARD_LABEL = "Board";
+	public int id;
+
 	public string title;
+
+	public LocalizedString localizedTitle;
 
 	public int cost;
 
@@ -92,10 +96,13 @@ public class BoardSkinSO : ScriptableObject
 
 	public bool TryGetBlock(out Mesh blockMesh)
 	{
-		AssetReference blockAssetReference = blocks[UnityEngine.Random.Range(0, blocks.Count)];
+		int index = UnityEngine.Random.Range(0, blocks.Count);
+		//Debug.Log("Index: " + index);
+		AssetReference blockAssetReference = blocks[index];
 		if (blockAssetReference.IsValid())
 		{
 			blockMesh = blockAssetReference.OperationHandle.Result as Mesh;
+			//Debug.Log("X1: " + blockMesh.name);
 			return true;
 		}
 		blockMesh = null;
@@ -161,6 +168,11 @@ public class BoardSkinSO : ScriptableObject
 		return Task.Run(async () =>
 		{
 			await Task.WhenAll(tasks);
+			if (TryGetBlock(out var block))
+			{
+				Debug.LogWarning(block.name);
+			}
+			Debug.Log("OnSkinLoaded");
 		});
 	}
 

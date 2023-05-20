@@ -13,6 +13,15 @@ MonoBehaviour:
   m_Name: Default
   m_EditorClassIdentifier: 
   title: Default
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:4436af34f9313254e80a108d9e839295
+    m_TableEntryReference:
+      m_KeyId: 47297061265035264
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   cost: 0
   materialAsset:
     m_AssetGUID: bd1e93bc5860e9448bc22aeb06bdeb75
@@ -49,3 +58,6 @@ MonoBehaviour:
     m_SubObjectType: UnityEngine.Mesh, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
       PublicKeyToken=null
     m_EditorAssetChanged: 1
+  references:
+    version: 2
+    RefIds: []

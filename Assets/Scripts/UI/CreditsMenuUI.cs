@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreditsMenu : MenuBase
+public class CreditsMenuUI : MenuBase
 {
 	#region Variables
 

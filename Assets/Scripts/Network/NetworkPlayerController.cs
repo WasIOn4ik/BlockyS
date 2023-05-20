@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using System;
+using UnityEngine.SceneManagement;
 
 public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 {
@@ -19,6 +20,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	private InGameHUD hud;
 
 	private Camera cam;
+
+	private bool bCameraInitialized = false;
 
 
 	#endregion
@@ -48,6 +51,8 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	{
 		base.OnNetworkSpawn();
 
+		Debug.Log(SceneManager.GetActiveScene().name);
+
 		if (IsServer)
 		{
 			var info = GetPlayerInfo();
@@ -66,10 +71,9 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		{
 			cam = Camera.main;
 			AllignCamera();
-			CameraAnimator.AnimateCamera();
 
-			SpesLogger.Detail("Skins Selected: " + GameBase.Storage.CurrentBoardSkin + " " + GameBase.Storage.CurrentPawnSkin);
-			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkin, pawnSkinID = GameBase.Storage.CurrentPawnSkin };
+			SpesLogger.Detail("Skins Selected: " + GameBase.Storage.CurrentBoardSkinID + " " + GameBase.Storage.CurrentPawnSkinID);
+			cosmetic.Value = new PlayerCosmetic() { boardSkinID = GameBase.Storage.CurrentBoardSkinID, pawnSkinID = GameBase.Storage.CurrentPawnSkinID };
 			onNetworkCosmeticChanged?.Invoke(this, EventArgs.Empty);
 			inputComp.SetVectors(transform.forward, transform.right);
 		}
@@ -144,7 +148,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 	public PlayerCosmetic GetCosmetic()
 	{
-		SpesLogger.Detail("Player: " + name + " B-Skin: " + GameBase.Storage.CurrentBoardSkin + " _ P-Skin: " + GameBase.Storage.CurrentPawnSkin);
+		SpesLogger.Detail("Player: " + name + " B-Skin: " + GameBase.Storage.CurrentBoardSkinID + " _ P-Skin: " + GameBase.Storage.CurrentPawnSkinID);
 		return cosmetic.Value;
 	}
 
@@ -199,8 +203,12 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		{
 			inputComp.turnValid += hud.OnTurnValidationChanged;
 
-			cam.transform.position = AllignCamera();
-			CameraAnimator.AnimateCamera();
+			if (IsOwner && !bCameraInitialized)
+			{
+				cam.transform.position = AllignCamera();
+				CameraAnimator.AnimateCamera();
+				bCameraInitialized = true;
+			}
 		}
 
 		inputComp.UpdateTurnValid(false);
@@ -211,6 +219,12 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	{
 		if (!IsServer)
 			hud.SetPlayerTurn(active);
+
+		if (IsOwner && !bCameraInitialized)
+		{
+			CameraAnimator.AnimateCamera();
+			bCameraInitialized = true;
+		}
 	}
 
 	#endregion

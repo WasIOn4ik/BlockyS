@@ -19,4 +19,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: aa333638bfc089b45aa4bc3b8cd8158a, type: 2}
   - {fileID: 11400000, guid: 28261cfa3fef73548b4905003b0c4285, type: 2}
   - {fileID: 11400000, guid: 7e1b400b84a48c04e8d9330b9a51e263, type: 2}
-  pawnSkins: []
+  pawnSkins:
+  - {fileID: 11400000, guid: 5b133fb3a6ce60e408aaa88641d6a202, type: 2}
+  - {fileID: 11400000, guid: 0441fa06d31fe584a8565196eda004bb, type: 2}
+  - {fileID: 11400000, guid: 6e8325b53ed67d246a0f44a99b949e27, type: 2}

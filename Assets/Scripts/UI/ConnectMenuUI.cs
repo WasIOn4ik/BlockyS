@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ConnectMenu : MenuBase
+public class ConnectMenuUI
+	: MenuBase
 {
 	#region Variables
 

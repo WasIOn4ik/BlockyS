@@ -32,19 +32,21 @@ public class GameStorage : MonoBehaviour
 
 	[SerializeField] private string progressString;
 
-	public Preferences prefs = new() { masterVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0, playerName = "Guest" };
+	private Preferences prefs = new() { masterVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0, playerName = "Guest" };
 
 	public Progress progress = new() { availableBoardSkins = new(), availablePawnSkins = new(), coins = 0 };
 
 	/// <summary>
 	/// Saves changes
 	/// </summary>
-	public int CurrentBoardSkin { get { return prefs.selectedBoardSkin; } set { prefs.selectedBoardSkin = value; SavePrefs(); } }
+	public int CurrentBoardSkinID { get { return prefs.selectedBoardSkin; } set { prefs.selectedBoardSkin = value; SavePrefs(); } }
 
 	/// <summary>
 	/// Saves changes
 	/// </summary>
-	public int CurrentPawnSkin { get { return prefs.selectedPawnSkin; } set { prefs.selectedPawnSkin = value; SavePrefs(); } }
+	public int CurrentPawnSkinID { get { return prefs.selectedPawnSkin; } set { prefs.selectedPawnSkin = value; SavePrefs(); } }
+
+	public string PlayerName { get { return prefs.playerName; } set { prefs.playerName = value; SavePrefs(); } }
 
 	#endregion
 
@@ -56,7 +58,7 @@ public class GameStorage : MonoBehaviour
 		{
 			string jsonString = PlayerPrefs.GetString(preferencesString);
 			prefs = JsonUtility.FromJson<Preferences>(jsonString);
-			SpesLogger.Detail("Settings loaded successfully");
+			SpesLogger.Detail($"Settings loaded successfully {prefs.selectedPawnSkin}");
 			GameBase.Client.playerName = prefs.playerName;
 			return true;
 		}
@@ -151,22 +153,29 @@ public class GameStorage : MonoBehaviour
 		return progress.coins;
 	}
 
-	public bool TryBuyOrEquipBoard(int id)
+	public bool TryBuyOrEquipBoard(BoardSkinSO skin)
 	{
-		var skin = GameBase.Instance.skins.GetBoard(id);
-
-		if (CheckBoard(id) || skin.cost == 0)
+		if (CheckBoard(skin.id) || skin.cost == 0)
 		{
 			SpesLogger.Detail("Board skin " + skin.name + " selected");
+			if(!progress.availableBoardSkins.Contains(skin.id))
+			{
+				progress.availableBoardSkins.Add(skin.id);
+
+				SaveProgress();
+			}
+
+			CurrentBoardSkinID = skin.id;
+
 			return true;
 		}
 
 		if (GetCoins() >= skin.cost)
 		{
 			progress.coins -= skin.cost;
-			progress.availableBoardSkins.Add(id);
+			progress.availableBoardSkins.Add(skin.id);
 
-			CurrentBoardSkin = id;
+			CurrentBoardSkinID = skin.id;
 
 			SaveProgress();
 
@@ -179,22 +188,30 @@ public class GameStorage : MonoBehaviour
 		return false;
 	}
 
-	public bool TryBuyOrEquipPawn(int id)
+	public bool TryBuyOrEquipPawn(PawnSkinSO skin)
 	{
-		var skin = GameBase.Instance.skins.GetPawn(id);
-
-		if (CheckPawn(id) || skin.cost == 0)
+		if (CheckPawn(skin.id) || skin.cost == 0)
 		{
 			SpesLogger.Detail("Pawn " + skin.name + " selected");
+
+			if (!progress.availablePawnSkins.Contains(skin.id))
+			{
+				progress.availablePawnSkins.Add(skin.id);
+
+				SaveProgress();
+			}
+
+			CurrentPawnSkinID = skin.id;
+
 			return true;
 		}
 
 		if (GetCoins() >= skin.cost)
 		{
 			progress.coins -= skin.cost;
-			progress.availablePawnSkins.Add(id);
+			progress.availablePawnSkins.Add(skin.id);
 
-			CurrentPawnSkin = id;
+			CurrentPawnSkinID = skin.id;
 
 			SaveProgress();
 

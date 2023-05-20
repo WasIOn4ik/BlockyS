@@ -71,6 +71,9 @@ public class Pawn : NetworkBehaviour
 
 	private void Block_OnValueChanged(Point previousValue, Point newValue)
 	{
+		if (!GameplayBase.Instance)
+			return;
+
 		var arr = GameplayBase.Instance.gameboard.blocks;
 		if (previousValue != null)
 		{

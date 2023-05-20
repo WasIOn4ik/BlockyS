@@ -12,7 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18c86fc2097afa746ad6db86a178b619, type: 3}
   m_Name: Chess
   m_EditorClassIdentifier: 
+  id: 1
   title: Chess
+  localizedTitle:
+    m_TableReference:
+      m_TableCollectionName: GUID:4436af34f9313254e80a108d9e839295
+    m_TableEntryReference:
+      m_KeyId: 47296732272218112
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   prefabAsset:
     m_AssetGUID: b522cd3272afc6747b84887ea52c09e9
     m_SubObjectName: 
@@ -21,4 +31,7 @@ MonoBehaviour:
   rotation: {x: 0, y: -52, z: -5}
   position: {x: 0, y: 0, z: 0}
   scale: 1
-  cost: 0
+  cost: 500
+  references:
+    version: 2
+    RefIds: []

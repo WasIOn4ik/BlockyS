@@ -53,6 +53,28 @@ public class SkinsLibrarySO : ScriptableObject
 		return boardSkins.Count;
 	}
 
+	public int GetBoardIndexInList(int id)
+	{
+		for (int i = 0; i < boardSkins.Count; i++)
+		{
+			if (boardSkins[i].id == id)
+				return i;
+		}
+
+		return -1;
+	}
+
+	public int GetPawnIndexInList(int id)
+	{
+		for (int i = 0; i < pawnSkins.Count; i++)
+		{
+			if (pawnSkins[i].id == id)
+				return i;
+		}
+
+		return -1;
+	}
+
 	public int GetPawnSkinsCount()
 	{
 		return pawnSkins.Count;
@@ -60,12 +82,28 @@ public class SkinsLibrarySO : ScriptableObject
 
 	public BoardSkinSO GetBoard(int id)
 	{
-		return boardSkins[id];
+		return boardSkins.Find(x =>
+		{
+			return x.id == id;
+		});
 	}
 
 	public PawnSkinSO GetPawn(int id)
 	{
-		return pawnSkins[id];
+		return pawnSkins.Find(x =>
+		{
+			return x.id == id;
+		});
+	}
+
+	public BoardSkinSO GetBoardByListIndex(int index)
+	{
+		return boardSkins[index];
+	}
+
+	public PawnSkinSO GetPawnByListIndex(int index)
+	{
+		return pawnSkins[index];
 	}
 
 	#endregion
@@ -89,18 +127,20 @@ public class SkinsLibrarySO : ScriptableObject
 
 		foreach (var sk in skins)
 		{
-			tasks.Add(boardSkins[sk].LoadAll());
+			tasks.Add(GetBoard(sk).LoadAll());
 		}
 
 		Task t = Task.Run(async () =>
 		{
 			await Task.WhenAll(tasks);
+			Debug.Log("Preload ended");
 		});
 
 		t.GetAwaiter().OnCompleted(() =>
 		{
 			if (t.IsCompleted)
 			{
+				Debug.Log("PreCallback");
 				onLoaded?.Invoke();
 			}
 		});

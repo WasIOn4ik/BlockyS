@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 public enum Scenes
 {
 	StartupScene,
+	LobbyScene,
 	GameScene
 }
 
