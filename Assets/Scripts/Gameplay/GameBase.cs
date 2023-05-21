@@ -24,6 +24,8 @@ public class GameBase : MonoBehaviour
 	public static ClientBase Client { get; private set; }
 	public static GameStorage Storage { get; private set; }
 
+	public static LobbyGameSystem Lobby { get; private set; }
+
 	#endregion
 
 	#region UnityCallbacks
@@ -45,6 +47,7 @@ public class GameBase : MonoBehaviour
 		Server = GetComponent<ServerBase>();
 		Client = GetComponent<ClientBase>();
 		Storage = GetComponent<GameStorage>();
+		Lobby = GetComponent<LobbyGameSystem>();
 
 		Application.targetFrameRate = 60;
 		Application.quitting += Application_OnQuit;

@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 6010832559323360145}
   - component: {fileID: 671335786993086212}
   - component: {fileID: 3210103588677655027}
+  - component: {fileID: -6769323656011417094}
   m_Layer: 0
   m_Name: GameBase
   m_TagString: Untagged
@@ -57,7 +58,6 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126,7 +126,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ProtocolType: 0
+  m_ProtocolType: 1
   m_MaxPacketQueueSize: 1024
   m_MaxPayloadSize: 12288
   m_HeartbeatTimeoutMS: 2000
@@ -154,7 +154,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 
-  networkManager: {fileID: 0}
 --- !u!114 &671335786993086212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,14 +166,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc201744476e3f48a14ddf5a197ab6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefs:
-    password: 
-    boardHalfExtent: 0
-    maxPlayers: 0
-    turnTime: 0
-    reconnectionTime: 0
-  localPlayers: 0
-  networkManager: {fileID: 0}
+  serverPrefs:
+    reconnectionTime: 60
+    maxRemotePlayers: 0
+    maxConnectPayloadSize: 200
+  bNetMode: 0
 --- !u!114 &3210103588677655027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,13 +185,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preferencesString: Vergalia_Prefs
   progressString: Vergalia_Progress
-  prefs:
-    playerName: 
-    masterVolume: 1
-    musicVolume: 1
-    selectedBoardSkin: 0
-    selectedPawnSkin: 0
   progress:
     availableBoardSkins: 
     availablePawnSkins: 
     coins: 0
+--- !u!114 &-6769323656011417094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2286906215338914200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ffb4c3decc86624e8e595059b3caff2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

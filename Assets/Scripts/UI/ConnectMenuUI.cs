@@ -25,7 +25,8 @@ public class ConnectMenuUI
 			{
 				if (ushort.TryParse(add[1], out ushort port))
 				{
-					GameBase.Client.ConnectToHost(add[0], port);
+					UnityLobbyService.Instance.QuickJoinAsync();
+					//GameBase.Client.ConnectToHost(add[0], port);
 				}
 				else
 				{

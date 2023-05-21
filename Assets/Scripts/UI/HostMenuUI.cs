@@ -148,7 +148,8 @@ public class HostMenuUI : MenuBase
 			SpesLogger.Warning("Game created in netMode");
 			server.SetLocalPlayersCount((int)localPlayersSlider.value);
 			server.SetMaxRemotePlayersCount((int)(playersCountSlider.value - localPlayersSlider.value));
-			server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
+			UnityLobbyService.Instance.CreateLobbyAsync("TestLobby", false);
+			//server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
 		}
 		else
 		{

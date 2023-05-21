@@ -82,7 +82,7 @@ public class ClientBase : MonoBehaviour
 
 	private void ConnectInternal(string address, ushort port)
 	{
-		SetAddress(address, port);
+		//SetAddress(address, port);
 
 		UpdateConnectionPayload();
 
