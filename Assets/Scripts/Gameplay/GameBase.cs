@@ -12,8 +12,11 @@ public class GameBase : MonoBehaviour
 	public SkinsLibrarySO skins;
 	public GameRules gameRules;
 	public AssetReference messageMenuAsset;
+	private LoadingScreenUI loadingScreen;
 
 	private MessageUI currentMessageUI;
+
+	public LoadingScreenUI LoadingScreen { get => loadingScreen; set => loadingScreen = value; }
 
 	#endregion
 

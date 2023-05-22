@@ -87,7 +87,7 @@ public class GameplayBase : NetworkBehaviour
 
 		Instance = this;
 
-		MenuBase.OpenMenu(MenuBase.WAITING_FOR_PLAYERS_MENU, x =>
+		MenuBase.OpenMenu(MenuBase.WAITING_MENU, x =>
 		{
 			waitingMenu = x as WaitingMenuUI;
 			waitingMenu.SetState(WaitingState.Loading);

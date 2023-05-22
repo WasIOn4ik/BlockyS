@@ -115,6 +115,14 @@ MonoBehaviour:
     m_Key: Lobby_Btn_Start
     m_Metadata:
       m_Items: []
+  - m_Id: 98685604453109760
+    m_Key: Settings_MusicVolume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98686124332896256
+    m_Key: Settings_EffectsVolume
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

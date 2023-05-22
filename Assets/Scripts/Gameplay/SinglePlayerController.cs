@@ -31,8 +31,6 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 	private static InGameHUD hud;
 	private static SinglePlayerController previousLocalController;
 
-	private static bool bTurnDisplayUpToDate = false;
-
 	#endregion
 
 	#region UnityCallbacks

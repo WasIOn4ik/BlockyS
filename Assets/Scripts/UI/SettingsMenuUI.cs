@@ -12,6 +12,11 @@ public class SettingsMenuUI : MenuBase
 	[SerializeField] private TMP_InputField playerNameInput;
 	[SerializeField] private Button backButton;
 	[SerializeField] private Button confirmButton;
+	[SerializeField] private Slider musicVolumeSlider;
+	[SerializeField] private Slider effectsVolumeSlider;
+
+	private float musicVolume;
+	private float effectsVolume;
 
 	[SerializeField] private List<string> locales = new List<string>();
 
@@ -48,12 +53,27 @@ public class SettingsMenuUI : MenuBase
 
 		confirmButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			storage.PlayerName = playerNameInput.text;
 			storage.SavePrefs();
+			BackToPreviousMenu();
+		});
+
+		musicVolumeSlider.onValueChanged.AddListener((x) =>
+		{
+			storage.MusicVolume = x;
+		});
+
+		effectsVolumeSlider.onValueChanged.AddListener((x) =>
+		{
+			storage.EffectsVolume = x;
 		});
 
 		backButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
+			storage.MusicVolume = musicVolume;
+			storage.EffectsVolume = effectsVolume;
 			BackToPreviousMenu();
 		});
 
@@ -69,6 +89,15 @@ public class SettingsMenuUI : MenuBase
 		}
 
 		languageDD.value = languageIndex;
+	}
+
+	private void OnEnable()
+	{
+		musicVolume = storage.MusicVolume;
+		effectsVolume = storage.EffectsVolume;
+
+		musicVolumeSlider.value = musicVolume;
+		effectsVolumeSlider.value = effectsVolume;
 	}
 
 	#endregion

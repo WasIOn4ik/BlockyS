@@ -121,6 +121,14 @@ MonoBehaviour:
     m_Localized: Start game
     m_Metadata:
       m_Items: []
+  - m_Id: 98685604453109760
+    m_Localized: Music volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 98686124332896256
+    m_Localized: Effects volume
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

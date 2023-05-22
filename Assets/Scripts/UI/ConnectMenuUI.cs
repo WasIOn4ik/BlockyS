@@ -19,6 +19,7 @@ public class ConnectMenuUI
 		base.Awake();
 		confirmButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			string str = address.text;
 			var add = str.Split(':');
 			if (add.Length == 2)
@@ -41,6 +42,7 @@ public class ConnectMenuUI
 
 		backButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			GameBase.Client.ClearAll();
 			BackToPreviousMenu();
 		});

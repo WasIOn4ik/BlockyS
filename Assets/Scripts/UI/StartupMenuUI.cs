@@ -15,28 +15,35 @@ public class StartupMenuUI : MenuBase
 	protected override void Awake()
 	{
 		base.Awake();
+
 		hostButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OpenMenu(CREATE_LOBBY_MENU);
 		});
 		connectButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OpenMenu(CONNECT_TO_LOBBY_MENU);
 		});
 		settingsButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OpenMenu(SETTINGS_MENU);
 		});
 		creditsButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OpenMenu(CREDITS_MENU);
 		});
 		exitButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			Application.Quit();
 		});
 		customizationButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OpenMenu(CUSTOMIZATION_MENU);
 		});
 	}

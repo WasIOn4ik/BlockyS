@@ -13,7 +13,8 @@ public abstract class MenuBase : MonoBehaviour
 	public const string CUSTOMIZATION_MENU = "CustomizationMenu";
 	public const string SETTINGS_MENU = "SettingsMenu";
 	public const string STARTUP_MENU = "StartupMenu";
-	public const string WAITING_FOR_PLAYERS_MENU = "WaitingMenu";
+	public const string WAITING_MENU = "WaitingMenu";
+	public const string LOADING_SCREEN = "LoadingScreen";
 
 	#endregion
 
@@ -193,7 +194,7 @@ public abstract class MenuBase : MonoBehaviour
 		}
 	}
 
-	public void ShowMenu()
+	public virtual void ShowMenu()
 	{
 		if (previousMenu)
 			previousMenu.HideMenu();
@@ -202,7 +203,7 @@ public abstract class MenuBase : MonoBehaviour
 		lastOpenedMenu = this;
 	}
 
-	public void HideMenu()
+	public virtual void HideMenu()
 	{
 		gameObject.SetActive(false);
 	}

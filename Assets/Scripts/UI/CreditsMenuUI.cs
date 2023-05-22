@@ -17,6 +17,7 @@ public class CreditsMenuUI : MenuBase
 
 		backButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			BackToPreviousMenu();
 		});
 	}

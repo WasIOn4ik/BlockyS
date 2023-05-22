@@ -50,29 +50,34 @@ public class HostMenuUI : MenuBase
 
 		backButtonStart.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			BackToPreviousMenu();
 		});
 
 		backButtonSetup.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			setupSubmenu.SetActive(false);
 			startSubmenu.SetActive(true);
 		});
 
 		playLocalButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			bNetMode = false;
 			ShowSetupSubMenu();
 		});
 
 		playOnlineButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			bNetMode = true;
 			ShowSetupSubMenu();
 		});
 
 		confirmButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OnConfirmHostClicked();
 		});
 
