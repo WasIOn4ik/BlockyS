@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Localization;
@@ -23,6 +24,8 @@ public class PawnSkinSO : ScriptableObject
 
 	public int cost;
 
+	private List<GameObject> instantiated = new List<GameObject>();
+
 	#endregion
 
 	#region Functions
@@ -36,6 +39,21 @@ public class PawnSkinSO : ScriptableObject
 				onInstantiated?.Invoke(x.Result);
 			}
 		};
+	}
+
+	public void Unload()
+	{
+		if (prefabAsset.IsValid())
+		{
+			for (int i = 0; i < instantiated.Count; i++)
+			{
+				if (instantiated[i] != null)
+					prefabAsset.ReleaseInstance(instantiated[i]);
+			}
+			instantiated.Clear();
+
+			prefabAsset.ReleaseAsset();
+		}
 	}
 
 	#endregion

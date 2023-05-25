@@ -573,7 +573,17 @@ public class GameplayBase : NetworkBehaviour
 	{
 		string pureName = winner.Split("_")[0];
 
-		int coinsValue = NetworkManager.Singleton.LocalClientId == clientID ? winGoldAmount : loseGoldAmount;
+		int coinsValue = winGoldAmount;
+
+		if (NetworkManager.Singleton.LocalClientId == clientID)
+		{
+			SoundManager.Instance.PlayWin();
+		}
+		else
+		{
+			SoundManager.Instance.PlayLose();
+			coinsValue = loseGoldAmount;
+		}
 
 		GameBase.Storage.progress.coins += coinsValue;
 

@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 088eec6564277dc4b9907faccc715865, type: 3}
   m_Name: SoundsLibrary
   m_EditorClassIdentifier: 
-  buttonClip: {fileID: 0}
-  backClip: {fileID: 0}
-  pawnMoveClip: {fileID: 0}
-  wallPlaceClip: {fileID: 0}
-  winClip: {fileID: 0}
-  loseClip: {fileID: 0}
-  menuMusic: {fileID: 0}
-  gameMusic: []
+  buttonClip: {fileID: 8300000, guid: 2348165a0a0502f44bac7ebc201cf864, type: 3}
+  backClip: {fileID: 8300000, guid: 368adac454b36a54a90dadddf129aeda, type: 3}
+  pawnMoveClip: {fileID: 8300000, guid: 7337eb36a5461334294f3a5a43d12fe1, type: 3}
+  wallPlaceClip: {fileID: 8300000, guid: 3e6a0c1e332bdbb4fb56bed7f7e01a8b, type: 3}
+  winClip: {fileID: 8300000, guid: 54071d191c80dee4b99cbd3bac7e3092, type: 3}
+  loseClip: {fileID: 8300000, guid: 7d7a1764d67254340a9f58f40782241e, type: 3}
+  menuMusic: {fileID: 8300000, guid: 1d472bf77eb542e4c82276c7d37734ec, type: 3}
+  gameMusic:
+  - {fileID: 8300000, guid: 4098046b68bb9af4cb359a889573065f, type: 3}
+  - {fileID: 8300000, guid: 3abf512cd69450744b33ccaa9d9bb3bd, type: 3}

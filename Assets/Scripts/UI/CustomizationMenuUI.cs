@@ -157,6 +157,8 @@ public class CustomizationMenuUI : MenuBase
 	{
 		if (canvas && canvas.worldCamera)
 			canvas.worldCamera.orthographic = bPreviousOrtho;
+
+		GameBase.Instance.skins.ReleaseAll();
 		SpesLogger.Detail("Skins selected: " + storage.CurrentBoardSkinID + " " + storage.CurrentPawnSkinID);
 	}
 

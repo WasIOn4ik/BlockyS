@@ -15,6 +15,7 @@ public class Startup : MonoBehaviour
 		if (loadingScreenAsset.IsValid() && gameBaseAsset.IsValid())
 		{
 			GameBase.Instance.LoadingScreen.Setup(0, StartMenuMusic);
+			GameBase.Instance.skins.ReleaseAll();
 			MenuBase.OpenMenu(MenuBase.STARTUP_MENU);
 			return;
 		}

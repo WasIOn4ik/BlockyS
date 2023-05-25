@@ -101,6 +101,7 @@ public class Pawn : NetworkBehaviour
 
 	public void HandleAnimation(BoardBlock newBlock)
 	{
+		SoundManager.Instance.PlayPawnMove();
 		animator.Play(JUMP_ANIMATION);
 		StartCoroutine(Animate(newBlock));
 	}

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnTime: 5
   cameraAnimationTime: 1.5
-  x5Count: 1
+  x5Count: 15
   x7Count: 25
   x9Count: 42
   cameraHeight: 4

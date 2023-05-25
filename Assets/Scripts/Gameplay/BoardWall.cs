@@ -28,6 +28,16 @@ public class BoardWall : NetworkBehaviour
 
 	#endregion
 
+	#region Overrides
+
+	public override void OnNetworkSpawn()
+	{
+		base.OnNetworkSpawn();
+		SoundManager.Instance.PlayWallPlace();
+	}
+
+	#endregion
+
 	#region Callbacks
 
 	private void OnSkinChanged(int newValue)
