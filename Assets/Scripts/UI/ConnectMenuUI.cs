@@ -6,8 +6,9 @@ public class ConnectMenuUI
 {
 	#region Variables
 
-	[SerializeField] private TMPro.TMP_InputField address;
-	[SerializeField] private Button confirmButton;
+	[SerializeField] private TMPro.TMP_InputField codeInput;
+	[SerializeField] private Button joinButton;
+	[SerializeField] private Button quickJoinButton;
 	[SerializeField] private Button backButton;
 
 	#endregion
@@ -17,27 +18,28 @@ public class ConnectMenuUI
 	protected override void Awake()
 	{
 		base.Awake();
-		confirmButton.onClick.AddListener(() =>
+
+		codeInput.onValueChanged.AddListener((x) =>
+		{
+			bool show = x.Length == 6;
+			joinButton.interactable = show;
+		});
+
+		joinButton.onClick.AddListener(() =>
 		{
 			SoundManager.Instance.PlayButtonClick();
-			string str = address.text;
-			var add = str.Split(':');
-			if (add.Length == 2)
+			string str = codeInput.text;
+
+			if (!string.IsNullOrEmpty(str))
 			{
-				if (ushort.TryParse(add[1], out ushort port))
-				{
-					UnityLobbyService.Instance.QuickJoinAsync();
-					//GameBase.Client.ConnectToHost(add[0], port);
-				}
-				else
-				{
-					SpesLogger.Warning("Port is incorrect");
-				}
+				UnityLobbyService.Instance.JoinLobbyByCodeAsync(str);
 			}
-			else
-			{
-				SpesLogger.Warning("Write address:port");
-			}
+		});
+
+		quickJoinButton.onClick.AddListener(() =>
+		{
+			SoundManager.Instance.PlayButtonClick();
+			UnityLobbyService.Instance.QuickJoinAsync();
 		});
 
 		backButton.onClick.AddListener(() =>

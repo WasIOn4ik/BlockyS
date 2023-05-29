@@ -2,6 +2,7 @@ using System.Collections;
 using System.Text;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -100,13 +101,20 @@ public class ClientBase : MonoBehaviour
 
 	private void UpdateConnectionPayload()
 	{
-		ConnectionPayload payload = new ConnectionPayload();
-		payload.pawnSkinID = GameBase.Storage.CurrentPawnSkinID;
-		payload.boardSkin = GameBase.Storage.CurrentBoardSkinID;
-		payload.playerName = GameBase.Client.playerName;
-		payload.playerToken = UnityEngine.Random.Range(0, 10000).ToString();
+		if(AuthenticationService.Instance.IsAuthorized)
+		{
+			ConnectionPayload payload = new ConnectionPayload();
+			payload.pawnSkinID = GameBase.Storage.CurrentPawnSkinID;
+			payload.boardSkin = GameBase.Storage.CurrentBoardSkinID;
+			payload.playerName = GameBase.Client.playerName;
+			payload.playerID = AuthenticationService.Instance.PlayerId;
 
-		NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
+			NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
+		}
+		else
+		{
+			SceneLoader.LoadScene(Scenes.StartupScene);
+		}
 	}
 
 	private void SetupManagerCallbacks()

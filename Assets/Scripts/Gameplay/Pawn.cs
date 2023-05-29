@@ -166,7 +166,6 @@ public class Pawn : NetworkBehaviour
 	/// </summary>
 	private void OnAnimated()
 	{
-		Debug.Log("OnAnimated_____________________________________________________");
 		CameraAnimator.AnimateCamera();
 	}
 

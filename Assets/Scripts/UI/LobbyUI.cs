@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -13,6 +14,7 @@ public class LobbyUI : MonoBehaviour
 	[SerializeField] private Button startGameButton;
 	[SerializeField] private Button backButton;
 	[SerializeField] private Transform cardsHolder;
+	[SerializeField] private TMP_Text lobbyCodeText;
 
 	private List<PlayerCardUI> players = new List<PlayerCardUI>();
 
@@ -26,6 +28,8 @@ public class LobbyUI : MonoBehaviour
 		{
 			startGameButton.gameObject.SetActive(false);
 		}
+
+		lobbyCodeText.text = UnityLobbyService.Instance.GetLobby().LobbyCode;
 
 		LobbyGameSystem.Instance.onPlayersListChanged += LobbySystem_onPlayersListChanged;
 
@@ -46,19 +50,36 @@ public class LobbyUI : MonoBehaviour
 
 		startGameButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			GameBase.Server.SetMaxRemotePlayersCount(LobbyGameSystem.Instance.GetPlayers().Count - 1);
+			UnityLobbyService.Instance.DeleteLobbyAsync();
 			SceneLoader.LoadNetwork(Scenes.GameScene);
 		});
 
 		backButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			if (NetworkManager.Singleton.IsServer)
+			{
+				UnityLobbyService.Instance.DeleteLobbyAsync();
 				GameBase.Server.ClearAll();
+			}
 			else
+			{
+				UnityLobbyService.Instance.LeaveLobbyAsync();
 				GameBase.Client.ClearAll();
+			}
 
 			SceneLoader.LoadScene(Scenes.StartupScene);
 		});
+	}
+
+	private void OnDestroy()
+	{
+		if(LobbyGameSystem.Instance)
+		{
+			LobbyGameSystem.Instance.onPlayersListChanged -= LobbySystem_onPlayersListChanged;
+		}
 	}
 
 	private void LobbySystem_onPlayersListChanged(object sender, LobbyGameSystem.ConnectedPlayersEventArgs e)

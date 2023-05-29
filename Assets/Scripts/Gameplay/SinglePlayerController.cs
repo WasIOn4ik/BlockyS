@@ -37,6 +37,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
 	private void Awake()
 	{
+		playerInfo.state = EPlayerState.Operator;
 		cameraPosition = transform.position;
 		cameraRotation = transform.rotation;
 
@@ -122,7 +123,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		previousLocalController = this;
 
 		var info = GetPlayerInfo();
-		info.state = EPlayerState.Operator;
+		info.state = EPlayerState.Waiting;
 		SetPlayerInfo(info);
 
 		cameraPosition = transform.position;

@@ -48,7 +48,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 47010176520192
-    m_Localized: Address:port
+    m_Localized: Join code
     m_Metadata:
       m_Items: []
   - m_Id: 47965051768832
@@ -127,6 +127,14 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 98686124332896256
     m_Localized: Effects volume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101117534628958208
+    m_Localized: Join by code
+    m_Metadata:
+      m_Items: []
+  - m_Id: 101117754599231488
+    m_Localized: Quick join
     m_Metadata:
       m_Items: []
   references:

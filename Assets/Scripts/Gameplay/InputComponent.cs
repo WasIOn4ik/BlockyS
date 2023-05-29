@@ -54,10 +54,10 @@ public class InputComponent : MonoBehaviour
 
 	private void Update()
 	{
-		if (controller.GetPlayerInfo().state == EPlayerState.Waiting)
+		if (controller.GetPlayerInfo().state == EPlayerState.Operator)
 			return;
 
-#if UNITY_ANDROID
+#if UNITY_ANDROID && !UNITY_EDITOR
 
 		if (Input.touchCount > 0)
 		{
@@ -239,7 +239,7 @@ public class InputComponent : MonoBehaviour
 
 			if (bb)
 			{
-				SpesLogger.Deb("Clicking on block: " + bb.name);
+				SpesLogger.Deb("Clicking on block: " + bb.name + " ___ " + controller.GetPlayerInfo().playerOrder + " ___ " + controller.GetPlayerInfo().state.ToString());
 
 				//Starting pawn move
 				if (controller.GetPlayerInfo().pawn.Block == bb.coords)

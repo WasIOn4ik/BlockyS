@@ -38,7 +38,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2286906215338914201
 MonoBehaviour:
@@ -60,7 +60,6 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  loadingScreen: {fileID: 0}
 --- !u!114 &2286906215338914204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80,7 +79,8 @@ MonoBehaviour:
     NetworkTransport: {fileID: 2286906215338914207}
     PlayerPrefab: {fileID: 0}
     Prefabs:
-      NetworkPrefabsLists: []
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: e8c2d5d218ec9584e8eab3388a578cfc, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
@@ -96,27 +96,7 @@ MonoBehaviour:
     LoadSceneTimeOut: 120
     SpawnTimeout: 1
     EnableNetworkLogs: 1
-    OldPrefabList:
-    - Override: 0
-      Prefab: {fileID: 1128051090849459896, guid: b1e66adbaf6a56c42821e2305b12ca1a, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 4116664224151541053, guid: d02c8001737efa7409618678ba4a61cd, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 3377158847296592743, guid: a5b165c75b5a53441916be05b1d9ce24, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 6475483853331141897, guid: 0f869a31e66743b4ea2318bcfa2a5fbb, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
+    OldPrefabList: []
 --- !u!114 &2286906215338914207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,8 +114,8 @@ MonoBehaviour:
   m_MaxPayloadSize: 12288
   m_HeartbeatTimeoutMS: 2000
   m_ConnectTimeoutMS: 4000
-  m_MaxConnectAttempts: 240
-  m_DisconnectTimeoutMS: 120000
+  m_MaxConnectAttempts: 24
+  m_DisconnectTimeoutMS: 10000
   ConnectionData:
     Address: 127.0.0.1
     Port: 7777

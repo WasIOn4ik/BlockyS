@@ -11,12 +11,13 @@ public struct LobbyPlayerDescriptor : IEquatable<LobbyPlayerDescriptor>, INetwor
 {
 	public ulong clientID;
 	public FixedString64Bytes playerName;
+	public FixedString64Bytes playerID;
 	public int boardSkin;
 	public int pawnSkin;
 
 	public bool Equals(LobbyPlayerDescriptor other)
 	{
-		return playerName == other.playerName && boardSkin == other.boardSkin && pawnSkin == other.pawnSkin && clientID == other.clientID;
+		return playerName == other.playerName && boardSkin == other.boardSkin && pawnSkin == other.pawnSkin && clientID == other.clientID && playerID == other.playerID;
 	}
 }
 
@@ -56,7 +57,6 @@ public class LobbyGameSystem : NetworkBehaviour
 		Instance = this;
 
 		connectedPlayers = new NetworkList<LobbyPlayerDescriptor>();
-		connectedPlayers.OnListChanged += ConnectedPlayers_OnListChanged;
 	}
 
 	#endregion
@@ -66,6 +66,8 @@ public class LobbyGameSystem : NetworkBehaviour
 	public override void OnNetworkSpawn()
 	{
 		base.OnNetworkSpawn();
+
+		connectedPlayers.OnListChanged += ConnectedPlayers_OnListChanged;
 
 		if (IsServer)
 		{
@@ -77,6 +79,19 @@ public class LobbyGameSystem : NetworkBehaviour
 				connectedPlayers.Add(GetDescriptor(clientID));
 			}
 		}
+	}
+
+	public override void OnDestroy()
+	{
+		connectedPlayers.OnListChanged -= ConnectedPlayers_OnListChanged;
+
+		if (IsServer)
+		{
+			NetworkManager.OnClientConnectedCallback -= SERVER_NetworkManager_OnClientConnectedCallback;
+			NetworkManager.OnClientDisconnectCallback -= SERVER_NetworkManager_OnClientDisconnectCallback;
+		}
+
+		base.OnDestroy();
 	}
 
 	#endregion
@@ -132,7 +147,7 @@ public class LobbyGameSystem : NetworkBehaviour
 	{
 		var player = GameBase.Server.GetRemotePlayerByClientID(clientID);
 
-		return new LobbyPlayerDescriptor { clientID = clientID, playerName = player.playerName, pawnSkin = player.pawnSkinID, boardSkin = player.boardSkinID };
+		return new LobbyPlayerDescriptor { clientID = clientID, playerName = player.playerName, pawnSkin = player.pawnSkinID, boardSkin = player.boardSkinID, playerID = player.playerID };
 	}
 
 	#endregion

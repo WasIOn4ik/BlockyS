@@ -11,7 +11,6 @@ public class CameraAnimator
 
 	protected static IEnumerator HandleAnimation(Camera cam)
 	{
-		Debug.Log("Animating");
 		float time = Time.deltaTime;
 		while (cam.transform.localPosition.magnitude > 0.005f)
 		{

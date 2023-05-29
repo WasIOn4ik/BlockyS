@@ -31,17 +31,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	private void Awake()
 	{
 		inputComp = GetComponent<InputComponent>();
-	}/*
-
-	public override void OnDestroy()
-	{
-		if (cam && cam.transform.parent == transform)
-		{
-			cam.transform.SetParent(null);
-		}
-
-		base.OnDestroy();
-	}*/
+	}
 
 	#endregion
 
@@ -56,7 +46,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		if (IsServer)
 		{
 			var info = GetPlayerInfo();
-			info.state = EPlayerState.Operator;
+			info.state = EPlayerState.Waiting;
 			SetPlayerInfo(info);
 		}
 		else
@@ -78,7 +68,6 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 			inputComp.SetVectors(transform.forward, transform.right);
 		}
 	}
-
 
 	#endregion
 

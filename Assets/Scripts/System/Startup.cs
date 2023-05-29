@@ -12,37 +12,37 @@ public class Startup : MonoBehaviour
 	{
 		LoadingScreenUI loadingScreen = null;
 
-		if (loadingScreenAsset.IsValid() && gameBaseAsset.IsValid())
+		if (GameBase.Instance)
 		{
 			GameBase.Instance.LoadingScreen.Setup(0, StartMenuMusic);
 			GameBase.Instance.skins.ReleaseAll();
-			MenuBase.OpenMenu(MenuBase.STARTUP_MENU);
+			MenuBase.OpenMenu(MenuBase.STARTUP_MENU, (x) => { GameBase.Instance.LoadingScreen.Hide(); });
 			return;
 		}
-
-		loadingScreenAsset.InstantiateAsync().Completed += x =>
+		else
 		{
-			if (x.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
+			loadingScreenAsset.InstantiateAsync().Completed += x =>
 			{
-				loadingScreen = x.Result.GetComponent<LoadingScreenUI>();
-				loadingScreen.Setup(loadingScreenStartupMinTimer, StartMenuMusic);
-			}
-
-			gameBaseAsset.InstantiateAsync().Completed += x =>
-			{
-				GameBase.Instance.LoadingScreen = loadingScreen;
-				MenuBase.OpenMenu(MenuBase.STARTUP_MENU, x =>
+				if (x.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded)
 				{
-					loadingScreen.Hide();
-				});
+					loadingScreen = x.Result.GetComponent<LoadingScreenUI>();
+					loadingScreen.Setup(loadingScreenStartupMinTimer, StartMenuMusic);
+				}
+
+				gameBaseAsset.InstantiateAsync().Completed += x =>
+				{
+					GameBase.Instance.LoadingScreen = loadingScreen;
+					MenuBase.OpenMenu(MenuBase.STARTUP_MENU, x =>
+					{
+						loadingScreen.Hide();
+					});
+				};
 			};
-		};
+		}
 	}
 
 	private void StartMenuMusic()
 	{
 		SoundManager.Instance.StartBackgroundMusic(SoundManager.MusicType.MainMenuMusic);
-		SoundManager.Instance.StopAllCoroutines();
-		StartCoroutine(SoundManager.Instance.HandleMusic());
 	}
 }

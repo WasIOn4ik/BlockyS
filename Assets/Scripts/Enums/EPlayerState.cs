@@ -1,6 +1,6 @@
 public enum EPlayerState
 {
-    ActivePlayer,
-    Operator,
-    Waiting
+	ActivePlayer,
+	Operator,
+	Waiting
 }

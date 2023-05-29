@@ -23,7 +23,6 @@ public class HostMenuUI : MenuBase
 	[Header("SetupSubmenu")]
 	[SerializeField] private Button confirmButton;
 	[SerializeField] private Button backButtonSetup;
-	[SerializeField] private TMP_InputField portInput;
 
 	[SerializeField] private Slider playersCountSlider;
 	[SerializeField] private TMP_Text playersCountText;
@@ -112,7 +111,6 @@ public class HostMenuUI : MenuBase
 
 	private void ShowSetupSubMenu()
 	{
-		portInput.gameObject.SetActive(bNetMode);
 		startSubmenu.SetActive(false);
 		setupSubmenu.SetActive(true);
 	}

@@ -148,7 +148,6 @@ public class InGameHUD : MonoBehaviour
 		while (remain > 0.5f)
 		{
 			remain = (turnTime + turnStartTime - Time.time);
-			SpesLogger.Warning(remain.ToString());
 			timeImage.fillAmount = remain / turnTime;
 
 			yield return new WaitForSeconds(1);

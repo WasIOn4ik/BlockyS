@@ -177,6 +177,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		if (newValue == GameStage.GameActive)
 		{
+			SoundManager.Instance.StartBackgroundMusic(SoundManager.MusicType.GameMusic);
 			waitingMenu.HideMenu();
 		}
 	}
@@ -429,7 +430,7 @@ public class GameplayBase : NetworkBehaviour
 		var controller = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController;
 
 		var info = controller.GetPlayerInfo();
-		info.state = EPlayerState.Operator;
+		info.state = EPlayerState.Waiting;
 		controller.SetPlayerInfo(info);
 
 		var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
@@ -505,7 +506,7 @@ public class GameplayBase : NetworkBehaviour
 	/// </summary>
 	/// <param name="playerOrder"></param>
 	/// <returns></returns>
-	private int GetSpawnPositionID(int playerOrder)
+	public static int GetSpawnPositionID(int playerOrder)
 	{
 
 		int max = GameBase.Server.GetMaxPlayersCount();
@@ -558,6 +559,7 @@ public class GameplayBase : NetworkBehaviour
 
 	private void ShowWinMessage(string winner, int coinsValue)
 	{
+		Camera.main?.transform.SetParent(null);
 		winnerStr.Add(winnerNameVariable, new StringVariable { Value = winner });
 		winnerStr.Add(goldVariable, new IntVariable { Value = coinsValue });
 

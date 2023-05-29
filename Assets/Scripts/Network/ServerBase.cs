@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
+using Unity.Services.Authentication;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -67,7 +68,7 @@ public class ServerBase : MonoBehaviour
 			//Reconnection
 			if (CheckReconnection(payload))
 			{
-				int reconnectedPlayer = FindPlayerByToken(payload.playerToken);
+				int reconnectedPlayer = FindPlayerByToken(payload.playerID);
 
 				NetworkManager.Singleton.DisconnectClient(players[reconnectedPlayer].clientID, "Logged in from other device");
 
@@ -100,11 +101,8 @@ public class ServerBase : MonoBehaviour
 
 	private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
 	{
-		if (SceneManager.GetActiveScene().name == Scenes.LobbyScene.ToString())
-		{
-			var playerToRemove = GetRemotePlayerByClientID(clientID);
-			players.Remove(playerToRemove);
-		}
+		var playerToRemove = GetRemotePlayerByClientID(clientID);
+		players.Remove(playerToRemove);
 	}
 
 	#endregion
@@ -131,7 +129,7 @@ public class ServerBase : MonoBehaviour
 	{
 		return players.Find(x =>
 		{
-			return x.playerToken == playerToken;
+			return x.playerID == playerToken;
 		});
 	}
 
@@ -224,6 +222,7 @@ public class ServerBase : MonoBehaviour
 		var player = GetRemotePlayerByClientID(clientID);
 
 		networkManager.DisconnectClient(player.clientID, "Kicked by server");
+		UnityLobbyService.Instance.KickPlayerAsync(player.playerID);
 	}
 
 	public void ClearAll()
@@ -246,13 +245,20 @@ public class ServerBase : MonoBehaviour
 
 	private void UpdateConnectionPayload()
 	{
-		ConnectionPayload payload = new ConnectionPayload();
-		payload.pawnSkinID = GameBase.Storage.CurrentPawnSkinID;
-		payload.boardSkin = GameBase.Storage.CurrentBoardSkinID;
-		payload.playerName = GameBase.Client.playerName;
-		payload.playerToken = UnityEngine.Random.Range(0, 10000).ToString();
+		if (AuthenticationService.Instance.IsAuthorized)
+		{
+			ConnectionPayload payload = new ConnectionPayload();
+			payload.pawnSkinID = GameBase.Storage.CurrentPawnSkinID;
+			payload.boardSkin = GameBase.Storage.CurrentBoardSkinID;
+			payload.playerName = GameBase.Client.playerName;
+			payload.playerID = AuthenticationService.Instance.PlayerId;
 
-		NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
+			NetworkManager.Singleton.NetworkConfig.ConnectionData = Encoding.ASCII.GetBytes(JsonUtility.ToJson(payload));
+		}
+		else
+		{
+			SceneLoader.LoadScene(Scenes.StartupScene);
+		}
 	}
 
 	private PlayerDescriptor CreatePlayer(ConnectionPayload payload, ulong clientID, bool bLocal)
@@ -265,7 +271,7 @@ public class ServerBase : MonoBehaviour
 		player.pawnSkinID = payload.pawnSkinID;
 		player.boardSkinID = payload.boardSkin;
 		player.playerName = payload.playerName;
-		player.playerToken = payload.playerToken;
+		player.playerID = payload.playerID;
 
 		return player;
 	}
@@ -274,7 +280,7 @@ public class ServerBase : MonoBehaviour
 	{
 		foreach (var player in players)
 		{
-			if (player.playerToken == payload.playerToken)
+			if (player.playerID == payload.playerID)
 			{
 				return true;
 			}
@@ -292,7 +298,7 @@ public class ServerBase : MonoBehaviour
 	{
 		for (int i = 0; i < players.Count; i++)
 		{
-			if (players[i].playerToken == token)
+			if (players[i].playerID == token)
 				return i;
 		}
 		return -1;

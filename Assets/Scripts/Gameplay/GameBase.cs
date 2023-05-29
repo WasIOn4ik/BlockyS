@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.Localization.Settings;
 using UnityEngine.AddressableAssets;
+using Unity.Services.Authentication;
 
 [RequireComponent(typeof(ServerBase), typeof(ClientBase), typeof(GameStorage))]
 public class GameBase : MonoBehaviour
@@ -79,6 +80,9 @@ public class GameBase : MonoBehaviour
 	{
 		Storage.SaveProgress();
 		Storage.SavePrefs();
+
+		Client.ClearAll();
+		Server.ClearAll();
 	}
 
 	#endregion

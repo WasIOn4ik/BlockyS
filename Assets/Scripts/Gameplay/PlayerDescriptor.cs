@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerDescriptor
 {
 	public bool bLocal;
-	public string playerToken;
+	public string playerID;
 	public string playerName;
 	public ulong clientID;
 	public int playerOrder;

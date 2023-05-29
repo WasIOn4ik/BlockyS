@@ -11,6 +11,7 @@ using Unity.Services.Lobbies.Models;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class UnityLobbyService : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class UnityLobbyService : MonoBehaviour
 	public event EventHandler OnJoinFailed;
 
 	public event EventHandler<OnLobbyListChangedEventArgs> OnLobbyListChanged;
+
 	public class OnLobbyListChangedEventArgs : EventArgs
 	{
 		public List<Lobby> lobbyList;
@@ -48,30 +50,14 @@ public class UnityLobbyService : MonoBehaviour
 	private void Update()
 	{
 		HandleHeartbeat();
-		//HandlePeriodicListLobbies();
 	}
-	/*
-		private void HandlePeriodicListLobbies()
-		{
-			if (joinedLobby != null || AuthenticationService.Instance.IsSignedIn == false ||
-				SceneManager.GetActiveScene().name != Scenes.LobbyScene.ToString())
-				return;
-
-			listLobbiesTimer -= Time.deltaTime;
-
-			if (listLobbiesTimer <= 0)
-			{
-				listLobbiesTimer = listLobbiesTimerMax - listLobbiesTimer;
-
-				ListLobbiesAsync();
-			}
-		}*/
 
 	public async void CreateLobbyAsync(string lobbyName, bool isPrivate)
 	{
 		OnCreateLobbyStarted?.Invoke(this, EventArgs.Empty);
 		try
 		{
+			GameBase.Instance.LoadingScreen.Setup();
 			joinedLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, GameBase.Server.GetMaxRemotePlayersCount() + 1, new CreateLobbyOptions() { IsPrivate = isPrivate });
 
 			Allocation allocation = await AllocateRelayAsync();
@@ -93,11 +79,13 @@ public class UnityLobbyService : MonoBehaviour
 				allocation.Key,
 				allocation.ConnectionData);
 
+			GameBase.Instance.LoadingScreen.Hide();
 			GameBase.Server.HostGame();
 			SceneLoader.LoadNetwork(Scenes.LobbyScene);
 		}
 		catch (LobbyServiceException exception)
 		{
+			GameBase.Instance.LoadingScreen.Hide();
 			Debug.Log(exception);
 			OnCreateLobbyFailed?.Invoke(this, EventArgs.Empty);
 		}
@@ -108,6 +96,7 @@ public class UnityLobbyService : MonoBehaviour
 		OnJoinStarted?.Invoke(this, EventArgs.Empty);
 		try
 		{
+			GameBase.Instance.LoadingScreen.Setup();
 			joinedLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
 
 			string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
@@ -123,10 +112,12 @@ public class UnityLobbyService : MonoBehaviour
 				joinAllocation.HostConnectionData,
 				false);
 
+			GameBase.Instance.LoadingScreen.Hide();
 			GameBase.Client.ConnectToHost("", 0);
 		}
 		catch (LobbyServiceException exception)
 		{
+			GameBase.Instance.LoadingScreen.Hide();
 			OnJoinFailed?.Invoke(this, EventArgs.Empty);
 			Debug.Log(exception);
 		}
@@ -142,6 +133,7 @@ public class UnityLobbyService : MonoBehaviour
 		OnJoinStarted?.Invoke(this, EventArgs.Empty);
 		try
 		{
+			GameBase.Instance.LoadingScreen.Setup();
 			joinedLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
 
 			string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
@@ -156,38 +148,12 @@ public class UnityLobbyService : MonoBehaviour
 				joinAllocation.HostConnectionData,
 				false);
 
+			GameBase.Instance.LoadingScreen.Hide();
 			GameBase.Client.ConnectToHost("", 0);
 		}
 		catch (LobbyServiceException exception)
 		{
-			OnJoinFailed?.Invoke(this, EventArgs.Empty);
-			Debug.Log(exception);
-		}
-	}
-
-	public async void JoinLobbyByIDAsync(string id)
-	{
-		OnJoinStarted?.Invoke(this, EventArgs.Empty);
-		try
-		{
-			joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(id);
-
-			string relayJoinCode = joinedLobby.Data[KEY_RELAY_JOIN_CODE].Value;
-
-			JoinAllocation joinAllocation = await JoinRelay(relayJoinCode);
-			NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
-				joinAllocation.RelayServer.IpV4,
-				(ushort)joinAllocation.RelayServer.Port,
-				joinAllocation.AllocationIdBytes,
-				joinAllocation.Key,
-				joinAllocation.ConnectionData,
-				joinAllocation.HostConnectionData,
-				false);
-
-			GameBase.Client.ConnectToHost("", 0);
-		}
-		catch (LobbyServiceException exception)
-		{
+			GameBase.Instance.LoadingScreen.Hide();
 			OnJoinFailed?.Invoke(this, EventArgs.Empty);
 			Debug.Log(exception);
 		}
@@ -238,27 +204,6 @@ public class UnityLobbyService : MonoBehaviour
 			{
 				Debug.Log(exception);
 			}
-		}
-	}
-
-	public async void ListLobbiesAsync()
-	{
-		try
-		{
-			QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions()
-			{
-				Filters = new List<QueryFilter>()
-			{
-				new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
-			}
-			};
-			QueryResponse response = await LobbyService.Instance.QueryLobbiesAsync(queryLobbiesOptions);
-
-			OnLobbyListChanged?.Invoke(this, new OnLobbyListChangedEventArgs { lobbyList = response.Results });
-		}
-		catch (LobbyServiceException exception)
-		{
-			Debug.Log(exception);
 		}
 	}
 

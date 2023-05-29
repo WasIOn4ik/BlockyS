@@ -32,6 +32,7 @@ public class PlayerCardUI : MonoBehaviour
 		kickButton.gameObject.SetActive(networkManager.LocalClientId != clientID);
 		kickButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			GameBase.Server.KickPlayer(clientID);
 		});
 	}
