@@ -53,6 +53,7 @@ public class MessageUI : MonoBehaviour
 
 	public void ShowMessage(string entry, MessageAction action, bool bLocalized = true, string param = "")
 	{
+		SoundManager.Instance.PlayBackButtonClick();
 		gameObject.SetActive(true);
 		if (bLocalized)
 		{

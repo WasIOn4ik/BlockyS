@@ -66,6 +66,10 @@ MonoBehaviour:
     m_Localized: Candy
     m_Metadata:
       m_Items: []
+  - m_Id: 48014350473973760
+    m_Localized: Loading
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

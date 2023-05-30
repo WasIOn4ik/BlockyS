@@ -15,6 +15,9 @@ GameObject:
   - component: {fileID: 6010832559323360145}
   - component: {fileID: 671335786993086212}
   - component: {fileID: 3210103588677655027}
+  - component: {fileID: -6769323656011417094}
+  - component: {fileID: -3424302886095005422}
+  - component: {fileID: 8266627559725946270}
   m_Layer: 0
   m_Name: GameBase
   m_TagString: Untagged
@@ -35,7 +38,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2286906215338914201
 MonoBehaviour:
@@ -57,7 +60,6 @@ MonoBehaviour:
     m_SubObjectName: 
     m_SubObjectType: 
     m_EditorAssetChanged: 0
-  bNetMode: 0
 --- !u!114 &2286906215338914204
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,7 +79,8 @@ MonoBehaviour:
     NetworkTransport: {fileID: 2286906215338914207}
     PlayerPrefab: {fileID: 0}
     Prefabs:
-      NetworkPrefabsLists: []
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: e8c2d5d218ec9584e8eab3388a578cfc, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
@@ -93,27 +96,7 @@ MonoBehaviour:
     LoadSceneTimeOut: 120
     SpawnTimeout: 1
     EnableNetworkLogs: 1
-    OldPrefabList:
-    - Override: 0
-      Prefab: {fileID: 1128051090849459896, guid: b1e66adbaf6a56c42821e2305b12ca1a, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 4116664224151541053, guid: d02c8001737efa7409618678ba4a61cd, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 3377158847296592743, guid: a5b165c75b5a53441916be05b1d9ce24, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
-    - Override: 0
-      Prefab: {fileID: 6475483853331141897, guid: 0f869a31e66743b4ea2318bcfa2a5fbb, type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
+    OldPrefabList: []
 --- !u!114 &2286906215338914207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -131,8 +114,8 @@ MonoBehaviour:
   m_MaxPayloadSize: 12288
   m_HeartbeatTimeoutMS: 2000
   m_ConnectTimeoutMS: 4000
-  m_MaxConnectAttempts: 240
-  m_DisconnectTimeoutMS: 120000
+  m_MaxConnectAttempts: 24
+  m_DisconnectTimeoutMS: 10000
   ConnectionData:
     Address: 127.0.0.1
     Port: 7777
@@ -154,7 +137,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerName: 
-  networkManager: {fileID: 0}
 --- !u!114 &671335786993086212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,14 +149,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc201744476e3f48a14ddf5a197ab6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefs:
-    password: 
-    boardHalfExtent: 0
-    maxPlayers: 0
-    turnTime: 0
-    reconnectionTime: 0
-  localPlayers: 0
-  networkManager: {fileID: 0}
+  serverPrefs:
+    reconnectionTime: 60
+    maxRemotePlayers: 0
+    maxConnectPayloadSize: 200
+  bNetMode: 0
 --- !u!114 &3210103588677655027
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,13 +168,132 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   preferencesString: Vergalia_Prefs
   progressString: Vergalia_Progress
-  prefs:
-    playerName: 
-    masterVolume: 1
-    musicVolume: 1
-    selectedBoardSkin: 0
-    selectedPawnSkin: 0
   progress:
     availableBoardSkins: 
     availablePawnSkins: 
     coins: 0
+--- !u!114 &-6769323656011417094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2286906215338914200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3ffb4c3decc86624e8e595059b3caff2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &-3424302886095005422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2286906215338914200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 15e7084facab0114e9060d8c5733ef02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fadeMultiplier: 0.012
+  audioSource: {fileID: 8266627559725946270}
+  soundsSO: {fileID: 11400000, guid: 46810e0f233bc084dbf0ec57f499a33b, type: 2}
+  effectsVolume: 1
+  musicVolume: 1
+--- !u!82 &8266627559725946270
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2286906215338914200}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

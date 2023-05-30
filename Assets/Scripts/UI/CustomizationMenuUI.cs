@@ -68,11 +68,13 @@ public class CustomizationMenuUI : MenuBase
 
 		backButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			BackToPreviousMenu();
 		});
 
 		boardLeftButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			skins.GetBoard(selectedBoardIndex).UnloadAll();
 			selectedBoardIndex--;
 
@@ -84,6 +86,7 @@ public class CustomizationMenuUI : MenuBase
 
 		boardRightButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			skins.GetBoard(selectedBoardIndex).UnloadAll();
 			selectedBoardIndex++;
 
@@ -95,6 +98,7 @@ public class CustomizationMenuUI : MenuBase
 
 		boardSelectButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			if (storage.TryBuyOrEquipBoard(boardSkin))
 			{
 				storage.CurrentBoardSkinID = boardSkin.id;
@@ -104,6 +108,7 @@ public class CustomizationMenuUI : MenuBase
 
 		pawnLeftButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			selectedPawnIndex--;
 
 			if (selectedPawnIndex < 0)
@@ -114,6 +119,7 @@ public class CustomizationMenuUI : MenuBase
 
 		pawnRightButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			selectedPawnIndex++;
 
 			if (selectedPawnIndex >= skins.GetPawnSkinsCount())
@@ -124,6 +130,7 @@ public class CustomizationMenuUI : MenuBase
 
 		pawnSelectButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			if (storage.TryBuyOrEquipPawn(pawnSkin))
 			{
 				storage.CurrentPawnSkinID = pawnSkin.id;
@@ -150,6 +157,8 @@ public class CustomizationMenuUI : MenuBase
 	{
 		if (canvas && canvas.worldCamera)
 			canvas.worldCamera.orthographic = bPreviousOrtho;
+
+		GameBase.Instance.skins.ReleaseAll();
 		SpesLogger.Detail("Skins selected: " + storage.CurrentBoardSkinID + " " + storage.CurrentPawnSkinID);
 	}
 

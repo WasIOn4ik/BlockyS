@@ -23,7 +23,6 @@ public class HostMenuUI : MenuBase
 	[Header("SetupSubmenu")]
 	[SerializeField] private Button confirmButton;
 	[SerializeField] private Button backButtonSetup;
-	[SerializeField] private TMP_InputField portInput;
 
 	[SerializeField] private Slider playersCountSlider;
 	[SerializeField] private TMP_Text playersCountText;
@@ -50,29 +49,34 @@ public class HostMenuUI : MenuBase
 
 		backButtonStart.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			BackToPreviousMenu();
 		});
 
 		backButtonSetup.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayBackButtonClick();
 			setupSubmenu.SetActive(false);
 			startSubmenu.SetActive(true);
 		});
 
 		playLocalButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			bNetMode = false;
 			ShowSetupSubMenu();
 		});
 
 		playOnlineButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			bNetMode = true;
 			ShowSetupSubMenu();
 		});
 
 		confirmButton.onClick.AddListener(() =>
 		{
+			SoundManager.Instance.PlayButtonClick();
 			OnConfirmHostClicked();
 		});
 
@@ -107,7 +111,6 @@ public class HostMenuUI : MenuBase
 
 	private void ShowSetupSubMenu()
 	{
-		portInput.gameObject.SetActive(bNetMode);
 		startSubmenu.SetActive(false);
 		setupSubmenu.SetActive(true);
 	}
@@ -148,7 +151,8 @@ public class HostMenuUI : MenuBase
 			SpesLogger.Warning("Game created in netMode");
 			server.SetLocalPlayersCount((int)localPlayersSlider.value);
 			server.SetMaxRemotePlayersCount((int)(playersCountSlider.value - localPlayersSlider.value));
-			server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
+			UnityLobbyService.Instance.CreateLobbyAsync("TestLobby", false);
+			//server.HostGame(portInput.text.Length == 0 ? (ushort)ServerBase.defaultPort : ushort.Parse(portInput.text));
 		}
 		else
 		{

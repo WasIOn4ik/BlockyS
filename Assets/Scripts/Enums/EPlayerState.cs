@@ -1,6 +1,6 @@
 public enum EPlayerState
 {
-    ActivePlayer,
-    Operator,
-    Waiting
+	Active,
+	Inactive,
+	InactiveCameraUnlocked
 }

@@ -145,5 +145,22 @@ public class SkinsLibrarySO : ScriptableObject
 			}
 		});
 	}
+
+	public Task ReleaseAll(Action onRelease = null)
+	{
+		return Task.Run(() =>
+		{
+			foreach (var bs in boardSkins)
+			{
+				bs.UnloadAll();
+			}
+
+			foreach (var ps in pawnSkins)
+			{
+				ps.Unload();
+			}
+		});
+	}
+
 	#endregion
 }

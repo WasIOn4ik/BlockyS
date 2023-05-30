@@ -9,7 +9,7 @@ public struct Preferences
 {
 	public string playerName;
 
-	public float masterVolume;
+	public float effectsVolume;
 	public float musicVolume;
 
 	public int selectedBoardSkin;
@@ -28,11 +28,19 @@ public class GameStorage : MonoBehaviour
 {
 	#region Variables
 
+	public class FloatEventArgs : EventArgs
+	{
+		public float value;
+	}
+
+	public event EventHandler<FloatEventArgs> onMusicVolumeChanged;
+	public event EventHandler<FloatEventArgs> onEffectsVolumeChanged;
+
 	[SerializeField] private string preferencesString;
 
 	[SerializeField] private string progressString;
 
-	private Preferences prefs = new() { masterVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0, playerName = "Guest" };
+	private Preferences prefs = new() { effectsVolume = 1.0f, musicVolume = 1.0f, selectedBoardSkin = 0, selectedPawnSkin = 0, playerName = "Guest" };
 
 	public Progress progress = new() { availableBoardSkins = new(), availablePawnSkins = new(), coins = 0 };
 
@@ -46,8 +54,25 @@ public class GameStorage : MonoBehaviour
 	/// </summary>
 	public int CurrentPawnSkinID { get { return prefs.selectedPawnSkin; } set { prefs.selectedPawnSkin = value; SavePrefs(); } }
 
-	public string PlayerName { get { return prefs.playerName; } set { prefs.playerName = value; SavePrefs(); } }
+	public string PlayerName { get { return prefs.playerName; } set { prefs.playerName = value; } }
 
+	public float MusicVolume
+	{
+		get { return prefs.musicVolume; }
+		set
+		{
+			prefs.musicVolume = value; onMusicVolumeChanged?.Invoke(this, new FloatEventArgs() { value = value });
+		}
+	}
+
+	public float EffectsVolume
+	{
+		get { return prefs.effectsVolume; }
+		set
+		{
+			prefs.effectsVolume = value; onEffectsVolumeChanged?.Invoke(this, new FloatEventArgs() { value = value });
+		}
+	}
 	#endregion
 
 	#region Functions
@@ -60,6 +85,8 @@ public class GameStorage : MonoBehaviour
 			prefs = JsonUtility.FromJson<Preferences>(jsonString);
 			SpesLogger.Detail($"Settings loaded successfully {prefs.selectedPawnSkin}");
 			GameBase.Client.playerName = prefs.playerName;
+			MusicVolume = prefs.musicVolume;
+			EffectsVolume = prefs.effectsVolume;
 			return true;
 		}
 		SavePrefs();
@@ -158,7 +185,7 @@ public class GameStorage : MonoBehaviour
 		if (CheckBoard(skin.id) || skin.cost == 0)
 		{
 			SpesLogger.Detail("Board skin " + skin.name + " selected");
-			if(!progress.availableBoardSkins.Contains(skin.id))
+			if (!progress.availableBoardSkins.Contains(skin.id))
 			{
 				progress.availableBoardSkins.Add(skin.id);
 

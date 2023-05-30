@@ -31,17 +31,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	private void Awake()
 	{
 		inputComp = GetComponent<InputComponent>();
-	}/*
-
-	public override void OnDestroy()
-	{
-		if (cam && cam.transform.parent == transform)
-		{
-			cam.transform.SetParent(null);
-		}
-
-		base.OnDestroy();
-	}*/
+	}
 
 	#endregion
 
@@ -56,19 +46,17 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		if (IsServer)
 		{
 			var info = GetPlayerInfo();
-			info.state = EPlayerState.Operator;
+			info.state = EPlayerState.InactiveCameraUnlocked;
 			SetPlayerInfo(info);
 		}
-		else
+
+		if (IsOwner)
 		{
 			hud = Instantiate(hudPrefab);
 			hud.SetInputComponent(inputComp);
 
 			playerInfo.OnValueChanged += OnPlayerInfoChanged;
-		}
 
-		if (IsOwner)
-		{
 			cam = Camera.main;
 			AllignCamera();
 
@@ -78,7 +66,6 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 			inputComp.SetVectors(transform.forward, transform.right);
 		}
 	}
-
 
 	#endregion
 
@@ -104,7 +91,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	/// <param name="turn"></param>
 	public void EndTurn(Turn turn)
 	{
-		if (GetPlayerInfo().state != EPlayerState.ActivePlayer)
+		if (GetPlayerInfo().state != EPlayerState.Active)
 			return;
 
 		if (IsOwner)
@@ -135,7 +122,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		CameraAnimator.AnimateCamera();
 
 		var info = GetPlayerInfo();
-		info.state = EPlayerState.ActivePlayer;
+		info.state = EPlayerState.Active;
 		SetPlayerInfo(info);
 
 		StartTurnClientRpc();
@@ -188,7 +175,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 		SpesLogger.Deb("Remote player ended turn " + GetPlayerInfo().playerOrder);
 
 		var info = GetPlayerInfo();
-		info.state = EPlayerState.Operator;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 		SetPlayerInfo(info);
 
 		GameplayBase.Instance.S_EndTurn(this, turn);
@@ -201,6 +188,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 
 		if (IsOwner)
 		{
+			hud.UpdateDisplay();
 			inputComp.turnValid += hud.OnTurnValidationChanged;
 
 			if (IsOwner && !bCameraInitialized)
@@ -217,7 +205,7 @@ public class NetworkPlayerController : NetworkBehaviour, IPlayerController
 	[ClientRpc(Delivery = RpcDelivery.Reliable)]
 	private void UpdateTurnClientRpc(int active)
 	{
-		if (!IsServer)
+		if (!IsServer && hud)
 			hud.SetPlayerTurn(active);
 
 		if (IsOwner && !bCameraInitialized)

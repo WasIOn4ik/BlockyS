@@ -87,7 +87,7 @@ public class GameplayBase : NetworkBehaviour
 
 		Instance = this;
 
-		MenuBase.OpenMenu(MenuBase.WAITING_FOR_PLAYERS_MENU, x =>
+		MenuBase.OpenMenu(MenuBase.WAITING_MENU, x =>
 		{
 			waitingMenu = x as WaitingMenuUI;
 			waitingMenu.SetState(WaitingState.Loading);
@@ -103,7 +103,13 @@ public class GameplayBase : NetworkBehaviour
 		}
 
 		if (NetworkManager)
+		{
+			if (NetworkManager.SceneManager != null)
+				NetworkManager.SceneManager.OnLoadEventCompleted -= SceneManager_OnLoadEventCompleted;
+
+			NetworkManager.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
 			NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+		}
 
 		base.OnDestroy();
 	}
@@ -123,6 +129,7 @@ public class GameplayBase : NetworkBehaviour
 		if (IsServer)
 		{
 			NetworkManager.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+			NetworkManager.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
 			activePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
 
 			halfExtent.Value = GameBase.Server.GetGamePrefs().boardHalfExtent;
@@ -168,6 +175,13 @@ public class GameplayBase : NetworkBehaviour
 		}
 	}
 
+	private void NetworkManager_OnClientDisconnectCallback(ulong obj)
+	{
+		GameBase.Server.ClearAll();
+		GameBase.Client.ClearAll();
+		SceneLoader.LoadScene(Scenes.StartupScene);
+	}
+
 	private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
 	{
 		S_SpawnControllers();
@@ -177,6 +191,7 @@ public class GameplayBase : NetworkBehaviour
 	{
 		if (newValue == GameStage.GameActive)
 		{
+			SoundManager.Instance.StartBackgroundMusic(SoundManager.MusicType.GameMusic);
 			waitingMenu.HideMenu();
 		}
 	}
@@ -384,11 +399,11 @@ public class GameplayBase : NetworkBehaviour
 
 		var block = gameboard.blocks[curX, curY];
 
-		if (!gameboard.blocks[x, y].bEmpty)
+		if (gameboard.blocks[x, y].obstacle != ObstacleType.None)
 			return false;
-
-		if (Mathf.Abs(x - curX) + Mathf.Abs(y - curY) > 1)
-			return false;
+		/*
+				if (Mathf.Abs(x - curX) + Mathf.Abs(y - curY) > 1)
+					return false;*/
 
 		if (x > curX)
 		{
@@ -429,7 +444,7 @@ public class GameplayBase : NetworkBehaviour
 		var controller = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController;
 
 		var info = controller.GetPlayerInfo();
-		info.state = EPlayerState.Operator;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 		controller.SetPlayerInfo(info);
 
 		var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
@@ -488,7 +503,7 @@ public class GameplayBase : NetworkBehaviour
 				break;
 		}
 		info.WallCount = wallsCount;
-		info.state = EPlayerState.Waiting;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 
 		player.SetPlayerInfo(info);
 
@@ -505,7 +520,7 @@ public class GameplayBase : NetworkBehaviour
 	/// </summary>
 	/// <param name="playerOrder"></param>
 	/// <returns></returns>
-	private int GetSpawnPositionID(int playerOrder)
+	public static int GetSpawnPositionID(int playerOrder)
 	{
 
 		int max = GameBase.Server.GetMaxPlayersCount();
@@ -558,6 +573,7 @@ public class GameplayBase : NetworkBehaviour
 
 	private void ShowWinMessage(string winner, int coinsValue)
 	{
+		Camera.main?.transform.SetParent(null);
 		winnerStr.Add(winnerNameVariable, new StringVariable { Value = winner });
 		winnerStr.Add(goldVariable, new IntVariable { Value = coinsValue });
 
@@ -573,7 +589,17 @@ public class GameplayBase : NetworkBehaviour
 	{
 		string pureName = winner.Split("_")[0];
 
-		int coinsValue = NetworkManager.Singleton.LocalClientId == clientID ? winGoldAmount : loseGoldAmount;
+		int coinsValue = winGoldAmount;
+
+		if (NetworkManager.Singleton.LocalClientId == clientID)
+		{
+			SoundManager.Instance.PlayWin();
+		}
+		else
+		{
+			SoundManager.Instance.PlayLose();
+			coinsValue = loseGoldAmount;
+		}
 
 		GameBase.Storage.progress.coins += coinsValue;
 

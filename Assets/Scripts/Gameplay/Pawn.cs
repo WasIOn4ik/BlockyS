@@ -80,13 +80,13 @@ public class Pawn : NetworkBehaviour
 			var prevBlock = arr[previousValue.x, previousValue.y];
 			if (prevBlock)
 			{
-				prevBlock.bEmpty = true;
+				prevBlock.obstacle = ObstacleType.None;
 			}
 		}
 		if (newValue.x < arr.GetLength(0) && newValue.y < arr.GetLength(1))
 		{
 			var newBlock = arr[newValue.x, newValue.y];
-			newBlock.bEmpty = false;
+			newBlock.obstacle = ObstacleType.Pawn;
 			HandleAnimation(newBlock);
 		}
 		else
@@ -101,6 +101,7 @@ public class Pawn : NetworkBehaviour
 
 	public void HandleAnimation(BoardBlock newBlock)
 	{
+		SoundManager.Instance.PlayPawnMove();
 		animator.Play(JUMP_ANIMATION);
 		StartCoroutine(Animate(newBlock));
 	}
@@ -165,7 +166,6 @@ public class Pawn : NetworkBehaviour
 	/// </summary>
 	private void OnAnimated()
 	{
-		Debug.Log("OnAnimated_____________________________________________________");
 		CameraAnimator.AnimateCamera();
 	}
 

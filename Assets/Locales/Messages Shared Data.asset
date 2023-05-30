@@ -59,6 +59,10 @@ MonoBehaviour:
     m_Key: Board_Egypt
     m_Metadata:
       m_Items: []
+  - m_Id: 48014350473973760
+    m_Key: Game_Loading
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

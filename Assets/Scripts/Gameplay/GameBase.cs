@@ -2,6 +2,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.Localization.Settings;
 using UnityEngine.AddressableAssets;
+using Unity.Services.Authentication;
 
 [RequireComponent(typeof(ServerBase), typeof(ClientBase), typeof(GameStorage))]
 public class GameBase : MonoBehaviour
@@ -12,8 +13,11 @@ public class GameBase : MonoBehaviour
 	public SkinsLibrarySO skins;
 	public GameRules gameRules;
 	public AssetReference messageMenuAsset;
+	private LoadingScreenUI loadingScreen;
 
 	private MessageUI currentMessageUI;
+
+	public LoadingScreenUI LoadingScreen { get => loadingScreen; set => loadingScreen = value; }
 
 	#endregion
 
@@ -23,6 +27,8 @@ public class GameBase : MonoBehaviour
 	public static ServerBase Server { get; private set; }
 	public static ClientBase Client { get; private set; }
 	public static GameStorage Storage { get; private set; }
+
+	public static LobbyGameSystem Lobby { get; private set; }
 
 	#endregion
 
@@ -45,6 +51,7 @@ public class GameBase : MonoBehaviour
 		Server = GetComponent<ServerBase>();
 		Client = GetComponent<ClientBase>();
 		Storage = GetComponent<GameStorage>();
+		Lobby = GetComponent<LobbyGameSystem>();
 
 		Application.targetFrameRate = 60;
 		Application.quitting += Application_OnQuit;
@@ -73,6 +80,9 @@ public class GameBase : MonoBehaviour
 	{
 		Storage.SaveProgress();
 		Storage.SavePrefs();
+
+		Client.ClearAll();
+		Server.ClearAll();
 	}
 
 	#endregion

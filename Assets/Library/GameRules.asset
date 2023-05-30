@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 717823da340e04d4ba843d6f8973dd4e, type: 3}
   m_Name: GameRules
   m_EditorClassIdentifier: 
-  turnTime: 5
+  turnTime: 15
   cameraAnimationTime: 1.5
-  x5Count: 1
+  x5Count: 15
   x7Count: 25
   x9Count: 42
   cameraHeight: 4
