@@ -29,11 +29,11 @@ public class PlayerCardUI : MonoBehaviour
 
 		hostOnlyContainer.gameObject.SetActive(networkManager.IsServer);
 
-		kickButton.gameObject.SetActive(networkManager.LocalClientId != clientID);
 		kickButton.onClick.AddListener(() =>
 		{
 			SoundManager.Instance.PlayButtonClick();
 			GameBase.Server.KickPlayer(clientID);
+			LobbyGameSystem.Instance.S_UpdateConnected();
 		});
 	}
 
@@ -60,6 +60,8 @@ public class PlayerCardUI : MonoBehaviour
 		{
 			boardSkinText.text = x.Result;
 		};
+
+		kickButton.gameObject.SetActive(networkManager.LocalClientId != clientID);
 	}
 
 	#endregion

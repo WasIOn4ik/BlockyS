@@ -132,6 +132,25 @@ public class LobbyGameSystem : NetworkBehaviour
 
 	#region Functions
 
+	public void S_UpdateConnected()
+	{
+		connectedPlayers.Clear();
+		bool haveLocal = false;
+
+		foreach (var cl in NetworkManager.ConnectedClientsIds)
+		{
+			if (cl == NetworkManager.ServerClientId)
+			{
+				if (haveLocal)
+				{
+					continue;
+				}
+				haveLocal = true;
+			}
+			connectedPlayers.Add(GetDescriptor(cl));
+		}
+	}
+
 	public List<LobbyPlayerDescriptor> GetPlayers()
 	{
 		List<LobbyPlayerDescriptor> list = new List<LobbyPlayerDescriptor>();

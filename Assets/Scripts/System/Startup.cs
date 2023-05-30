@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -17,6 +18,7 @@ public class Startup : MonoBehaviour
 			GameBase.Instance.LoadingScreen.Setup(0, StartMenuMusic);
 			GameBase.Instance.skins.ReleaseAll();
 			MenuBase.OpenMenu(MenuBase.STARTUP_MENU, (x) => { GameBase.Instance.LoadingScreen.Hide(); });
+			NetworkManager.Singleton.Shutdown(true);
 			return;
 		}
 		else

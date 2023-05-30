@@ -37,7 +37,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 
 	private void Awake()
 	{
-		playerInfo.state = EPlayerState.Operator;
+		playerInfo.state = EPlayerState.Inactive;
 		cameraPosition = transform.position;
 		cameraRotation = transform.rotation;
 
@@ -59,6 +59,7 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 	public void TurnTimeout()
 	{
 		GetPlayerInfo().pawn.JumpOnSpot();
+		inputComp.ResetInput();
 	}
 
 	public void StartTurn()
@@ -68,14 +69,14 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		if (previousLocalController)
 		{
 			var linfo = previousLocalController.GetPlayerInfo();
-			linfo.state = EPlayerState.Operator;
+			linfo.state = EPlayerState.Inactive;
 			previousLocalController.SetPlayerInfo(linfo);
 			BoardBlock.ClearCurrentSelection();
 		}
 		previousLocalController = this;
 
 		var info = GetPlayerInfo();
-		info.state = EPlayerState.ActivePlayer;
+		info.state = EPlayerState.Active;
 		SetPlayerInfo(info);
 
 		cam = Camera.main;
@@ -89,7 +90,6 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 		transform.SetPositionAndRotation(pos, cameraRotation);
 
 		hud.SetInputComponent(inputComp);
-		hud.ToDefault();
 		hud.SetWallsCount(GetPlayerInfo().WallCount);
 		inputComp.UpdateTurnValid(false);
 
@@ -118,12 +118,13 @@ public class SinglePlayerController : MonoBehaviour, IPlayerController
 				return;
 			}
 		}
+		inputComp.ResetInput();
 		SpesLogger.Deb($"Local player {GetPlayerInfo().playerOrder} ended turn");
 
 		previousLocalController = this;
 
 		var info = GetPlayerInfo();
-		info.state = EPlayerState.Waiting;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 		SetPlayerInfo(info);
 
 		cameraPosition = transform.position;

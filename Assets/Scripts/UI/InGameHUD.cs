@@ -10,6 +10,14 @@ using UnityEngine.Localization.SmartFormat.PersistentVariables;
 [RequireComponent(typeof(Animator))]
 public class InGameHUD : MonoBehaviour
 {
+	#region Constants
+
+	private const string HIDE_ANIM = "HideConfirmTurn";
+	private const string SHOW_ANIM = "ShowConfirmTurn";
+	private const string WALLS_WARN_ANIM = "WallsCountWarning";
+
+	#endregion
+
 	#region Variables
 
 	[Header("Components")]
@@ -38,6 +46,8 @@ public class InGameHUD : MonoBehaviour
 
 	private float turnTime;
 
+	private bool confirmActive;
+
 	#endregion
 
 	#region UnityCallbacks
@@ -51,7 +61,8 @@ public class InGameHUD : MonoBehaviour
 		confirmTurnButton.onClick.AddListener(() =>
 		{
 			inputComp.ConfirmTurn();
-			animator.Play("HideConfirmTurn");
+			animator.Play(HIDE_ANIM);
+			confirmActive = false;
 		});
 
 		placeMoveButton.onClick.AddListener(() =>
@@ -70,16 +81,17 @@ public class InGameHUD : MonoBehaviour
 		{
 			if (inputComp.controller.GetPlayerInfo().WallCount <= 0)
 			{
-				animator.Play("WallsCountWarning");
+				animator.Play(WALLS_WARN_ANIM);
 				return;
 			}
 		}
 
+		confirmActive = inputComp.GetMoveMode();
+
 		inputComp.SetMoveMode(!inputComp.GetMoveMode());
 
 		UpdateActionButton();
-
-		animator.Play(inputComp.GetMoveMode() ? "HideConfirmTurn" : "ShowConfirmTurn");
+		animator.Play(confirmActive ? SHOW_ANIM : HIDE_ANIM);
 	}
 
 	#endregion
@@ -94,18 +106,19 @@ public class InGameHUD : MonoBehaviour
 	public void SetInputComponent(InputComponent comp)
 	{
 		inputComp = comp;
+		UpdateDisplay();
 	}
 
-	public void ToDefault()
+	public void UpdateDisplay()
 	{
+		inputComp.ResetInput();
+
 		UpdateActionButton();
 
-
-		if (!inputComp.GetMoveMode())
+		if (confirmActive)
 		{
-			inputComp.SetMoveMode(true);
-
-			animator.Play("HideConfirmTurn");
+			animator.Play(HIDE_ANIM);
+			confirmActive = false;
 		}
 	}
 

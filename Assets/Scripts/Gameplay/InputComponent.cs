@@ -12,12 +12,11 @@ public class InputComponent : MonoBehaviour
 	[Header("Components")]
 	[SerializeField] private MonoBehaviour controllerComponent;
 	[SerializeField] private Transform ghostWallVIsualPrefab;
-	[SerializeField] private BoardWall wallPrefab;
 
 	[Header("Preferences")]
 	[SerializeField] private LayerMask moveLayer;
 	[SerializeField] private LayerMask placeLayer;
-	[SerializeField] private float dragThreshold = 5f;
+	[SerializeField] private float dragThreshold = 25f;
 
 	[SerializeField] float displace = 2f;
 
@@ -49,12 +48,12 @@ public class InputComponent : MonoBehaviour
 		controller = controllerComponent as IPlayerController;
 
 		ghostWallVisual = Instantiate(ghostWallVIsualPrefab);
-		ghostWallVisual.gameObject.SetActive(false);
+		ResetInput();
 	}
 
 	private void Update()
 	{
-		if (controller.GetPlayerInfo().state == EPlayerState.Operator)
+		if (controller.GetPlayerInfo().state == EPlayerState.Inactive)
 			return;
 
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -72,7 +71,7 @@ public class InputComponent : MonoBehaviour
 			{
 				bClick = false;
 			}
-			else if (bClick && touch.phase == TouchPhase.Ended && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
+			else if (bClick && touch.phase == TouchPhase.Ended && controller.GetPlayerInfo().state == EPlayerState.Active)
 			{
 				//Pawn moving
 				if (bMoveMode)
@@ -114,7 +113,7 @@ public class InputComponent : MonoBehaviour
 			bClick = false;
 		}
 
-		else if (bClick && Input.GetMouseButtonUp(0) && controller.GetPlayerInfo().state == EPlayerState.ActivePlayer)
+		else if (bClick && Input.GetMouseButtonUp(0) && controller.GetPlayerInfo().state == EPlayerState.Active)
 		{
 			if (bMoveMode)
 			{
@@ -182,6 +181,19 @@ public class InputComponent : MonoBehaviour
 	public bool GetMoveMode()
 	{
 		return bMoveMode;
+	}
+
+	public void ResetInput()
+	{
+		bMoveMode = true;
+
+		ghostWallVisual.gameObject.SetActive(false);
+
+		BoardBlock.ClearCurrentSelection();
+
+		currentPlaceType = ETurnType.PlaceXForward;
+
+		previousClickedPlaceholder = null;
 	}
 
 	private bool TryPlaceWall()

@@ -181,21 +181,21 @@ public class Gameboard
 					}
 					else if (bl.coords.x > bl.coords.y && bl.coords.x < (blocks.GetLength(1) - bl.coords.y - 1)) // The first player
 					{
-						bl.SetSkin(skins[1]);
+						bl.SetSkin(skins[0]);
 					}
 					else if (bl.coords.x >= bl.coords.y && bl.coords.x >= (blocks.GetLength(1) - bl.coords.y - 1)) // The second player
 					{
-						bl.SetSkin(skins[0]);
+						bl.SetSkin(skins[3]);//
 					}
 					else // The third player
 					{
-						bl.SetSkin(skins[3]);
+						bl.SetSkin(skins[1]);
 					}
 				}
 				decors[0].SetBoardSkin(skins[1], 0);
-				decors[1].SetBoardSkin(skins[0], 1);
+				decors[1].SetBoardSkin(skins[3], 1);
 				decors[2].SetBoardSkin(skins[2], 2);
-				decors[3].SetBoardSkin(skins[3], 0);
+				decors[3].SetBoardSkin(skins[0], 0);
 				break;
 
 			default:

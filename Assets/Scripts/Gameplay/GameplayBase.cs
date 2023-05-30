@@ -103,7 +103,13 @@ public class GameplayBase : NetworkBehaviour
 		}
 
 		if (NetworkManager)
+		{
+			if (NetworkManager.SceneManager != null)
+				NetworkManager.SceneManager.OnLoadEventCompleted -= SceneManager_OnLoadEventCompleted;
+
+			NetworkManager.OnClientDisconnectCallback -= NetworkManager_OnClientDisconnectCallback;
 			NetworkManager.OnClientConnectedCallback -= OnClientConnected;
+		}
 
 		base.OnDestroy();
 	}
@@ -123,6 +129,7 @@ public class GameplayBase : NetworkBehaviour
 		if (IsServer)
 		{
 			NetworkManager.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+			NetworkManager.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
 			activePlayer.OnValueChanged += ActivePlayer_OnValueChanged;
 
 			halfExtent.Value = GameBase.Server.GetGamePrefs().boardHalfExtent;
@@ -166,6 +173,13 @@ public class GameplayBase : NetworkBehaviour
 				ReadyServerRpc();
 			});
 		}
+	}
+
+	private void NetworkManager_OnClientDisconnectCallback(ulong obj)
+	{
+		GameBase.Server.ClearAll();
+		GameBase.Client.ClearAll();
+		SceneLoader.LoadScene(Scenes.StartupScene);
 	}
 
 	private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
@@ -385,11 +399,11 @@ public class GameplayBase : NetworkBehaviour
 
 		var block = gameboard.blocks[curX, curY];
 
-		if (!gameboard.blocks[x, y].bEmpty)
+		if (gameboard.blocks[x, y].obstacle != ObstacleType.None)
 			return false;
-
-		if (Mathf.Abs(x - curX) + Mathf.Abs(y - curY) > 1)
-			return false;
+		/*
+				if (Mathf.Abs(x - curX) + Mathf.Abs(y - curY) > 1)
+					return false;*/
 
 		if (x > curX)
 		{
@@ -430,7 +444,7 @@ public class GameplayBase : NetworkBehaviour
 		var controller = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerController;
 
 		var info = controller.GetPlayerInfo();
-		info.state = EPlayerState.Waiting;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 		controller.SetPlayerInfo(info);
 
 		var pawn = GameBase.Server.GetPlayerByOrder(activePlayer.Value).playerPawn;
@@ -489,7 +503,7 @@ public class GameplayBase : NetworkBehaviour
 				break;
 		}
 		info.WallCount = wallsCount;
-		info.state = EPlayerState.Waiting;
+		info.state = EPlayerState.InactiveCameraUnlocked;
 
 		player.SetPlayerInfo(info);
 

@@ -204,6 +204,7 @@ public class ServerBase : MonoBehaviour
 		EnsureShutdown();
 		UpdateConnectionPayload();
 		CreateLocalPlayers();
+		NetworkManager.Singleton.GetComponent<UnityTransport>().SetConnectionData("127.0.0.1", 7777);
 
 		SetupBindings();
 
@@ -221,6 +222,7 @@ public class ServerBase : MonoBehaviour
 
 		var player = GetRemotePlayerByClientID(clientID);
 
+		players.Remove(players.Find(x => { return x.clientID == clientID; }));
 		networkManager.DisconnectClient(player.clientID, "Kicked by server");
 		UnityLobbyService.Instance.KickPlayerAsync(player.playerID);
 	}

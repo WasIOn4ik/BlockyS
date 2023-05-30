@@ -1,5 +1,12 @@
 using UnityEngine;
 
+public enum ObstacleType
+{
+	None,
+	Pawn,
+	Box
+}
+
 public class BoardBlock : MonoBehaviour
 {
 	#region Variables
@@ -15,7 +22,7 @@ public class BoardBlock : MonoBehaviour
 	public BoardBlock mxDir;
 	public BoardBlock mzDir;
 
-	public bool bEmpty = true;
+	public ObstacleType obstacle = ObstacleType.None;
 
 	public bool bHighlighted = false;
 
@@ -62,13 +69,13 @@ public class BoardBlock : MonoBehaviour
 		selectedBlock = this;
 
 		if (xDir)
-			xDir.HighlightSelf();
+			xDir.ChechPawnHighlight();
 		if (zDir)
-			zDir.HighlightSelf();
+			zDir.ChechPawnHighlight();
 		if (mxDir)
-			mxDir.HighlightSelf();
+			mxDir.ChechPawnHighlight();
 		if (mzDir)
-			mzDir.HighlightSelf();
+			mzDir.ChechPawnHighlight();
 	}
 
 	public void SetSkin(int ind)
@@ -98,20 +105,23 @@ public class BoardBlock : MonoBehaviour
 			selectedBlock = null;
 
 		if (xDir)
-			xDir.UnHighlightSelf();
+			xDir.UnhighlightCross();
 		if (zDir)
-			zDir.UnHighlightSelf();
+			zDir.UnhighlightCross();
 		if (mxDir)
-			mxDir.UnHighlightSelf();
+			mxDir.UnhighlightCross();
 		if (mzDir)
-			mzDir.UnHighlightSelf();
+			mzDir.UnhighlightCross();
 	}
 
 	private void HighlightSelf()
 	{
-		bHighlighted = true;
+		if (obstacle == ObstacleType.None)
+		{
+			bHighlighted = true;
 
-		meshRendererComponent.material.color = Color.green;
+			meshRendererComponent.material.color = Color.green;
+		}
 	}
 
 	private void UnHighlightSelf()
@@ -119,6 +129,39 @@ public class BoardBlock : MonoBehaviour
 		bHighlighted = false;
 
 		meshRendererComponent.material.color = color;
+	}
+
+	private void UnhighlightCross()
+	{
+		if (xDir)
+			xDir.UnHighlightSelf();
+		if (zDir)
+			zDir.UnHighlightSelf();
+		if (mxDir)
+			mxDir.UnHighlightSelf();
+		if (mzDir)
+			mzDir.UnHighlightSelf();
+
+		UnHighlightSelf();
+	}
+
+	private void ChechPawnHighlight()
+	{
+		if (obstacle == ObstacleType.Pawn)
+		{
+			if (xDir)
+				xDir.HighlightSelf();
+			if (zDir)
+				zDir.HighlightSelf();
+			if (mxDir)
+				mxDir.HighlightSelf();
+			if (mzDir)
+				mzDir.HighlightSelf();
+		}
+		else
+		{
+			HighlightSelf();
+		}
 	}
 
 	#endregion
